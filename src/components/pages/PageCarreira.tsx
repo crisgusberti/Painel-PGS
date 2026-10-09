@@ -1076,7 +1076,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
                         : 'text-slate-400 hover:text-slate-200'
                     }`}
                   >
-                    Detalhado por Gênero
+                    Detalhado por Categoria
                   </button>
                 </div>
               </div>
@@ -1169,7 +1169,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
                         : 'text-slate-400 hover:text-slate-200'
                     }`}
                   >
-                    Detalhado por Gênero
+                    Detalhado por Categoria
                   </button>
                 </div>
               </div>

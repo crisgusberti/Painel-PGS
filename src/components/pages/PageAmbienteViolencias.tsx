@@ -428,6 +428,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
         altura={460}
         carregando={carregando}
         notaRodape="*Item invertido: para impacto da maternidade na carreira, concordar indica barreira de equidade."
+        infoTitulo="Enunciados Completos das Questões"
         infoTooltip={
           <div className="space-y-3">
             <p className="text-[11px] text-slate-300 leading-relaxed">
@@ -474,44 +475,41 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
           option={optionClimaCampus}
           altura={420}
           carregando={carregando}
+          infoTitulo="Cálculo do Índice de Convivência Institucional"
           infoTooltip={
             <div className="space-y-3">
-              <div className="flex items-center gap-1.5 font-bold text-teal-300 text-xs pb-1.5 border-b border-[#1f2d4e]">
-                <Info className="w-4 h-4 text-teal-400" />
-                <span>Metodologia do Índice de Convivência (0 a 100)</span>
-              </div>
               <p className="text-[11px] text-slate-300 leading-relaxed">
-                O <strong>Índice de Convivência Institucional</strong> sintetiza a percepção geral sobre o clima de respeito, equidade e acolhimento no IFRS, calculado a partir de respostas dos integrantes da instituição:
+                O <strong>Índice de Convivência Institucional</strong> sintetiza a percepção geral sobre o clima de respeito, equidade e acolhimento no IFRS, calculado a partir das respostas válidas de discentes e servidores:
               </p>
-              <div className="space-y-2 bg-[#090f1f] border border-[#1f2d4e] p-2.5 rounded-lg text-[11px]">
+              <div className="space-y-2.5 bg-[#090f1f] border border-[#1f2d4e] p-3 rounded-lg text-[11px]">
                 <div>
-                  <strong className="text-teal-300 block">1. Média das 6 Dimensões Psicométricas (Q24a a Q24f):</strong>
-                  <span className="text-slate-300">
-                    Cada respondente avalia 6 afirmações de 1 (Discordo Totalmente) a 5 (Concordo Totalmente).
-                    O item <strong>Q24d (impacto da maternidade/parentalidade na carreira) é invertido</strong> (6 − nota), pois concordar indica percepção de vulnerabilidade e barreira à equidade.
+                  <strong className="text-teal-300 block mb-0.5">1. Média das 6 Dimensões Psicométricas (Q24a a Q24f):</strong>
+                  <span className="text-slate-300 leading-relaxed">
+                    Cada respondente avalia 6 afirmações em escala Likert de 1 (Discordo Totalmente) a 5 (Concordo Totalmente).
+                    O item <strong>Q24d (impacto da maternidade/parentalidade na carreira) é invertido</strong> matematicamente (6 − nota), pois concordar indica percepção de barreira à equidade.
                   </span>
                 </div>
                 <div>
-                  <strong className="text-teal-300 block">2. Normalização Linear para Escala de 0 a 100:</strong>
-                  <span className="text-slate-300">
-                    A pontuação original (1 a 5) é convertida para 0 a 100 pela fórmula oficial documentada na Metodologia:
+                  <strong className="text-teal-300 block mb-0.5">2. Normalização Linear para Escala de 0 a 100:</strong>
+                  <span className="text-slate-300 leading-relaxed">
+                    A pontuação original (1 a 5) é convertida para a escala de 0 a 100 pela fórmula de interpolação linear:
                   </span>
-                  <div className="my-1.5 p-1 bg-[#0a1224] rounded border border-teal-500/30 font-mono text-[11px] text-teal-200 text-center">
+                  <div className="my-1.5 p-1.5 bg-[#0a1224] rounded border border-teal-500/30 font-mono text-[11px] text-teal-200 text-center font-bold">
                     Índice = ((Média − 1) / 4) × 100
                   </div>
-                  <span className="text-[10px] text-slate-400">
-                    (Ex: Média 1,0 = 0 | Média 3,0 = 50 | Média 5,0 = 100)
+                  <span className="text-[10px] text-slate-400 block text-center">
+                    (Ex.: Média 1,0 = 0 pts | Média 3,0 = 50 pts | Média 5,0 = 100 pts)
                   </span>
                 </div>
                 <div>
-                  <strong className="text-teal-300 block">3. Linha de Média do IFRS ({mediaInstitucionalClima}):</strong>
-                  <span className="text-slate-300">
-                    Representa a média institucional ponderada pelo total de respondentes válidos ({totalNClima.toLocaleString('pt-BR')} participantes). Serve de linha de corte (linha tracejada vermelha) para identificar quais unidades pontuam acima ou abaixo do padrão institucional.
+                  <strong className="text-teal-300 block mb-0.5">3. Média Geral do IFRS ({mediaInstitucionalClima} pts):</strong>
+                  <span className="text-slate-300 leading-relaxed">
+                    Representa a média ponderada de todos os {totalNClima.toLocaleString('pt-BR')} respondentes da instituição que avaliaram o bloco. É exibida no gráfico como linha de referência (baseline tracejada) para identificar quais unidades estão acima ou abaixo do patamar institucional.
                   </span>
                 </div>
               </div>
-              <p className="text-[10px] text-slate-400 border-t border-[#1f2d4e] pt-1">
-                Para detalhes e fórmulas matemáticas, consulte a <strong>Página 8 — Metodologia, Dicionário e Governança</strong>.
+              <p className="text-[10px] text-slate-400 border-t border-[#1f2d4e] pt-1.5">
+                Para detalhes metodológicos completos e fórmulas, consulte a aba <strong>Metodologia</strong> (Seção 4: Construção de Índices e Escalas Normalizadas).
               </p>
             </div>
           }

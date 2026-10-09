@@ -19,6 +19,7 @@ interface ChartCardProps {
   avisoCustomizado?: string;
   elementoCabecalho?: React.ReactNode;
   infoTooltip?: React.ReactNode;
+  infoTitulo?: string;
   tabelaDados?: { cabecalhos: string[]; linhas: (string | number)[][] };
   notaRodape?: string;
 }
@@ -35,12 +36,14 @@ export const ChartCard: React.FC<ChartCardProps> = ({
   avisoCustomizado,
   elementoCabecalho,
   infoTooltip,
+  infoTitulo,
   tabelaDados,
   notaRodape,
 }) => {
   const chartRef = useRef<any>(null);
   const [mostrarTabela, setMostrarTabela] = useState(false);
   const [mostrarInfo, setMostrarInfo] = useState(false);
+  const rotuloInfo = infoTitulo || 'Informações e Metodologia';
 
   // Garantir redimensionamento correto do ECharts quando os dados mudam ou a tela é redimensionada
   useEffect(() => {
@@ -94,8 +97,8 @@ export const ChartCard: React.FC<ChartCardProps> = ({
                   <button
                     type="button"
                     onClick={() => setMostrarInfo(!mostrarInfo)}
-                    title="Ver enunciados completos das questões"
-                    aria-label="Ver enunciados completos das questões"
+                    title={rotuloInfo}
+                    aria-label={rotuloInfo}
                     className={`p-1 rounded-full border transition-all ${
                       mostrarInfo
                         ? 'bg-teal-500/20 text-teal-300 border-teal-500/60 shadow-xs'
@@ -114,7 +117,7 @@ export const ChartCard: React.FC<ChartCardProps> = ({
                       <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#1f2d4e]">
                         <span className="font-bold text-teal-300 text-xs flex items-center gap-1.5">
                           <Info className="w-3.5 h-3.5 text-teal-400" />
-                          Enunciado Completo das Questões
+                          {rotuloInfo}
                         </span>
                         <button
                           type="button"
