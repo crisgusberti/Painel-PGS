@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { ChartCard } from '../ChartCard';
 import { KpiCard } from '../KpiCard';
-import { Cpu, Users, GraduationCap, AlertCircle } from 'lucide-react';
+import { Cpu, Users, GraduationCap, AlertCircle, Search, Filter } from 'lucide-react';
 import { PALETA_ACESSIVEL } from '../../lib/chartTheme';
 import { formatarNumero, formatarPercentual } from '../../lib/formatters';
 
@@ -19,6 +19,38 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
   const ranking = dados?.areas_ranking_mulheres || [];
   const desencorajamento = dados?.desencorajamento_stem || {};
   const cobertura = dados?.cobertura || [];
+
+  // Filtros internos da tabela de auditoria
+  const [filtroStatus, setFiltroStatus] = useState<'todos' | 'nao_classificada' | 'padronizada'>('todos');
+  const [buscaTexto, setBuscaTexto] = useState<string>('');
+
+  const coberturaFiltrada = useMemo(() => {
+    return (cobertura as any[]).filter((row) => {
+      const matchStatus =
+        filtroStatus === 'todos'
+          ? true
+          : filtroStatus === 'nao_classificada'
+          ? row.grandeArea === 'Não classificada'
+          : row.grandeArea !== 'Não classificada';
+
+      const matchBusca =
+        !buscaTexto ||
+        String(row.textoOriginal || '').toLowerCase().includes(buscaTexto.toLowerCase()) ||
+        String(row.grandeArea || '').toLowerCase().includes(buscaTexto.toLowerCase());
+
+      return matchStatus && matchBusca;
+    });
+  }, [cobertura, filtroStatus, buscaTexto]);
+
+  const totalRespondentesCobertura = useMemo(() => {
+    return coberturaFiltrada.reduce((acc, r) => acc + Number(r.n || 0), 0);
+  }, [coberturaFiltrada]);
+
+  const totalNaoClassificadosGeral = useMemo(() => {
+    return (cobertura as any[])
+      .filter((r) => r.grandeArea === 'Não classificada')
+      .reduce((acc, r) => acc + Number(r.n || 0), 0);
+  }, [cobertura]);
 
   // Opção ECharts: Participação Feminina por Grande Área Ordenada
   const optionRankingMulheres = {
@@ -159,19 +191,85 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
       </div>
 
       {/* Tabela de Auditoria e Cobertura da Normalização */}
-      <div className="bg-[#131d36] rounded-xl border border-[#223154] shadow-sm p-5">
-        <div className="mb-4">
-          <h3 className="text-base font-bold text-slate-100">
-            Tabela de Auditoria e Cobertura da Normalização de Áreas
-          </h3>
-          <p className="text-xs text-slate-400">
-            Mapeamento dos textos declarados pelos respondentes para as Grandes Áreas oficiais do CNPq.
-          </p>
+      <div className="bg-[#131d36] rounded-xl border border-[#223154] shadow-sm p-5 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 className="text-base font-bold text-slate-100">
+              Tabela de Auditoria e Cobertura da Normalização de Áreas
+            </h3>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Mapeamento de todos os {cobertura.length} termos declarados no formulário para as Grandes Áreas CNPq ({totalNaoClassificadosGeral} respondentes em 19 termos não classificados).
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] bg-[#0e162b] border border-[#223154] text-slate-300 px-2.5 py-1 rounded-lg">
+              {coberturaFiltrada.length} de {cobertura.length} termos • {formatarNumero(totalRespondentesCobertura)} respondentes
+            </span>
+          </div>
         </div>
 
-        <div className="overflow-x-auto max-h-80">
-          <table className="w-full text-left text-xs border border-[#223154] rounded-lg">
-            <thead className="bg-[#0e162b] text-slate-200 font-semibold border-b border-[#223154] sticky top-0">
+        {/* Barra de Filtros e Busca */}
+        <div className="p-3 rounded-lg bg-[#0e162b] border border-[#223154] flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs text-teal-400 font-semibold flex items-center gap-1">
+              <Filter className="w-3.5 h-3.5" />
+              Filtrar:
+            </span>
+
+            <div className="inline-flex items-center p-0.5 rounded-lg bg-[#131d36] border border-[#223154] text-xs">
+              <button
+                type="button"
+                onClick={() => setFiltroStatus('todos')}
+                className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
+                  filtroStatus === 'todos'
+                    ? 'bg-teal-500 text-slate-950 shadow-xs'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                Todos ({cobertura.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setFiltroStatus('nao_classificada')}
+                className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
+                  filtroStatus === 'nao_classificada'
+                    ? 'bg-rose-500 text-slate-950 shadow-xs'
+                    : 'text-slate-400 hover:text-rose-300'
+                }`}
+              >
+                Não classificadas ({totalNaoClassificadosGeral} resp.)
+              </button>
+              <button
+                type="button"
+                onClick={() => setFiltroStatus('padronizada')}
+                className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
+                  filtroStatus === 'padronizada'
+                    ? 'bg-emerald-500 text-slate-950 shadow-xs'
+                    : 'text-slate-400 hover:text-emerald-300'
+                }`}
+              >
+                Padronizadas
+              </button>
+            </div>
+          </div>
+
+          {/* Campo de Busca Rápida */}
+          <div className="relative min-w-[200px]">
+            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              value={buscaTexto}
+              onChange={(e) => setBuscaTexto(e.target.value)}
+              placeholder="Buscar termo ou área..."
+              className="w-full bg-[#131d36] border border-[#2b3e6c] rounded-md pl-8 pr-3 py-1 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-teal-500"
+            />
+          </div>
+        </div>
+
+        <div className="overflow-x-auto max-h-96 rounded-lg border border-[#223154]">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead className="bg-[#0e162b] text-slate-200 font-semibold border-b border-[#223154] sticky top-0 z-10">
               <tr>
                 <th className="px-3 py-2.5">Texto Declarado no Formulário</th>
                 <th className="px-3 py-2.5">Grande Área Atribuída (CNPq)</th>
@@ -180,24 +278,32 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1f2d4e]">
-              {cobertura.slice(0, 50).map((row: any, idx: number) => (
-                <tr key={idx} className="hover:bg-[#1a2647] transition-colors">
-                  <td className="px-3 py-2 font-mono text-slate-300 text-[11px]">{row.textoOriginal}</td>
-                  <td className="px-3 py-2 font-medium text-teal-300">{row.grandeArea}</td>
-                  <td className="px-3 py-2 text-slate-300">{formatarNumero(row.n)}</td>
-                  <td className="px-3 py-2">
-                    {row.grandeArea === 'Não classificada' ? (
-                      <span className="text-[10px] bg-rose-950/60 border border-rose-800/60 text-rose-300 px-2 py-0.5 rounded font-medium">
-                        Não classificada
-                      </span>
-                    ) : (
-                      <span className="text-[10px] bg-emerald-950/60 border border-emerald-800/60 text-emerald-300 px-2 py-0.5 rounded font-medium">
-                        Padronizada
-                      </span>
-                    )}
+              {coberturaFiltrada.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-4 py-8 text-center text-slate-400">
+                    Nenhum termo encontrado com os filtros aplicados.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                coberturaFiltrada.map((row: any, idx: number) => (
+                  <tr key={idx} className="hover:bg-[#1a2647] transition-colors">
+                    <td className="px-3 py-2 font-mono text-slate-300 text-[11px]">{row.textoOriginal}</td>
+                    <td className="px-3 py-2 font-medium text-teal-300">{row.grandeArea}</td>
+                    <td className="px-3 py-2 text-slate-300">{formatarNumero(row.n)}</td>
+                    <td className="px-3 py-2">
+                      {row.grandeArea === 'Não classificada' ? (
+                        <span className="text-[10px] bg-rose-950/60 border border-rose-800/60 text-rose-300 px-2 py-0.5 rounded font-medium">
+                          Não classificada
+                        </span>
+                      ) : (
+                        <span className="text-[10px] bg-emerald-950/60 border border-emerald-800/60 text-emerald-300 px-2 py-0.5 rounded font-medium">
+                          Padronizada
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

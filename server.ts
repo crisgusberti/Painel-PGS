@@ -239,6 +239,11 @@ async function startServer() {
   });
 }
 
-startServer().catch((err) => {
-  console.error('Falha ao iniciar o servidor:', err);
-});
+export default app;
+export { app };
+
+if (!process.env.VERCEL) {
+  startServer().catch((err) => {
+    console.error('Falha ao iniciar o servidor:', err);
+  });
+}

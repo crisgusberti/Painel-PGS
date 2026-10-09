@@ -103,10 +103,12 @@ export const PageConstrutor: React.FC = () => {
       // Sugestão inteligente de gráfico baseado nos dados e parâmetros
       if (eixo2) {
         setTipoVisualizacao('heatmap');
-      } else if (campoCor) {
-        setTipoVisualizacao('barra_empilhada');
-      } else {
-        setTipoVisualizacao('barra');
+      } else if (tipoVisualizacao !== 'rosca') {
+        if (campoCor) {
+          setTipoVisualizacao('barra_empilhada');
+        } else {
+          setTipoVisualizacao('barra');
+        }
       }
     } catch (err: any) {
       setErro(err.message || String(err));
@@ -237,23 +239,120 @@ export const PageConstrutor: React.FC = () => {
       };
     }
 
-    if (tipoVisualizacao === 'rosca' && categoriasEixo1.length <= 10) {
+    if (tipoVisualizacao === 'rosca') {
+      // Determinar dados para a rosca
+      let dadosRosca: Array<{ name: string; value: number; n?: number }> = [];
+
+      if (campoCor && seriesCores.length > 1) {
+        if (linhas.length <= 10) {
+          dadosRosca = linhas.map((l) => ({
+            name: `${l.eixo_1} • ${l.cor}`,
+            value: Number(l.valor) || Number(l.n) || 0,
+            n: Number(l.n) || 0,
+          }));
+        } else {
+          // Agregar por série de cor
+          dadosRosca = seriesCores.map((corName) => {
+            const linhasCor = linhas.filter((l) => (l.cor || 'Total') === corName);
+            const somaN = linhasCor.reduce((acc, l) => acc + (Number(l.n) || 0), 0);
+            const somaValor = tipoMedida === 'percentual_no_grupo'
+              ? somaN
+              : linhasCor.reduce((acc, l) => acc + (Number(l.valor) || 0), 0);
+            return {
+              name: corName,
+              value: Number(somaValor.toFixed(1)),
+              n: somaN,
+            };
+          });
+        }
+      } else {
+        // Agrupar pelas categorias do Eixo 1
+        dadosRosca = categoriasEixo1.map((cat) => {
+          const linhasCat = linhas.filter((l) => (l.eixo_1 || 'Sem resposta') === cat);
+          const somaN = linhasCat.reduce((acc, l) => acc + (Number(l.n) || 0), 0);
+          const somaValor = tipoMedida === 'percentual_no_grupo'
+            ? somaN
+            : linhasCat.reduce((acc, l) => acc + (Number(l.valor) || 0), 0);
+          return {
+            name: cat,
+            value: Number(somaValor.toFixed(1)),
+            n: somaN,
+          };
+        });
+      }
+
+      // Ordenar por valor decrescente
+      dadosRosca.sort((a, b) => b.value - a.value);
+
+      // Se houver mais de 10 categorias, agrupar as menores em "Outros" para legibilidade
+      let dadosFinais = dadosRosca;
+      if (dadosRosca.length > 10) {
+        const top9 = dadosRosca.slice(0, 9);
+        const restantes = dadosRosca.slice(9);
+        const somaRestantes = restantes.reduce((acc, d) => acc + d.value, 0);
+        const somaNRestantes = restantes.reduce((acc, d) => acc + (d.n || 0), 0);
+        dadosFinais = [
+          ...top9,
+          {
+            name: `Outras (${restantes.length} categorias)`,
+            value: Number(somaRestantes.toFixed(1)),
+            n: somaNRestantes,
+          },
+        ];
+      }
+
       return {
+        color: PALETA_ACESSIVEL,
         tooltip: {
           trigger: 'item',
-          formatter: (p: any) =>
-            `<div class="font-bold">${p.name}</div><div class="text-xs mt-1">Valor: <strong>${p.value}</strong> (${p.percent}%)</div>`,
+          backgroundColor: '#0e162b',
+          borderColor: '#223154',
+          textStyle: { color: '#f1f5f9' },
+          formatter: (p: any) => {
+            const item = dadosFinais.find((d) => d.name === p.name);
+            const nInfo = item?.n ? ` <span style="color:#94a3b8;">(n = ${formatarNumero(item.n)})</span>` : '';
+            return `<div style="font-weight:600;color:#f1f5f9;">${p.name}</div>
+              <div style="font-size:12px;margin-top:4px;color:#cbd5e1;">
+                Valor: <strong style="color:#2dd4bf;">${p.value}${tipoMedida.includes('percentual') && tipoMedida !== 'percentual_no_grupo' ? '%' : ''}</strong>
+                <span style="color:#38bdf8;font-weight:600;margin-left:6px;">(${p.percent}%)</span>${nInfo}
+              </div>`;
+          },
         },
-        legend: { bottom: 0 },
+        legend: {
+          type: 'scroll',
+          orient: 'horizontal',
+          bottom: 4,
+          textStyle: { fontSize: 11, color: '#cbd5e1' },
+          pageTextStyle: { color: '#cbd5e1' },
+          pageIconColor: '#2dd4bf',
+          pageIconInactiveColor: '#475569',
+        },
         series: [
           {
+            name: labelEixo1,
             type: 'pie',
-            radius: ['40%', '70%'],
-            color: PALETA_ACESSIVEL,
-            data: categoriasEixo1.map((cat) => {
-              const match = linhas.find((l) => l.eixo_1 === cat);
-              return { name: cat, value: match ? match.valor : 0 };
-            }),
+            radius: ['42%', '70%'],
+            center: ['50%', '45%'],
+            avoidLabelOverlap: true,
+            itemStyle: {
+              borderRadius: 6,
+              borderColor: '#0e162b',
+              borderWidth: 2,
+            },
+            label: {
+              show: true,
+              formatter: '{b}: {d}%',
+              color: '#e2e8f0',
+              fontSize: 11,
+            },
+            labelLine: {
+              show: true,
+              smooth: 0.2,
+              length: 10,
+              length2: 15,
+              lineStyle: { color: '#475569' },
+            },
+            data: dadosFinais,
           },
         ],
       };
@@ -316,7 +415,7 @@ export const PageConstrutor: React.FC = () => {
           </div>
           <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
             Configure dimensões, séries e métricas em tempo real. O sistema consulta diretamente o banco de
-            dados de forma segura e otimizada.
+            dados e retorna os resultados.
           </p>
         </div>
 
@@ -449,7 +548,7 @@ export const PageConstrutor: React.FC = () => {
           {/* Seção de Salvar / Restaurar Painéis */}
           <div className="bg-[#131d36] border border-[#223154] rounded-xl p-4 space-y-3">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-300 block">
-              Salvar Visão no Navegador (localStorage)
+              Salvar Visão no Navegador
             </span>
             <div className="flex gap-2">
               <input

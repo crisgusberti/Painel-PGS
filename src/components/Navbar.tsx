@@ -84,8 +84,26 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3">
         {/* Identidade Institucional */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-linear-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white font-extrabold shadow-sm shrink-0">
-            IF
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0c1a30] to-[#081224] border border-teal-500/40 p-2 flex items-center justify-center shadow-md shadow-teal-950/40 shrink-0 group hover:border-teal-400 hover:scale-105 transition-all">
+            <svg
+              viewBox="0 0 32 32"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-full h-full drop-shadow-[0_0_8px_rgba(20,184,166,0.35)]"
+              aria-label="Logo Instituto Federal"
+            >
+              {/* Coluna 1 */}
+              <rect x="2" y="2" width="7" height="7" rx="1.8" fill="#10b981" />
+              <rect x="2" y="12.5" width="7" height="7" rx="1.8" fill="#10b981" />
+              <rect x="2" y="23" width="7" height="7" rx="1.8" fill="#10b981" />
+              {/* Coluna 2 */}
+              <circle cx="16" cy="5.5" r="3.8" fill="#ef4444" />
+              <rect x="12.5" y="12.5" width="7" height="7" rx="1.8" fill="#10b981" />
+              <rect x="12.5" y="23" width="7" height="7" rx="1.8" fill="#10b981" />
+              {/* Coluna 3 */}
+              <rect x="23" y="2" width="7" height="7" rx="1.8" fill="#10b981" />
+              <rect x="23" y="12.5" width="7" height="7" rx="1.8" fill="#10b981" />
+            </svg>
           </div>
           <div>
             <div className="flex items-center gap-2">

@@ -907,20 +907,31 @@ export async function obterDadosCuidado(filtros?: FiltrosGlobaisState) {
     GROUP BY politica_apoio_cuidado, campus
   `;
 
-  // 3. Licenças Q31, Q32 e apoio a pais estudantes Q33
+  // 3. Licenças Q31, Q32 e apoio a pais estudantes Q33 (com recorte por gênero e segmento)
+  const sqlLicencaSegmento = (coluna: string) => `
+    SELECT
+      ${coluna} as resposta,
+      CASE
+        WHEN genero ILIKE '%mulher%' THEN 'mulheres'
+        WHEN genero ILIKE '%homem%' THEN 'homens'
+        ELSE 'outros'
+      END as genero_grp,
+      CASE
+        WHEN cargo ILIKE '%Docente%' THEN 'docentes'
+        WHEN cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
+        ELSE 'outro'
+      END as segmento,
+      count(*)::int as n
+    FROM public.respostas_pgs
+    ${whereComAnd(whereSql, `${coluna} IS NOT NULL`)}
+    GROUP BY ${coluna}, genero_grp, segmento
+    ORDER BY n DESC
+  `;
+
   const [resLicMaternidade, resLicPaternidade, resApoioPais] = await Promise.all([
-    pool.query(
-      `SELECT licenca_maternidade_suficiente as resposta, count(*)::int as n FROM public.respostas_pgs ${whereComAnd(whereSql, 'licenca_maternidade_suficiente IS NOT NULL')} GROUP BY resposta ORDER BY n DESC`,
-      params
-    ),
-    pool.query(
-      `SELECT licenca_paternidade_suficiente as resposta, count(*)::int as n FROM public.respostas_pgs ${whereComAnd(whereSql, 'licenca_paternidade_suficiente IS NOT NULL')} GROUP BY resposta ORDER BY n DESC`,
-      params
-    ),
-    pool.query(
-      `SELECT apoio_pais_estudantes_suficiente as resposta, count(*)::int as n FROM public.respostas_pgs ${whereComAnd(whereSql, 'apoio_pais_estudantes_suficiente IS NOT NULL')} GROUP BY resposta ORDER BY n DESC`,
-      params
-    ),
+    pool.query(sqlLicencaSegmento('licenca_maternidade_suficiente'), params),
+    pool.query(sqlLicencaSegmento('licenca_paternidade_suficiente'), params),
+    pool.query(sqlLicencaSegmento('apoio_pais_estudantes_suficiente'), params),
   ]);
 
   // 4. Maternidade como impacto na carreira Q24d (invertido)
