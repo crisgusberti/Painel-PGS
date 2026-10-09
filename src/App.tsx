@@ -34,11 +34,13 @@ export default function App() {
   const [dadosStem, setDadosStem] = useState<any>(null);
 
   const [carregando, setCarregando] = useState<boolean>(false);
+  const [erroCarregamento, setErroCarregamento] = useState<string | null>(null);
   const [nFiltrado, setNFiltrado] = useState<number>(4878);
 
   // Carregar dados de acordo com a aba ativa e os filtros
   const carregarDadosAba = async (aba: string, filtrosAtuais: FiltrosGlobaisState) => {
     setCarregando(true);
+    setErroCarregamento(null);
     try {
       const endpoints: Record<string, string> = {
         visao_geral: '/api/visao-geral',
@@ -64,6 +66,7 @@ export default function App() {
 
         if (res.ok) {
           const json = await res.json();
+          setErroCarregamento(null);
           if (aba === 'visao_geral') {
             setDadosVisaoGeral(json);
             if (json.n_filtrado !== undefined) setNFiltrado(json.n_filtrado);
@@ -81,10 +84,15 @@ export default function App() {
           } else if (aba === 'stem') {
             setDadosStem(json);
           }
+        } else {
+          setErroCarregamento(
+            `Erro ${res.status}: Não foi possível carregar os dados desta seção do servidor.`
+          );
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Erro ao buscar dados da aba:', err);
+      setErroCarregamento('Erro de conexão ao comunicar com a API do servidor.');
     } finally {
       setCarregando(false);
     }
@@ -132,6 +140,21 @@ export default function App() {
 
       {/* Conteúdo Principal */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {erroCarregamento && (
+          <div className="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-3 text-amber-200">
+            <div className="flex items-center gap-3">
+              <span className="text-xl">⚠️</span>
+              <span className="text-sm">{erroCarregamento}</span>
+            </div>
+            <button
+              onClick={() => carregarDadosAba(abaAtiva, filtros)}
+              className="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-100 text-xs font-semibold transition-colors"
+            >
+              Tentar novamente
+            </button>
+          </div>
+        )}
+
         {abaAtiva === 'visao_geral' && (
           <PageVisaoGeral
             dados={dadosVisaoGeral}
