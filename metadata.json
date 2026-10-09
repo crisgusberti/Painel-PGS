@@ -1,0 +1,6 @@
+{
+  "name": "Painel de Indicadores de Igualdade de Gênero e Diversidade no IFRS",
+  "description": "Painel de Indicadores de Igualdade de Gênero e Diversidade no IFRS",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
