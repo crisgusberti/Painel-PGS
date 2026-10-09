@@ -6,3 +6,9 @@ coverage/
 *.log
 .env*
 !.env.example
+*.sql
+*.dump
+*.pem
+*.key
+config-*.json
+cpa-config-json/

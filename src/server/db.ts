@@ -8,14 +8,16 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const connectionString =
-  process.env.DATABASE_URL ||
-  'postgresql://postgres.clgxxutckeftsqpvzjcx:smqn7TNGDJ_w!8a@aws-1-sa-east-1.pooler.supabase.com:6543/postgres';
+const connectionString = process.env.DATABASE_URL;
 
 let poolInstance: pg.Pool | null = null;
 
 export function getDbPool(): pg.Pool {
   if (!poolInstance) {
+    if (!connectionString) {
+      throw new Error('A variável de ambiente DATABASE_URL não está configurada.');
+    }
+
     poolInstance = new pg.Pool({
       connectionString,
       ssl: {
@@ -38,11 +40,14 @@ export function getDbPool(): pg.Pool {
 
 export async function testDbConnection(): Promise<{ ok: boolean; count?: number; error?: string }> {
   try {
+    if (!connectionString) {
+      return { ok: false, error: 'Variável de ambiente DATABASE_URL não configurada no servidor.' };
+    }
     const pool = getDbPool();
     const result = await pool.query('SELECT count(*)::int as total FROM public.respostas_pgs');
     return { ok: true, count: result.rows[0]?.total ?? 0 };
   } catch (err: any) {
     console.error('Falha ao conectar no banco Supabase:', err);
-    return { ok: false, error: err?.message || String(err) };
+    return { ok: false, error: 'Falha de comunicação com o banco de dados.' };
   }
 }

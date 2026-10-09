@@ -19,12 +19,55 @@ import {
 
 const app = express();
 
+// 1. Ocultar cabeçalho do servidor Express para dificultar fingerprinting tecnológico
+app.disable('x-powered-by');
+
+// 2. Proteção estrita contra vazamento de arquivos ocultos e de versionamento (.git, .env, .htaccess, etc.)
+app.use((req, res, next) => {
+  let decodedPath = req.path;
+  try {
+    decodedPath = decodeURIComponent(req.path);
+  } catch {
+    res.status(400).send('Bad Request');
+    return;
+  }
+
+  // Se a rota contiver qualquer segmento oculto (iniciado por ponto), bloqueia imediatamente
+  if (/(?:^|\/)\.[a-zA-Z0-9]/.test(decodedPath)) {
+    res.status(404).send('Not Found');
+    return;
+  }
+  next();
+});
+
+// 3. Cabeçalhos de Segurança HTTP (Defense-in-Depth / OWASP)
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  next();
+});
+
 app.use(express.json({ limit: '1mb' }));
 
-// Middleware de Limite de Requisições por IP
+// Middleware de Limite de Requisições por IP com limpeza periódica de memória
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_MAX = 120;
 const RATE_LIMIT_WINDOW = 60 * 1000;
+
+// Limpeza de IPs expirados a cada 5 minutos para evitar acúmulo de memória
+if (typeof setInterval !== 'undefined') {
+  setInterval(() => {
+    const now = Date.now();
+    for (const [ip, item] of rateLimitMap.entries()) {
+      if (now > item.resetTime) {
+        rateLimitMap.delete(ip);
+      }
+    }
+  }, 5 * 60 * 1000).unref?.();
+}
 
 function rateLimiter(req: Request, res: Response, next: NextFunction) {
   const ip = req.ip || req.socket.remoteAddress || 'unknown';
@@ -117,7 +160,8 @@ apiRouter.get('/filtros-opcoes', async (_req: Request, res: Response) => {
 
     res.json(opcoesFiltrosCache);
   } catch (err: any) {
-    res.status(500).json({ error: 'Erro ao buscar opções de filtros', detalhe: err.message });
+    console.error('Erro ao buscar opções de filtros:', err);
+    res.status(500).json({ error: 'Erro ao carregar opções de filtros' });
   }
 });
 
@@ -139,7 +183,6 @@ apiRouter.post('/consulta', async (req: Request, res: Response) => {
     console.error('Erro na rota /api/consulta:', err);
     res.status(500).json({
       erro: 'Não foi possível processar a consulta.',
-      mensagem: err?.message || 'Erro interno do servidor',
     });
   }
 });
@@ -150,7 +193,8 @@ apiRouter.post('/visao-geral', async (req: Request, res: Response) => {
     const dados = await obterKpisVisaoGeral(req.body.filtros);
     res.json(dados);
   } catch (err: any) {
-    res.status(500).json({ erro: 'Erro ao carregar dados de visão geral', mensagem: err.message });
+    console.error('Erro na rota /api/visao-geral:', err);
+    res.status(500).json({ erro: 'Erro ao carregar dados de visão geral' });
   }
 });
 
@@ -159,7 +203,8 @@ apiRouter.post('/perfil', async (req: Request, res: Response) => {
     const dados = await obterDadosPerfil(req.body.filtros);
     res.json(dados);
   } catch (err: any) {
-    res.status(500).json({ erro: 'Erro ao carregar perfil', mensagem: err.message });
+    console.error('Erro na rota /api/perfil:', err);
+    res.status(500).json({ erro: 'Erro ao carregar perfil' });
   }
 });
 
@@ -168,7 +213,8 @@ apiRouter.post('/carreira', async (req: Request, res: Response) => {
     const dados = await obterDadosCarreira(req.body.filtros);
     res.json(dados);
   } catch (err: any) {
-    res.status(500).json({ erro: 'Erro ao carregar carreira', mensagem: err.message });
+    console.error('Erro na rota /api/carreira:', err);
+    res.status(500).json({ erro: 'Erro ao carregar carreira' });
   }
 });
 
@@ -177,7 +223,8 @@ apiRouter.post('/ambiente-violencias', async (req: Request, res: Response) => {
     const dados = await obterDadosAmbienteViolencias(req.body.filtros);
     res.json(dados);
   } catch (err: any) {
-    res.status(500).json({ erro: 'Erro ao carregar ambiente e violências', mensagem: err.message });
+    console.error('Erro na rota /api/ambiente-violencias:', err);
+    res.status(500).json({ erro: 'Erro ao carregar ambiente e violências' });
   }
 });
 
@@ -186,7 +233,8 @@ apiRouter.post('/nucleos', async (req: Request, res: Response) => {
     const dados = await obterDadosNucleos(req.body.filtros);
     res.json(dados);
   } catch (err: any) {
-    res.status(500).json({ erro: 'Erro ao carregar núcleos', mensagem: err.message });
+    console.error('Erro na rota /api/nucleos:', err);
+    res.status(500).json({ erro: 'Erro ao carregar núcleos' });
   }
 });
 
@@ -195,7 +243,8 @@ apiRouter.post('/cuidado', async (req: Request, res: Response) => {
     const dados = await obterDadosCuidado(req.body.filtros);
     res.json(dados);
   } catch (err: any) {
-    res.status(500).json({ erro: 'Erro ao carregar dados de cuidado', mensagem: err.message });
+    console.error('Erro na rota /api/cuidado:', err);
+    res.status(500).json({ erro: 'Erro ao carregar dados de cuidado' });
   }
 });
 
@@ -204,7 +253,8 @@ apiRouter.post('/stem', async (req: Request, res: Response) => {
     const dados = await obterDadosStem(req.body.filtros);
     res.json(dados);
   } catch (err: any) {
-    res.status(500).json({ erro: 'Erro ao carregar dados de STEM', mensagem: err.message });
+    console.error('Erro na rota /api/stem:', err);
+    res.status(500).json({ erro: 'Erro ao carregar dados de STEM' });
   }
 });
 

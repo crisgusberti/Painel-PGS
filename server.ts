@@ -28,7 +28,12 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    app.use((await import('express')).default.static(path.resolve(__dirname, 'dist')));
+    app.use(
+      (await import('express')).default.static(path.resolve(__dirname, 'dist'), {
+        dotfiles: 'ignore',
+        index: false,
+      })
+    );
     app.get('*', (_req, res) => {
       res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
     });

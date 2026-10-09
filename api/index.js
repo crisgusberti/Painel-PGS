@@ -5,10 +5,13 @@ import express from "express";
 import pg from "pg";
 import dotenv from "dotenv";
 dotenv.config();
-var connectionString = process.env.DATABASE_URL || "postgresql://postgres.clgxxutckeftsqpvzjcx:smqn7TNGDJ_w!8a@aws-1-sa-east-1.pooler.supabase.com:6543/postgres";
+var connectionString = process.env.DATABASE_URL;
 var poolInstance = null;
 function getDbPool() {
   if (!poolInstance) {
+    if (!connectionString) {
+      throw new Error("A vari\xE1vel de ambiente DATABASE_URL n\xE3o est\xE1 configurada.");
+    }
     poolInstance = new pg.Pool({
       connectionString,
       ssl: {
@@ -29,12 +32,15 @@ function getDbPool() {
 }
 async function testDbConnection() {
   try {
+    if (!connectionString) {
+      return { ok: false, error: "Vari\xE1vel de ambiente DATABASE_URL n\xE3o configurada no servidor." };
+    }
     const pool = getDbPool();
     const result = await pool.query("SELECT count(*)::int as total FROM public.respostas_pgs");
     return { ok: true, count: result.rows[0]?.total ?? 0 };
   } catch (err) {
     console.error("Falha ao conectar no banco Supabase:", err);
-    return { ok: false, error: err?.message || String(err) };
+    return { ok: false, error: "Falha de comunica\xE7\xE3o com o banco de dados." };
   }
 }
 
@@ -1821,10 +1827,43 @@ async function obterDadosStem(filtros) {
 
 // src/server/app.ts
 var app = express();
+app.disable("x-powered-by");
+app.use((req, res, next) => {
+  let decodedPath = req.path;
+  try {
+    decodedPath = decodeURIComponent(req.path);
+  } catch {
+    res.status(400).send("Bad Request");
+    return;
+  }
+  if (/(?:^|\/)\.[a-zA-Z0-9]/.test(decodedPath)) {
+    res.status(404).send("Not Found");
+    return;
+  }
+  next();
+});
+app.use((_req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "SAMEORIGIN");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  res.setHeader("X-XSS-Protection", "1; mode=block");
+  next();
+});
 app.use(express.json({ limit: "1mb" }));
 var rateLimitMap = /* @__PURE__ */ new Map();
 var RATE_LIMIT_MAX = 120;
 var RATE_LIMIT_WINDOW = 60 * 1e3;
+if (typeof setInterval !== "undefined") {
+  setInterval(() => {
+    const now = Date.now();
+    for (const [ip, item] of rateLimitMap.entries()) {
+      if (now > item.resetTime) {
+        rateLimitMap.delete(ip);
+      }
+    }
+  }, 5 * 60 * 1e3).unref?.();
+}
 function rateLimiter(req, res, next) {
   const ip = req.ip || req.socket.remoteAddress || "unknown";
   const now = Date.now();
@@ -1903,7 +1942,8 @@ apiRouter.get("/filtros-opcoes", async (_req, res) => {
     };
     res.json(opcoesFiltrosCache);
   } catch (err) {
-    res.status(500).json({ error: "Erro ao buscar op\xE7\xF5es de filtros", detalhe: err.message });
+    console.error("Erro ao buscar op\xE7\xF5es de filtros:", err);
+    res.status(500).json({ error: "Erro ao carregar op\xE7\xF5es de filtros" });
   }
 });
 apiRouter.post("/consulta", async (req, res) => {
@@ -1921,8 +1961,7 @@ apiRouter.post("/consulta", async (req, res) => {
   } catch (err) {
     console.error("Erro na rota /api/consulta:", err);
     res.status(500).json({
-      erro: "N\xE3o foi poss\xEDvel processar a consulta.",
-      mensagem: err?.message || "Erro interno do servidor"
+      erro: "N\xE3o foi poss\xEDvel processar a consulta."
     });
   }
 });
@@ -1931,7 +1970,8 @@ apiRouter.post("/visao-geral", async (req, res) => {
     const dados = await obterKpisVisaoGeral(req.body.filtros);
     res.json(dados);
   } catch (err) {
-    res.status(500).json({ erro: "Erro ao carregar dados de vis\xE3o geral", mensagem: err.message });
+    console.error("Erro na rota /api/visao-geral:", err);
+    res.status(500).json({ erro: "Erro ao carregar dados de vis\xE3o geral" });
   }
 });
 apiRouter.post("/perfil", async (req, res) => {
@@ -1939,7 +1979,8 @@ apiRouter.post("/perfil", async (req, res) => {
     const dados = await obterDadosPerfil(req.body.filtros);
     res.json(dados);
   } catch (err) {
-    res.status(500).json({ erro: "Erro ao carregar perfil", mensagem: err.message });
+    console.error("Erro na rota /api/perfil:", err);
+    res.status(500).json({ erro: "Erro ao carregar perfil" });
   }
 });
 apiRouter.post("/carreira", async (req, res) => {
@@ -1947,7 +1988,8 @@ apiRouter.post("/carreira", async (req, res) => {
     const dados = await obterDadosCarreira(req.body.filtros);
     res.json(dados);
   } catch (err) {
-    res.status(500).json({ erro: "Erro ao carregar carreira", mensagem: err.message });
+    console.error("Erro na rota /api/carreira:", err);
+    res.status(500).json({ erro: "Erro ao carregar carreira" });
   }
 });
 apiRouter.post("/ambiente-violencias", async (req, res) => {
@@ -1955,7 +1997,8 @@ apiRouter.post("/ambiente-violencias", async (req, res) => {
     const dados = await obterDadosAmbienteViolencias(req.body.filtros);
     res.json(dados);
   } catch (err) {
-    res.status(500).json({ erro: "Erro ao carregar ambiente e viol\xEAncias", mensagem: err.message });
+    console.error("Erro na rota /api/ambiente-violencias:", err);
+    res.status(500).json({ erro: "Erro ao carregar ambiente e viol\xEAncias" });
   }
 });
 apiRouter.post("/nucleos", async (req, res) => {
@@ -1963,7 +2006,8 @@ apiRouter.post("/nucleos", async (req, res) => {
     const dados = await obterDadosNucleos(req.body.filtros);
     res.json(dados);
   } catch (err) {
-    res.status(500).json({ erro: "Erro ao carregar n\xFAcleos", mensagem: err.message });
+    console.error("Erro na rota /api/nucleos:", err);
+    res.status(500).json({ erro: "Erro ao carregar n\xFAcleos" });
   }
 });
 apiRouter.post("/cuidado", async (req, res) => {
@@ -1971,7 +2015,8 @@ apiRouter.post("/cuidado", async (req, res) => {
     const dados = await obterDadosCuidado(req.body.filtros);
     res.json(dados);
   } catch (err) {
-    res.status(500).json({ erro: "Erro ao carregar dados de cuidado", mensagem: err.message });
+    console.error("Erro na rota /api/cuidado:", err);
+    res.status(500).json({ erro: "Erro ao carregar dados de cuidado" });
   }
 });
 apiRouter.post("/stem", async (req, res) => {
@@ -1979,7 +2024,8 @@ apiRouter.post("/stem", async (req, res) => {
     const dados = await obterDadosStem(req.body.filtros);
     res.json(dados);
   } catch (err) {
-    res.status(500).json({ erro: "Erro ao carregar dados de STEM", mensagem: err.message });
+    console.error("Erro na rota /api/stem:", err);
+    res.status(500).json({ erro: "Erro ao carregar dados de STEM" });
   }
 });
 app.use("/api", apiRouter);
