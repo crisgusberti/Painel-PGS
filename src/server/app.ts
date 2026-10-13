@@ -22,7 +22,7 @@ const app = express();
 // 1. Ocultar cabeçalho do servidor Express para dificultar fingerprinting tecnológico
 app.disable('x-powered-by');
 
-// 2. Proteção estrita contra vazamento de arquivos ocultos e de versionamento (.git, .env, .htaccess, etc.)
+// 2. Proteção estrita contra vazamento de arquivos ocultos e de versionamento (.git, .env, etc.)
 app.use((req, res, next) => {
   let decodedPath = req.path;
   try {
@@ -32,8 +32,8 @@ app.use((req, res, next) => {
     return;
   }
 
-  // Se a rota contiver qualquer segmento oculto (iniciado por ponto), bloqueia imediatamente
-  if (/(?:^|\/)\.[a-zA-Z0-9]/.test(decodedPath)) {
+  // Bloqueia acesso a arquivos confidenciais (.git, .env, etc.) sem bloquear caches de ferramentas como /node_modules/.vite
+  if (/(?:^|\/)\.(git|env|htaccess|htpasswd|svn|hg|DS_Store|bash|ssh)/i.test(decodedPath)) {
     res.status(404).send('Not Found');
     return;
   }
@@ -43,7 +43,6 @@ app.use((req, res, next) => {
 // 3. Cabeçalhos de Segurança HTTP (Defense-in-Depth / OWASP)
 app.use((_req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
   res.setHeader('X-XSS-Protection', '1; mode=block');
