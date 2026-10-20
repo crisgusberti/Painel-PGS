@@ -1390,10 +1390,21 @@ async function obterDadosAmbienteViolencias(filtros) {
     const qSql = `
       SELECT
         coalesce("${item.key}", 'Sem resposta') as resposta,
+        CASE
+          WHEN cargo ILIKE '%Docente%' THEN 'docentes'
+          WHEN cargo ILIKE '%T\xE9cnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
+          WHEN vinculo ILIKE '%Discente%' THEN 'discentes'
+          ELSE 'outros'
+        END as segmento,
+        CASE
+          WHEN genero ILIKE '%mulher%' THEN 'Mulheres'
+          WHEN genero ILIKE '%homem%' THEN 'Homens'
+          ELSE 'Outras identidades'
+        END as genero_grp,
         count(*)::int as n
       FROM public.respostas_pgs
       ${whereSql}
-      GROUP BY resposta
+      GROUP BY resposta, segmento, genero_grp
       ORDER BY n DESC
     `;
     const res = await pool.query(qSql, params);
@@ -1404,71 +1415,26 @@ async function obterDadosAmbienteViolencias(filtros) {
       distribuicao: res.rows
     };
   });
-  const sqlClimaCampus = `
-    SELECT
-      campus,
-      count(*)::int as n,
-      round(avg(
-        (
-          coalesce(CASE
-            WHEN seguranca_expressao_opiniao = 'Concordo Totalmente' THEN 5
-            WHEN seguranca_expressao_opiniao = 'Concordo' THEN 4
-            WHEN seguranca_expressao_opiniao = 'N\xE3o concordo nem discordo' THEN 3
-            WHEN seguranca_expressao_opiniao = 'Discordo' THEN 2
-            WHEN seguranca_expressao_opiniao = 'Discordo Totalmente' THEN 1
-            ELSE NULL END, 3) +
-          coalesce(CASE
-            WHEN ambiente_seguro_respeitoso = 'Concordo Totalmente' THEN 5
-            WHEN ambiente_seguro_respeitoso = 'Concordo' THEN 4
-            WHEN ambiente_seguro_respeitoso = 'N\xE3o concordo nem discordo' THEN 3
-            WHEN ambiente_seguro_respeitoso = 'Discordo' THEN 2
-            WHEN ambiente_seguro_respeitoso = 'Discordo Totalmente' THEN 1
-            ELSE NULL END, 3) +
-          coalesce(CASE
-            WHEN inclusao_pessoas_trans = 'Concordo Totalmente' THEN 5
-            WHEN inclusao_pessoas_trans = 'Concordo' THEN 4
-            WHEN inclusao_pessoas_trans = 'N\xE3o concordo nem discordo' THEN 3
-            WHEN inclusao_pessoas_trans = 'Discordo' THEN 2
-            WHEN inclusao_pessoas_trans = 'Discordo Totalmente' THEN 1
-            ELSE NULL END, 3) +
-          coalesce(CASE
-            WHEN maternidade_impacto_carreira = 'Concordo Totalmente' THEN 1
-            WHEN maternidade_impacto_carreira = 'Concordo' THEN 2
-            WHEN maternidade_impacto_carreira = 'N\xE3o concordo nem discordo' THEN 3
-            WHEN maternidade_impacto_carreira = 'Discordo' THEN 4
-            WHEN maternidade_impacto_carreira = 'Discordo Totalmente' THEN 5
-            ELSE NULL END, 3) +
-          coalesce(CASE
-            WHEN iniciativas_celebrar_diversidade = 'Concordo Totalmente' THEN 5
-            WHEN iniciativas_celebrar_diversidade = 'Concordo' THEN 4
-            WHEN iniciativas_celebrar_diversidade = 'N\xE3o concordo nem discordo' THEN 3
-            WHEN iniciativas_celebrar_diversidade = 'Discordo' THEN 2
-            WHEN iniciativas_celebrar_diversidade = 'Discordo Totalmente' THEN 1
-            ELSE NULL END, 3) +
-          coalesce(CASE
-            WHEN curriculos_principios_igualdade = 'Concordo Totalmente' THEN 5
-            WHEN curriculos_principios_igualdade = 'Concordo' THEN 4
-            WHEN curriculos_principios_igualdade = 'N\xE3o concordo nem discordo' THEN 3
-            WHEN curriculos_principios_igualdade = 'Discordo' THEN 2
-            WHEN curriculos_principios_igualdade = 'Discordo Totalmente' THEN 1
-            ELSE NULL END, 3)
-        ) / 6.0
-      )::numeric, 2)::float as media_bruta
-    FROM public.respostas_pgs
-    ${whereSql}
-    GROUP BY campus
-    ORDER BY media_bruta DESC
-  `;
   const sqlViolenciaRacaPorCor = `
     SELECT
       cor_raca,
+      CASE
+        WHEN cargo ILIKE '%Docente%' THEN 'docentes'
+        WHEN cargo ILIKE '%T\xE9cnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
+        WHEN vinculo ILIKE '%Discente%' THEN 'discentes'
+        ELSE 'outros'
+      END as segmento,
+      CASE
+        WHEN genero ILIKE '%mulher%' THEN 'Mulheres'
+        WHEN genero ILIKE '%homem%' THEN 'Homens'
+        ELSE 'Outras identidades'
+      END as genero_grp,
       count(*)::int as n_total,
-      count(*) FILTER (WHERE violencia_raca = 'Sim')::int as n_sim,
-      round((count(*) FILTER (WHERE violencia_raca = 'Sim') * 100.0 / nullif(count(*), 0))::numeric, 1)::float as taxa_pct
+      count(*) FILTER (WHERE violencia_raca = 'Sim')::int as n_sim
     FROM public.respostas_pgs
     ${whereSql}
-    GROUP BY cor_raca
-    ORDER BY taxa_pct DESC
+    GROUP BY cor_raca, segmento, genero_grp
+    ORDER BY cor_raca
   `;
   const sqlViolenciaOrientacaoPorGenero = `
     SELECT
@@ -1479,13 +1445,23 @@ async function obterDadosAmbienteViolencias(filtros) {
         WHEN genero ILIKE '%homem%' THEN 'Homens Cis'
         ELSE 'Outras identidades'
       END as grupo_genero,
+      CASE
+        WHEN cargo ILIKE '%Docente%' THEN 'docentes'
+        WHEN cargo ILIKE '%T\xE9cnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
+        WHEN vinculo ILIKE '%Discente%' THEN 'discentes'
+        ELSE 'outros'
+      END as segmento,
+      CASE
+        WHEN genero ILIKE '%mulher%' THEN 'Mulheres'
+        WHEN genero ILIKE '%homem%' THEN 'Homens'
+        ELSE 'Outras identidades'
+      END as genero_grp,
       count(*)::int as n_total,
-      count(*) FILTER (WHERE violencia_orientacao_genero = 'Sim')::int as n_sim,
-      round((count(*) FILTER (WHERE violencia_orientacao_genero = 'Sim') * 100.0 / nullif(count(*), 0))::numeric, 1)::float as taxa_pct
+      count(*) FILTER (WHERE violencia_orientacao_genero = 'Sim')::int as n_sim
     FROM public.respostas_pgs
     ${whereSql}
-    GROUP BY grupo_genero
-    ORDER BY taxa_pct DESC
+    GROUP BY grupo_genero, segmento, genero_grp
+    ORDER BY grupo_genero
   `;
   const sqlViolenciaPorOrientacao = `
     SELECT
@@ -1546,7 +1522,6 @@ async function obterDadosAmbienteViolencias(filtros) {
   `;
   const [
     itensQ24Resultados,
-    resClimaCampus,
     resViolenciaCor,
     resViolenciaGen,
     resViolenciaOri,
@@ -1555,7 +1530,6 @@ async function obterDadosAmbienteViolencias(filtros) {
     resFunilDenuncia
   ] = await Promise.all([
     Promise.all(distribuicaoQ24Promises),
-    pool.query(sqlClimaCampus, params),
     pool.query(sqlViolenciaRacaPorCor, params),
     pool.query(sqlViolenciaOrientacaoPorGenero, params),
     pool.query(sqlViolenciaPorOrientacao, params),
@@ -1563,12 +1537,7 @@ async function obterDadosAmbienteViolencias(filtros) {
     pool.query(sqlDesencorajamento, params),
     pool.query(sqlFunilDenuncia, params)
   ]);
-  const climaCampus100 = resClimaCampus.rows.map((r) => ({
-    campus: r.campus,
-    n: Number(r.n),
-    media_bruta: Number(r.media_bruta),
-    indice_100: Number(normalizarIndice100(Number(r.media_bruta), 1, 5).toFixed(1))
-  }));
+  const climaCampus100 = [];
   return {
     q24_itens: itensQ24Resultados,
     clima_por_campus: climaCampus100,

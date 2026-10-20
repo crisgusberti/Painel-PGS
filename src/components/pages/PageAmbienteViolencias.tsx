@@ -5,15 +5,81 @@
 
 import React, { useState } from 'react';
 import { ChartCard } from '../ChartCard';
-import { KpiCard } from '../KpiCard';
-import { ShieldAlert, AlertTriangle, Scale, Filter, Info, RotateCcw, SlidersHorizontal } from 'lucide-react';
-import { formatarNumero, formatarPercentual } from '../../lib/formatters';
+import { RotateCcw, SlidersHorizontal } from 'lucide-react';
+import { formatarNumero } from '../../lib/formatters';
 import { PALETA_ACESSIVEL, CORES_LIKERT } from '../../lib/chartTheme';
 
 interface PageAmbienteViolenciasProps {
   dados: any;
   carregando: boolean;
 }
+
+type SegmentoOpcao = 'geral' | 'docentes' | 'tecnicos';
+type GeneroOpcao = 'todos' | 'Mulheres' | 'Homens';
+
+// Componentes Reutilizáveis de Seleção por Gráfico
+const SeletorSegmento: React.FC<{
+  valor: SegmentoOpcao;
+  aoMudar: (val: SegmentoOpcao) => void;
+}> = ({ valor, aoMudar }) => (
+  <div className="inline-flex items-center p-0.5 rounded-lg bg-[#0a1020] border border-[#223154] text-xs">
+    <button
+      type="button"
+      onClick={() => aoMudar('geral')}
+      className={`px-2 py-0.5 rounded-md text-xs font-semibold transition-all ${
+        valor === 'geral'
+          ? 'bg-teal-500 text-slate-950 shadow-xs'
+          : 'text-slate-400 hover:text-slate-200'
+      }`}
+    >
+      Geral
+    </button>
+    <button
+      type="button"
+      onClick={() => aoMudar('docentes')}
+      className={`px-2 py-0.5 rounded-md text-xs font-semibold transition-all ${
+        valor === 'docentes'
+          ? 'bg-teal-500 text-slate-950 shadow-xs'
+          : 'text-slate-400 hover:text-slate-200'
+      }`}
+    >
+      Docentes
+    </button>
+    <button
+      type="button"
+      onClick={() => aoMudar('tecnicos')}
+      className={`px-2 py-0.5 rounded-md text-xs font-semibold transition-all ${
+        valor === 'tecnicos'
+          ? 'bg-teal-500 text-slate-950 shadow-xs'
+          : 'text-slate-400 hover:text-slate-200'
+      }`}
+    >
+      Técnicos (TAE)
+    </button>
+  </div>
+);
+
+const SeletorGenero: React.FC<{
+  valor: GeneroOpcao;
+  aoMudar: (val: GeneroOpcao) => void;
+}> = ({ valor, aoMudar }) => (
+  <div className="inline-flex items-center p-0.5 rounded-lg bg-[#0a1020] border border-[#223154] text-xs">
+    {(['todos', 'Mulheres', 'Homens'] as const).map((g) => (
+      <button
+        key={g}
+        type="button"
+        onClick={() => aoMudar(g)}
+        className={`px-2 py-0.5 rounded-md text-xs font-semibold transition-all ${
+          valor === g
+            ? 'bg-teal-500 text-slate-950 shadow-xs'
+            : 'text-slate-400 hover:text-slate-200'
+        }`}
+      >
+        {g === 'todos' ? 'Todos' : g}
+      </button>
+    ))}
+  </div>
+);
 
 // Perguntas oficiais e completas do Diagnóstico (Q24a a Q24f)
 const PERGUNTAS_COMPLETAS_Q24 = [
@@ -69,46 +135,128 @@ const PERGUNTAS_COMPLETAS_Q24 = [
 
 export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ dados, carregando }) => {
   const q24Itens = dados?.q24_itens || [];
-  const climaCampus = dados?.clima_por_campus || [];
   const violenciaCor = dados?.violencia_por_cor || [];
   const violenciaGenero = dados?.violencia_por_genero || [];
-  const violenciaOrientacao = dados?.violencia_por_orientacao || [];
   const vitimizacaoIntersec = dados?.vitimizacao_interseccional || [];
-  const desencorajamento = dados?.desencorajamento_estudantes || [];
   const funilDenuncia = dados?.funil_denuncia || [];
 
-  // Estados para filtros da Matriz Interseccional
+  // ==========================================
+  // 1. SELETORES LOCAIS DO DIAGRAMA DIVERGENTE
+  // ==========================================
+  const [segmentoDivergente, setSegmentoDivergente] = useState<SegmentoOpcao>('geral');
+  const [generoDivergente, setGeneroDivergente] = useState<GeneroOpcao>('todos');
+
+  const q24ItensFiltrados = q24Itens.map((item: any) => {
+    const dist = item.distribuicao || [];
+    const filtrada = dist.filter((d: any) => {
+      const matchSeg = segmentoDivergente === 'geral' ? true : d.segmento === segmentoDivergente;
+      const matchGen = generoDivergente === 'todos' ? true : d.genero_grp === generoDivergente;
+      return matchSeg && matchGen;
+    });
+
+    const mapaResp: Record<string, number> = {};
+    filtrada.forEach((d: any) => {
+      mapaResp[d.resposta] = (mapaResp[d.resposta] || 0) + Number(d.n || 0);
+    });
+
+    return {
+      ...item,
+      distribuicao: Object.entries(mapaResp).map(([resposta, n]) => ({ resposta, n })),
+    };
+  });
+
+  const nTotalDivergente =
+    q24ItensFiltrados[0]?.distribuicao?.reduce((acc: number, d: any) => acc + Number(d.n || 0), 0) || 0;
+
+  // ==========================================
+  // 2. SELETORES LOCAIS DA TAXA POR COR/RAÇA
+  // ==========================================
+  const [segmentoCor, setSegmentoCor] = useState<SegmentoOpcao>('geral');
+  const [generoCor, setGeneroCor] = useState<GeneroOpcao>('todos');
+
+  const violenciaCorFiltrada = (() => {
+    const filtradas = violenciaCor.filter((r: any) => {
+      const matchSeg = segmentoCor === 'geral' ? true : r.segmento === segmentoCor;
+      const matchGen = generoCor === 'todos' ? true : r.genero_grp === generoCor;
+      return matchSeg && matchGen;
+    });
+
+    const agrupado: Record<string, { n_total: number; n_sim: number }> = {};
+    filtradas.forEach((r: any) => {
+      if (!agrupado[r.cor_raca]) {
+        agrupado[r.cor_raca] = { n_total: 0, n_sim: 0 };
+      }
+      agrupado[r.cor_raca].n_total += Number(r.n_total || 0);
+      agrupado[r.cor_raca].n_sim += Number(r.n_sim || 0);
+    });
+
+    return Object.entries(agrupado)
+      .map(([cor_raca, val]) => ({
+        cor_raca,
+        n_total: val.n_total,
+        n_sim: val.n_sim,
+        taxa_pct: val.n_total > 0 ? Number(((val.n_sim * 100) / val.n_total).toFixed(1)) : 0,
+      }))
+      .sort((a, b) => a.taxa_pct - b.taxa_pct); // Ordenação para barras horizontais
+  })();
+
+  const nTotalCor = violenciaCorFiltrada.reduce((acc, r) => acc + r.n_total, 0);
+
+  // ==========================================
+  // 3. SELETORES LOCAIS DA TAXA POR GÊNERO/ORIENTAÇÃO
+  // ==========================================
+  const [segmentoGen, setSegmentoGen] = useState<SegmentoOpcao>('geral');
+  const [generoGen, setGeneroGen] = useState<GeneroOpcao>('todos');
+
+  const violenciaGeneroFiltrada = (() => {
+    const filtradas = violenciaGenero.filter((r: any) => {
+      const matchSeg = segmentoGen === 'geral' ? true : r.segmento === segmentoGen;
+      const matchGen = generoGen === 'todos' ? true : r.genero_grp === generoGen;
+      return matchSeg && matchGen;
+    });
+
+    const agrupado: Record<string, { n_total: number; n_sim: number }> = {};
+    filtradas.forEach((r: any) => {
+      if (!agrupado[r.grupo_genero]) {
+        agrupado[r.grupo_genero] = { n_total: 0, n_sim: 0 };
+      }
+      agrupado[r.grupo_genero].n_total += Number(r.n_total || 0);
+      agrupado[r.grupo_genero].n_sim += Number(r.n_sim || 0);
+    });
+
+    return Object.entries(agrupado)
+      .map(([grupo_genero, val]) => ({
+        grupo_genero,
+        n_total: val.n_total,
+        n_sim: val.n_sim,
+        taxa_pct: val.n_total > 0 ? Number(((val.n_sim * 100) / val.n_total).toFixed(1)) : 0,
+      }))
+      .sort((a, b) => a.taxa_pct - b.taxa_pct);
+  })();
+
+  const nTotalGen = violenciaGeneroFiltrada.reduce((acc, r) => acc + r.n_total, 0);
+
+  // ==========================================
+  // 4. MATRIZ INTERSECCIONAL (TABELA)
+  // ==========================================
   const [filtroCorRaca, setFiltroCorRaca] = useState<string>('todos');
   const [filtroGenero, setFiltroGenero] = useState<string>('todos');
 
-  // Opções únicas para os seletores da Matriz
   const opcoesCorRaca = Array.from(new Set(vitimizacaoIntersec.map((r: any) => r.cor_raca))).filter(Boolean) as string[];
-  const opcoesGenero = Array.from(new Set(vitimizacaoIntersec.map((r: any) => r.genero_grp))).filter(Boolean) as string[];
+  const opcoesGeneroMatriz = Array.from(new Set(vitimizacaoIntersec.map((r: any) => r.genero_grp))).filter(Boolean) as string[];
 
-  // Linhas filtradas da Matriz Interseccional
   const matrizFiltrada = vitimizacaoIntersec.filter((row: any) => {
     const matchCor = filtroCorRaca === 'todos' || row.cor_raca === filtroCorRaca;
     const matchGen = filtroGenero === 'todos' || row.genero_grp === filtroGenero;
     return matchCor && matchGen;
   });
 
-  // Subtotais da Matriz no recorte ativo
   const subtotalRespondentes = matrizFiltrada.reduce((acc: number, r: any) => acc + Number(r.n_total || 0), 0);
   const subtotalVitimas = matrizFiltrada.reduce((acc: number, r: any) => acc + Number(r.n_vitimas || 0), 0);
   const taxaPonderadaRecorte =
     subtotalRespondentes > 0 ? ((subtotalVitimas * 100) / subtotalRespondentes).toFixed(1) : '0.0';
 
-  // Média institucional ponderada de clima (com base no volume amostral de cada campus)
-  const totalNClima = climaCampus.reduce((acc: number, r: any) => acc + Number(r.n || 0), 0);
-  const mediaInstitucionalClima =
-    totalNClima > 0
-      ? (
-          climaCampus.reduce((acc: number, r: any) => acc + Number(r.indice_100) * Number(r.n || 0), 0) /
-          totalNClima
-        ).toFixed(1)
-      : '61.3';
-
-  // Opção ECharts: Diagrama Divergente Q24a-f
+  // Categorias Likert Q24
   const categoriasLikert = [
     'Discordo Totalmente',
     'Discordo',
@@ -118,6 +266,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
     'N/A - Não sei avaliar',
   ];
 
+  // Configuração ECharts: Diagrama Divergente Q24a-f
   const optionDivergenteQ24 = {
     tooltip: {
       trigger: 'axis',
@@ -185,7 +334,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
     },
     yAxis: {
       type: 'category',
-      data: q24Itens.map((i: any) => {
+      data: q24ItensFiltrados.map((i: any) => {
         const cleanLabel = i.label.replace(/^Q[0-9]+[a-z]?:\s*/i, '');
         return i.invertido ? `${cleanLabel} (*item invertido)` : cleanLabel;
       }).reverse(),
@@ -197,7 +346,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
         type: 'bar',
         stack: 'divergente',
         itemStyle: { color: CORES_LIKERT.discordoTotalmente },
-        data: q24Itens.map((item: any) => {
+        data: q24ItensFiltrados.map((item: any) => {
           const v = item.distribuicao?.find((d: any) => d.resposta === 'Discordo Totalmente')?.n || 0;
           return -v;
         }).reverse(),
@@ -207,7 +356,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
         type: 'bar',
         stack: 'divergente',
         itemStyle: { color: CORES_LIKERT.discordo },
-        data: q24Itens.map((item: any) => {
+        data: q24ItensFiltrados.map((item: any) => {
           const v = item.distribuicao?.find((d: any) => d.resposta === 'Discordo')?.n || 0;
           return -v;
         }).reverse(),
@@ -217,7 +366,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
         type: 'bar',
         stack: 'neutro',
         itemStyle: { color: CORES_LIKERT.neutro },
-        data: q24Itens.map((item: any) => {
+        data: q24ItensFiltrados.map((item: any) => {
           return item.distribuicao?.find((d: any) => d.resposta === 'Não concordo nem discordo')?.n || 0;
         }).reverse(),
       },
@@ -226,7 +375,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
         type: 'bar',
         stack: 'positivo',
         itemStyle: { color: CORES_LIKERT.concordo },
-        data: q24Itens.map((item: any) => {
+        data: q24ItensFiltrados.map((item: any) => {
           return item.distribuicao?.find((d: any) => d.resposta === 'Concordo')?.n || 0;
         }).reverse(),
       },
@@ -235,7 +384,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
         type: 'bar',
         stack: 'positivo',
         itemStyle: { color: CORES_LIKERT.concordoTotalmente },
-        data: q24Itens.map((item: any) => {
+        data: q24ItensFiltrados.map((item: any) => {
           return item.distribuicao?.find((d: any) => d.resposta === 'Concordo Totalmente')?.n || 0;
         }).reverse(),
       },
@@ -244,55 +393,14 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
         type: 'bar',
         stack: 'neutro',
         itemStyle: { color: CORES_LIKERT.naoAplica },
-        data: q24Itens.map((item: any) => {
+        data: q24ItensFiltrados.map((item: any) => {
           return item.distribuicao?.find((d: any) => d.resposta === 'N/A - Não sei avaliar')?.n || 0;
         }).reverse(),
       },
     ],
   };
 
-  // Opção ECharts: Clima por Campus com Linha de Média Geral
-  const optionClimaCampus = {
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: { type: 'shadow' },
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
-      formatter: (params: any[]) => {
-        const p = params[0];
-        return `<div class="font-bold text-slate-100">${p.name}</div>
-          <div class="text-xs mt-1 text-teal-300">Índice de Convivência: <strong>${p.value} / 100</strong></div>`;
-      },
-    },
-    grid: { left: '3%', right: '8%', top: '5%', bottom: '5%', containLabel: true },
-    xAxis: {
-      type: 'value',
-      min: 0,
-      max: 100,
-      axisLabel: { formatter: '{value}', color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
-    },
-    yAxis: {
-      type: 'category',
-      data: climaCampus.map((c: any) => c.campus.replace('Campus ', '')).reverse(),
-      axisLabel: { fontSize: 10, color: '#cbd5e1' },
-    },
-    series: [
-      {
-        type: 'bar',
-        data: climaCampus.map((c: any) => c.indice_100).reverse(),
-        itemStyle: { color: PALETA_ACESSIVEL[1] },
-        markLine: {
-          data: [{ xAxis: Number(mediaInstitucionalClima), name: 'Média Institucional' }],
-          lineStyle: { color: '#f43f5e', type: 'dashed', width: 2 },
-          label: { formatter: 'Média IFRS: {c}', position: 'end', fontSize: 10, color: '#fda4af' },
-        },
-      },
-    ],
-  };
-
-  // Opção ECharts: Taxas de Violência Direta por Raça
+  // Configuração ECharts: Taxas de Discriminação Racial (Barras horizontais)
   const optionViolenciaCor = {
     tooltip: {
       trigger: 'axis',
@@ -301,33 +409,35 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
       textStyle: { color: '#f1f5f9' },
       formatter: (p: any[]) => {
         const item = p[0];
+        const obj = violenciaCorFiltrada.find((r) => r.cor_raca === item.name);
         return `<div class="font-bold text-slate-100">${item.name}</div>
-          <div class="text-xs mt-1 text-rose-300">Relatos de Discriminação Racial: <strong>${item.value}%</strong></div>`;
+          <div class="text-xs mt-1 text-rose-300">Discriminação Racial: <strong>${item.value}%</strong></div>
+          ${obj ? `<div class="text-[11px] text-slate-400 mt-0.5">Relatos Sim: <strong>${formatarNumero(obj.n_sim)}</strong> de ${formatarNumero(obj.n_total)}</div>` : ''}`;
       },
     },
-    grid: { left: '3%', right: '8%', top: '4%', bottom: '5%', containLabel: true },
+    grid: { left: '3%', right: '12%', top: '6%', bottom: '6%', containLabel: true },
     xAxis: {
       type: 'value',
-      max: 50,
+      max: Math.max(35, ...violenciaCorFiltrada.map((r) => r.taxa_pct + 5)),
       axisLabel: { formatter: '{value}%', color: '#94a3b8' },
       splitLine: { lineStyle: { stroke: '#1f2d4e' } },
     },
     yAxis: {
       type: 'category',
-      data: violenciaCor.map((r: any) => r.cor_raca).reverse(),
+      data: violenciaCorFiltrada.map((r: any) => r.cor_raca),
       axisLabel: { color: '#cbd5e1', fontSize: 11 },
     },
     series: [
       {
         type: 'bar',
-        data: violenciaCor.map((r: any) => r.taxa_pct).reverse(),
+        data: violenciaCorFiltrada.map((r: any) => r.taxa_pct),
         itemStyle: { color: PALETA_ACESSIVEL[4] },
-        label: { show: true, position: 'right', formatter: '{c}%', fontSize: 11, color: '#f43f5e' },
+        label: { show: true, position: 'right', formatter: '{c}%', fontSize: 11, color: '#f43f5e', fontWeight: 600 },
       },
     ],
   };
 
-  // Opção ECharts: Taxas de Violência por Gênero
+  // Configuração ECharts: Taxas de Discriminação de Gênero/Orientação
   const optionViolenciaGenero = {
     tooltip: {
       trigger: 'axis',
@@ -336,28 +446,30 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
       textStyle: { color: '#f1f5f9' },
       formatter: (p: any[]) => {
         const item = p[0];
+        const obj = violenciaGeneroFiltrada.find((r) => r.grupo_genero === item.name);
         return `<div class="font-bold text-slate-100">${item.name}</div>
-          <div class="text-xs mt-1 text-sky-300">Relatos de Violência de Gênero/Orientação: <strong>${item.value}%</strong></div>`;
+          <div class="text-xs mt-1 text-sky-300">Violência de Gênero/LGBTfobia: <strong>${item.value}%</strong></div>
+          ${obj ? `<div class="text-[11px] text-slate-400 mt-0.5">Relatos Sim: <strong>${formatarNumero(obj.n_sim)}</strong> de ${formatarNumero(obj.n_total)}</div>` : ''}`;
       },
     },
-    grid: { left: '3%', right: '8%', top: '4%', bottom: '5%', containLabel: true },
+    grid: { left: '3%', right: '12%', top: '6%', bottom: '6%', containLabel: true },
     xAxis: {
       type: 'value',
-      max: 50,
+      max: Math.max(35, ...violenciaGeneroFiltrada.map((r) => r.taxa_pct + 5)),
       axisLabel: { formatter: '{value}%', color: '#94a3b8' },
       splitLine: { lineStyle: { stroke: '#1f2d4e' } },
     },
     yAxis: {
       type: 'category',
-      data: violenciaGenero.map((r: any) => r.grupo_genero).reverse(),
+      data: violenciaGeneroFiltrada.map((r: any) => r.grupo_genero),
       axisLabel: { color: '#cbd5e1', fontSize: 11 },
     },
     series: [
       {
         type: 'bar',
-        data: violenciaGenero.map((r: any) => r.taxa_pct).reverse(),
+        data: violenciaGeneroFiltrada.map((r: any) => r.taxa_pct),
         itemStyle: { color: PALETA_ACESSIVEL[0] },
-        label: { show: true, position: 'right', formatter: '{c}%', fontSize: 11, color: '#38bdf8' },
+        label: { show: true, position: 'right', formatter: '{c}%', fontSize: 11, color: '#38bdf8', fontWeight: 600 },
       },
     ],
   };
@@ -420,10 +532,23 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
         </p>
       </div>
 
-      {/* Diagrama Divergente */}
+      {/* 1. Diagrama Divergente com Seletores Internos no Cabeçalho do Card */}
       <ChartCard
         titulo="Diagrama Divergente de Percepção do Clima Institucional"
         subtitulo="Distribuição de concordância (azul) vs discordância (vermelho). O item de maternidade é invertido."
+        n={nTotalDivergente > 0 ? nTotalDivergente : undefined}
+        elementoCabecalho={
+          <div className="flex items-center justify-between gap-3 flex-wrap w-full">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-[11px] text-slate-400 font-medium">Segmento:</span>
+              <SeletorSegmento valor={segmentoDivergente} aoMudar={setSegmentoDivergente} />
+            </div>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-[11px] text-slate-400 font-medium">Gênero:</span>
+              <SeletorGenero valor={generoDivergente} aoMudar={setGeneroDivergente} />
+            </div>
+          </div>
+        }
         option={optionDivergenteQ24}
         altura={460}
         carregando={carregando}
@@ -467,74 +592,62 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
         }
       />
 
-      {/* Clima por Campus e Taxas Diretas */}
+      {/* 2. Gráficos de Discriminação Lado a Lado (Grid 2 colunas com seletores internos) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Taxa de Discriminação por Cor/Raça */}
         <ChartCard
-          titulo="Índice de Convivência Institucional por Campus (0 a 100)"
-          subtitulo="Média normalizada das dimensões de convivência por unidade, comparada à média do IFRS"
-          option={optionClimaCampus}
-          altura={420}
-          carregando={carregando}
-          infoTitulo="Cálculo do Índice de Convivência Institucional"
-          infoTooltip={
-            <div className="space-y-3">
-              <p className="text-[11px] text-slate-300 leading-relaxed">
-                O <strong>Índice de Convivência Institucional</strong> sintetiza a percepção geral sobre o clima de respeito, equidade e acolhimento no IFRS, calculado a partir das respostas válidas de discentes e servidores:
-              </p>
-              <div className="space-y-2.5 bg-[#090f1f] border border-[#1f2d4e] p-3 rounded-lg text-[11px]">
-                <div>
-                  <strong className="text-teal-300 block mb-0.5">1. Média das 6 Dimensões Psicométricas (Q24a a Q24f):</strong>
-                  <span className="text-slate-300 leading-relaxed">
-                    Cada respondente avalia 6 afirmações em escala Likert de 1 (Discordo Totalmente) a 5 (Concordo Totalmente).
-                    O item <strong>Q24d (impacto da maternidade/parentalidade na carreira) é invertido</strong> matematicamente (6 − nota), pois concordar indica percepção de barreira à equidade.
-                  </span>
-                </div>
-                <div>
-                  <strong className="text-teal-300 block mb-0.5">2. Normalização Linear para Escala de 0 a 100:</strong>
-                  <span className="text-slate-300 leading-relaxed">
-                    A pontuação original (1 a 5) é convertida para a escala de 0 a 100 pela fórmula de interpolação linear:
-                  </span>
-                  <div className="my-1.5 p-1.5 bg-[#0a1224] rounded border border-teal-500/30 font-mono text-[11px] text-teal-200 text-center font-bold">
-                    Índice = ((Média − 1) / 4) × 100
-                  </div>
-                  <span className="text-[10px] text-slate-400 block text-center">
-                    (Ex.: Média 1,0 = 0 pts | Média 3,0 = 50 pts | Média 5,0 = 100 pts)
-                  </span>
-                </div>
-                <div>
-                  <strong className="text-teal-300 block mb-0.5">3. Média Geral do IFRS ({mediaInstitucionalClima} pts):</strong>
-                  <span className="text-slate-300 leading-relaxed">
-                    Representa a média ponderada de todos os {totalNClima.toLocaleString('pt-BR')} respondentes da instituição que avaliaram o bloco. É exibida no gráfico como linha de referência (baseline tracejada) para identificar quais unidades estão acima ou abaixo do patamar institucional.
-                  </span>
-                </div>
+          titulo="Taxa Direta de Discriminação por Cor/Raça (% Sim)"
+          subtitulo="Proporção que já sofreu violência ou discriminação racial no IFRS (pergunta direta)"
+          n={nTotalCor > 0 ? nTotalCor : undefined}
+          elementoCabecalho={
+            <div className="flex items-center justify-between gap-2.5 flex-wrap w-full">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[11px] text-slate-400 font-medium">Segmento:</span>
+                <SeletorSegmento valor={segmentoCor} aoMudar={setSegmentoCor} />
               </div>
-              <p className="text-[10px] text-slate-400 border-t border-[#1f2d4e] pt-1.5">
-                Para detalhes metodológicos completos e fórmulas, consulte a aba <strong>Metodologia</strong> (Seção 4: Construção de Índices e Escalas Normalizadas).
-              </p>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[11px] text-slate-400 font-medium">Gênero:</span>
+                <SeletorGenero valor={generoCor} aoMudar={setGeneroCor} />
+              </div>
             </div>
           }
+          option={optionViolenciaCor}
+          altura={320}
+          carregando={carregando}
+          tabelaDados={{
+            cabecalhos: ['Cor / Raça', 'Respondentes (n)', 'Relatos Sim (n)', 'Taxa (%)'],
+            linhas: [...violenciaCorFiltrada].reverse().map((r) => [r.cor_raca, r.n_total, r.n_sim, `${r.taxa_pct}%`]),
+          }}
         />
 
-        <div className="space-y-6">
-          <ChartCard
-            titulo="Taxa Direta de Discriminação por Cor/Raça (% Sim)"
-            subtitulo="Proporção que já sofreu violência ou discriminação racial no IFRS (pergunta direta)"
-            option={optionViolenciaCor}
-            altura={200}
-            carregando={carregando}
-          />
-
-          <ChartCard
-            titulo="Taxa de Discriminação por Gênero e Orientação (% Sim)"
-            subtitulo="Proporção que já sofreu LGBTfobia ou violência de gênero (pergunta direta)"
-            option={optionViolenciaGenero}
-            altura={200}
-            carregando={carregando}
-          />
-        </div>
+        {/* Taxa de Discriminação por Gênero e Orientação */}
+        <ChartCard
+          titulo="Taxa de Discriminação por Gênero e Orientação (% Sim)"
+          subtitulo="Proporção que já sofreu LGBTfobia ou violência de gênero (pergunta direta)"
+          n={nTotalGen > 0 ? nTotalGen : undefined}
+          elementoCabecalho={
+            <div className="flex items-center justify-between gap-2.5 flex-wrap w-full">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[11px] text-slate-400 font-medium">Segmento:</span>
+                <SeletorSegmento valor={segmentoGen} aoMudar={setSegmentoGen} />
+              </div>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[11px] text-slate-400 font-medium">Gênero:</span>
+                <SeletorGenero valor={generoGen} aoMudar={setGeneroGen} />
+              </div>
+            </div>
+          }
+          option={optionViolenciaGenero}
+          altura={320}
+          carregando={carregando}
+          tabelaDados={{
+            cabecalhos: ['Identidade de Gênero', 'Respondentes (n)', 'Relatos Sim (n)', 'Taxa (%)'],
+            linhas: [...violenciaGeneroFiltrada].reverse().map((r) => [r.grupo_genero, r.n_total, r.n_sim, `${r.taxa_pct}%`]),
+          }}
+        />
       </div>
 
-      {/* Tabela de Matriz Interseccional com Filtros Integrados */}
+      {/* 3. Tabela de Matriz Interseccional com Filtros Integrados */}
       <div className="bg-[#131d36] rounded-xl border border-[#223154] shadow-sm p-5 space-y-4">
         {/* Cabeçalho e Descrição */}
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
@@ -595,8 +708,8 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
                 onChange={(e) => setFiltroGenero(e.target.value)}
                 className="bg-[#131d36] border border-[#2b3e6c] rounded-md px-2.5 py-1 text-xs text-slate-200 focus:outline-none focus:border-teal-500"
               >
-                <option value="todos">Todos os Grupos de Gênero ({opcoesGenero.length})</option>
-                {opcoesGenero.map((gen) => (
+                <option value="todos">Todos os Grupos de Gênero ({opcoesGeneroMatriz.length})</option>
+                {opcoesGeneroMatriz.map((gen) => (
                   <option key={gen} value={gen}>
                     {gen}
                   </option>
@@ -686,7 +799,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
         </div>
       </div>
 
-      {/* Funil de Mecanismos de Denúncia */}
+      {/* 4. Funil de Mecanismos de Denúncia */}
       <ChartCard
         titulo="Funil dos Mecanismos de Denúncia e Acolhimento"
         subtitulo="Sequência: Conhece canais → Considera efetivos → Percebe resultados justos"
