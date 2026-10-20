@@ -150,7 +150,12 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
     const dist = item.distribuicao || [];
     const filtrada = dist.filter((d: any) => {
       const matchSeg = segmentoDivergente === 'geral' ? true : d.segmento === segmentoDivergente;
-      const matchGen = generoDivergente === 'todos' ? true : d.genero_grp === generoDivergente;
+      const matchGen =
+        generoDivergente === 'todos'
+          ? true
+          : generoDivergente === 'Mulheres'
+          ? d.genero_grp === 'Mulheres' || d.genero_grp === 'Mulher'
+          : d.genero_grp === 'Homens' || d.genero_grp === 'Homem';
       return matchSeg && matchGen;
     });
 
@@ -177,7 +182,12 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
   const violenciaCorFiltrada = (() => {
     const filtradas = violenciaCor.filter((r: any) => {
       const matchSeg = segmentoCor === 'geral' ? true : r.segmento === segmentoCor;
-      const matchGen = generoCor === 'todos' ? true : r.genero_grp === generoCor;
+      const matchGen =
+        generoCor === 'todos'
+          ? true
+          : generoCor === 'Mulheres'
+          ? r.genero_grp === 'Mulheres' || r.genero_grp === 'Mulher'
+          : r.genero_grp === 'Homens' || r.genero_grp === 'Homem';
       return matchSeg && matchGen;
     });
 
@@ -211,7 +221,12 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
   const violenciaGeneroFiltrada = (() => {
     const filtradas = violenciaGenero.filter((r: any) => {
       const matchSeg = segmentoGen === 'geral' ? true : r.segmento === segmentoGen;
-      const matchGen = generoGen === 'todos' ? true : r.genero_grp === generoGen;
+      const matchGen =
+        generoGen === 'todos'
+          ? true
+          : generoGen === 'Mulheres'
+          ? r.genero_grp === 'Mulheres' || r.genero_grp === 'Mulher'
+          : r.genero_grp === 'Homens' || r.genero_grp === 'Homem';
       return matchSeg && matchGen;
     });
 
@@ -534,6 +549,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
 
       {/* 1. Diagrama Divergente com Seletores Internos no Cabeçalho do Card */}
       <ChartCard
+        key={`divergente_${segmentoDivergente}_${generoDivergente}`}
         titulo="Diagrama Divergente de Percepção do Clima Institucional"
         subtitulo="Distribuição de concordância (azul) vs discordância (vermelho). O item de maternidade é invertido."
         n={nTotalDivergente > 0 ? nTotalDivergente : undefined}
@@ -596,6 +612,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Taxa de Discriminação por Cor/Raça */}
         <ChartCard
+          key={`violencia_cor_${segmentoCor}_${generoCor}`}
           titulo="Taxa Direta de Discriminação por Cor/Raça (% Sim)"
           subtitulo="Proporção que já sofreu violência ou discriminação racial no IFRS (pergunta direta)"
           n={nTotalCor > 0 ? nTotalCor : undefined}
@@ -622,6 +639,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
 
         {/* Taxa de Discriminação por Gênero e Orientação */}
         <ChartCard
+          key={`violencia_gen_${segmentoGen}_${generoGen}`}
           titulo="Taxa de Discriminação por Gênero e Orientação (% Sim)"
           subtitulo="Proporção que já sofreu LGBTfobia ou violência de gênero (pergunta direta)"
           n={nTotalGen > 0 ? nTotalGen : undefined}

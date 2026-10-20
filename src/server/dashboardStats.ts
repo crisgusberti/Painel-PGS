@@ -44,9 +44,9 @@ export function montarWhereFiltrosGlobais(filtros?: FiltrosGlobaisState): { wher
   if (filtros.genero_agrupado && filtros.genero_agrupado.length > 0) {
     const exprAgrupado = `(
       CASE
-        WHEN genero ILIKE '%mulher%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' THEN 'Homem'
-        WHEN genero ILIKE '%não-binário%' OR genero ILIKE '%nao-binario%' OR genero ILIKE '%travesti%' OR genero ILIKE '%agênero%' THEN 'Pessoa não-binária/outras'
+        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
+        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
+        WHEN genero ILIKE '%não-binário%' OR genero ILIKE '%nao-binario%' OR genero ILIKE '%travesti%' OR genero ILIKE '%agênero%' OR genero ILIKE '%alexigênero%' OR genero ILIKE '%fluido%' OR genero ILIKE '%fluído%' OR genero ILIKE '%demigirl%' OR genero ILIKE '%multigênero%' THEN 'Pessoa não-binária/outras'
         WHEN genero = 'Prefiro não responder' THEN 'Prefiro não responder'
         ELSE 'Pessoa não-binária/outras'
       END
@@ -269,9 +269,9 @@ export async function obterDadosPerfil(filtros?: FiltrosGlobaisState) {
     pool.query(
       `SELECT
         CASE
-          WHEN genero ILIKE '%mulher%' THEN 'Mulher'
-          WHEN genero ILIKE '%homem%' THEN 'Homem'
-          WHEN genero ILIKE '%não-binário%' OR genero ILIKE '%nao-binario%' OR genero ILIKE '%travesti%' OR genero ILIKE '%agênero%' THEN 'Pessoa não-binária/outras'
+          WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
+          WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
+          WHEN genero ILIKE '%não-binário%' OR genero ILIKE '%nao-binario%' OR genero ILIKE '%travesti%' OR genero ILIKE '%agênero%' OR genero ILIKE '%alexigênero%' OR genero ILIKE '%fluido%' OR genero ILIKE '%fluído%' OR genero ILIKE '%demigirl%' OR genero ILIKE '%multigênero%' THEN 'Pessoa não-binária/outras'
           WHEN genero = 'Prefiro não responder' THEN 'Prefiro não responder'
           ELSE 'Pessoa não-binária/outras'
         END as categoria,
@@ -362,8 +362,8 @@ export async function obterDadosCarreira(filtros?: FiltrosGlobaisState) {
     SELECT
       cargo,
       CASE
-        WHEN genero ILIKE '%mulher%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' THEN 'Homem'
+        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
+        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
         ELSE 'Pessoa não-binária/outras'
       END as genero_grp,
       ocupa_cargo_gestao,
@@ -384,8 +384,8 @@ export async function obterDadosCarreira(filtros?: FiltrosGlobaisState) {
         ELSE 'Outras / Não informado'
       END as raca_grp,
       CASE
-        WHEN genero ILIKE '%mulher%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' THEN 'Homem'
+        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
+        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
         ELSE 'Pessoa não-binária/outras'
       END as genero_grp,
       count(*)::int as n
@@ -405,13 +405,13 @@ export async function obterDadosCarreira(filtros?: FiltrosGlobaisState) {
         ELSE 'Outra / Não informado'
       END as funcao,
       CASE
-        WHEN genero ILIKE '%mulher%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' THEN 'Homem'
+        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
+        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
         ELSE 'Outras identidades'
       END as genero_grp,
       CASE
         WHEN cargo ILIKE '%Docente%' THEN 'docentes'
-        WHEN cargo ILIKE '%Técnico%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
+        WHEN cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
         ELSE 'outro'
       END as segmento,
       count(*)::int as n
@@ -426,13 +426,13 @@ export async function obterDadosCarreira(filtros?: FiltrosGlobaisState) {
     SELECT
       progressao_merito_nota as nota,
       CASE
-        WHEN genero ILIKE '%mulher%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' THEN 'Homem'
+        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
+        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
         ELSE 'Outras identidades'
       END as genero_grp,
       CASE
         WHEN cargo ILIKE '%Docente%' THEN 'docentes'
-        WHEN cargo ILIKE '%Técnico%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
+        WHEN cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
         ELSE 'outro'
       END as segmento,
       count(*)::int as n
@@ -445,13 +445,13 @@ export async function obterDadosCarreira(filtros?: FiltrosGlobaisState) {
   const sqlProgressaoMedias = `
     SELECT
       CASE
-        WHEN genero ILIKE '%mulher%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' THEN 'Homem'
+        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
+        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
         ELSE 'Outras identidades'
       END as genero_grp,
       CASE
         WHEN cargo ILIKE '%Docente%' THEN 'docentes'
-        WHEN cargo ILIKE '%Técnico%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
+        WHEN cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
         ELSE 'outro'
       END as segmento,
       round(avg(progressao_merito_nota::float)::numeric, 2)::float as media,
@@ -467,13 +467,13 @@ export async function obterDadosCarreira(filtros?: FiltrosGlobaisState) {
     SELECT
       acesso_oportunidades,
       CASE
-        WHEN genero ILIKE '%mulher%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' THEN 'Homem'
+        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
+        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
         ELSE 'Outras identidades'
       END as genero_grp,
       CASE
         WHEN cargo ILIKE '%Docente%' THEN 'docentes'
-        WHEN cargo ILIKE '%Técnico%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
+        WHEN cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
         ELSE 'outro'
       END as segmento,
       count(*)::int as n
@@ -490,12 +490,12 @@ export async function obterDadosCarreira(filtros?: FiltrosGlobaisState) {
       evitou_candidatura_cuidado,
       CASE
         WHEN cargo ILIKE '%Docente%' THEN 'docentes'
-        WHEN cargo ILIKE '%Técnico%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
+        WHEN cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
         ELSE 'outro'
       END as segmento,
       CASE
-        WHEN genero ILIKE '%mulher%' THEN 'Mulheres'
-        WHEN genero ILIKE '%homem%' THEN 'Homens'
+        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulheres'
+        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homens'
         ELSE 'Outras'
       END as genero_grp,
       count(*)::int as n
@@ -509,8 +509,8 @@ export async function obterDadosCarreira(filtros?: FiltrosGlobaisState) {
     SELECT
       adesao_pgd,
       CASE
-        WHEN genero ILIKE '%mulher%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' THEN 'Homem'
+        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
+        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
         ELSE 'Outras identidades'
       END as genero_grp,
       count(*)::int as n
@@ -581,8 +581,8 @@ export async function obterDadosAmbienteViolencias(filtros?: FiltrosGlobaisState
           ELSE 'outros'
         END as segmento,
         CASE
-          WHEN genero ILIKE '%mulher%' THEN 'Mulheres'
-          WHEN genero ILIKE '%homem%' THEN 'Homens'
+          WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulheres'
+          WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homens'
           ELSE 'Outras identidades'
         END as genero_grp,
         count(*)::int as n
@@ -611,8 +611,8 @@ export async function obterDadosAmbienteViolencias(filtros?: FiltrosGlobaisState
         ELSE 'outros'
       END as segmento,
       CASE
-        WHEN genero ILIKE '%mulher%' THEN 'Mulheres'
-        WHEN genero ILIKE '%homem%' THEN 'Homens'
+        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulheres'
+        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homens'
         ELSE 'Outras identidades'
       END as genero_grp,
       count(*)::int as n_total,
@@ -627,10 +627,10 @@ export async function obterDadosAmbienteViolencias(filtros?: FiltrosGlobaisState
   const sqlViolenciaOrientacaoPorGenero = `
     SELECT
       CASE
-        WHEN genero ILIKE '%trans%' THEN 'Pessoas Trans/Travestis'
-        WHEN genero ILIKE '%não-binário%' OR genero ILIKE '%nao-binario%' THEN 'Não-binários'
-        WHEN genero ILIKE '%mulher%' THEN 'Mulheres Cis'
-        WHEN genero ILIKE '%homem%' THEN 'Homens Cis'
+        WHEN genero ILIKE '%trans%' OR genero ILIKE '%travesti%' THEN 'Pessoas Trans/Travestis'
+        WHEN genero ILIKE '%não-binário%' OR genero ILIKE '%nao-binario%' OR genero ILIKE '%agênero%' OR genero ILIKE '%fluido%' OR genero ILIKE '%fluído%' OR genero ILIKE '%demigirl%' OR genero ILIKE '%multigênero%' THEN 'Não-binários'
+        WHEN (genero ILIKE '%mulher%' OR genero ILIKE '%femin%') AND genero NOT ILIKE '%trans%' THEN 'Mulheres Cis'
+        WHEN (genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%') AND genero NOT ILIKE '%trans%' THEN 'Homens Cis'
         ELSE 'Outras identidades'
       END as grupo_genero,
       CASE
@@ -640,8 +640,8 @@ export async function obterDadosAmbienteViolencias(filtros?: FiltrosGlobaisState
         ELSE 'outros'
       END as segmento,
       CASE
-        WHEN genero ILIKE '%mulher%' THEN 'Mulheres'
-        WHEN genero ILIKE '%homem%' THEN 'Homens'
+        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulheres'
+        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homens'
         ELSE 'Outras identidades'
       END as genero_grp,
       count(*)::int as n_total,
@@ -669,8 +669,8 @@ export async function obterDadosAmbienteViolencias(filtros?: FiltrosGlobaisState
     SELECT
       cor_raca,
       CASE
-        WHEN genero ILIKE '%mulher%' THEN 'Mulheres'
-        WHEN genero ILIKE '%homem%' THEN 'Homens'
+        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulheres'
+        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homens'
         ELSE 'Não-binárias / Trans / Outras'
       END as genero_grp,
       count(*)::int as n_total,
@@ -687,8 +687,8 @@ export async function obterDadosAmbienteViolencias(filtros?: FiltrosGlobaisState
     SELECT
       desencorajado_participacao,
       CASE
-        WHEN genero ILIKE '%mulher%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' THEN 'Homem'
+        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
+        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
         ELSE 'Não-binária / Outras'
       END as genero_grp,
       count(*)::int as n
@@ -879,8 +879,8 @@ export async function obterDadosCuidado(filtros?: FiltrosGlobaisState) {
     SELECT
       ${coluna} as resposta,
       CASE
-        WHEN genero ILIKE '%mulher%' THEN 'mulheres'
-        WHEN genero ILIKE '%homem%' THEN 'homens'
+        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'mulheres'
+        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'homens'
         ELSE 'outros'
       END as genero_grp,
       CASE
@@ -906,15 +906,15 @@ export async function obterDadosCuidado(filtros?: FiltrosGlobaisState) {
     SELECT
       maternidade_impacto_carreira,
       CASE
-        WHEN genero ILIKE '%mulher%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' THEN 'Homem'
+        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
+        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
         ELSE 'Não-binária / Outras'
       END as genero_grp,
-      responsabilidade_cuidado,
       count(*)::int as n
     FROM public.respostas_pgs
     ${whereComAnd(whereSql, 'maternidade_impacto_carreira IS NOT NULL')}
-    GROUP BY maternidade_impacto_carreira, genero_grp, responsabilidade_cuidado
+    GROUP BY maternidade_impacto_carreira, genero_grp
+    ORDER BY n DESC
   `;
 
   // 5. Estudantes com responsabilidade de cuidado por campus e nível do curso
@@ -961,8 +961,8 @@ export async function obterDadosStem(filtros?: FiltrosGlobaisState) {
     SELECT
       area_conhecimento,
       CASE
-        WHEN genero ILIKE '%mulher%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' THEN 'Homem'
+        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
+        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
         ELSE 'Não-binária / Outras'
       END as genero_grp,
       cor_raca,

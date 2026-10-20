@@ -273,8 +273,14 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
         ][idx],
       },
       data: ['Mulher', 'Homem', 'Não-binária / Outras'].map((g) => {
-        const item = maternidadeImpacto.find((r: any) => r.maternidade_impacto_carreira === resp && r.genero_grp === g);
-        return item ? item.n : 0;
+        const items = maternidadeImpacto.filter(
+          (r: any) =>
+            r.maternidade_impacto_carreira === resp &&
+            (r.genero_grp === g ||
+              (g === 'Mulher' && r.genero_grp === 'Mulheres') ||
+              (g === 'Homem' && r.genero_grp === 'Homens'))
+        );
+        return items.reduce((acc: number, r: any) => acc + Number(r.n || 0), 0);
       }),
     })),
   };

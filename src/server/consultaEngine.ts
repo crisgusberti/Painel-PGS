@@ -60,9 +60,9 @@ function expressaoCampoSql(campoKey: string): string {
   if (campoKey === 'genero_agrupado') {
     return `(
       CASE
-        WHEN genero ILIKE '%mulher%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' THEN 'Homem'
-        WHEN genero ILIKE '%não-binário%' OR genero ILIKE '%nao-binario%' OR genero ILIKE '%travesti%' OR genero ILIKE '%agênero%' THEN 'Pessoa não-binária/outras'
+        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
+        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
+        WHEN genero ILIKE '%não-binário%' OR genero ILIKE '%nao-binario%' OR genero ILIKE '%travesti%' OR genero ILIKE '%agênero%' OR genero ILIKE '%alexigênero%' OR genero ILIKE '%fluido%' OR genero ILIKE '%fluído%' OR genero ILIKE '%demigirl%' OR genero ILIKE '%multigênero%' THEN 'Pessoa não-binária/outras'
         WHEN genero = 'Prefiro não responder' THEN 'Prefiro não responder'
         WHEN genero IS NOT NULL THEN 'Pessoa não-binária/outras'
         ELSE 'Não informado'
