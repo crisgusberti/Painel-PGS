@@ -211,23 +211,126 @@ export const PageMetodologia: React.FC = () => {
         </div>
       </section>
 
-      {/* 5. Fonte dos dados */}
-      <section id="fonte-dados" className="bg-[#131d36] rounded-xl border border-[#223154] p-5 sm:p-6 space-y-3">
+      {/* 5. Fonte dos dados e normalizações */}
+      <section id="fonte-dados" className="bg-[#131d36] rounded-xl border border-[#223154] p-5 sm:p-6 space-y-4">
         <div className="flex items-center gap-2 text-teal-400">
           <Database className="w-5 h-5 shrink-0" />
-          <h2 className="text-base sm:text-lg font-bold text-slate-100">5. Fonte dos Dados e Tratamento</h2>
+          <h2 className="text-base sm:text-lg font-bold text-slate-100">5. Fonte dos Dados, Tratamento e Normalizações Estatísticas</h2>
         </div>
         <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-          Os dados brutos originam-se da extração tabular do Google Forms, saneados e normalizados em banco relacional PostgreSQL.
-          Os cálculos e agregações ocorrem dinamicamente no servidor, garantindo reprodutibilidade matemática absoluta:
+          Os dados brutos originam-se da extração tabular da pesquisa institucional, saneados e estruturados em banco relacional PostgreSQL (Supabase).
+          Os cálculos, taxas e agregações ocorrem dinamicamente no servidor através de consultas determinísticas com parametrização estrita, garantindo reprodutibilidade matemática absoluta:
         </p>
+
         <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-4 text-xs space-y-2 text-slate-300">
           <p>
-            • <strong>Preservação das respostas originais:</strong> Nenhuma categoria foi modificada ou reclassificada arbitrariamente. Pequenas padronizações ortográficas de maiúsculas/minúsculas foram aplicadas para consistência nos filtros.
+            • <strong>Preservação das respostas originais:</strong> Nenhuma informação foi alterada ou suprimida no banco de dados. Os 4.878 registros mantêm o teor exato submetido pelos participantes para fins de auditoria e pesquisa qualitativa.
           </p>
           <p>
-            • <strong>Classificação de Áreas STEM dos estudantes:</strong> Devido ao preenchimento textual do curso pelo discente, um algoritmo determinístico de correspondência de termos agrupou as menções em Grandes Áreas do Conhecimento (Engenharias, Ciências Exatas e da Terra, Ciências Agrárias, Ciências Biológicas, Ciências da Saúde, Ciências Humanas, Ciências Sociais Aplicadas, Linguística, Letras e Artes). Menções ambíguas foram categorizadas como "Não classificada".
+            • <strong>Classificação de Áreas STEM dos estudantes:</strong> Devido ao preenchimento textual livre do nome do curso pelo discente, um algoritmo determinístico de correspondência de termos agrupou as menções em Grandes Áreas do Conhecimento (Engenharias e Tecnologia, Ciências Exatas e da Terra, Ciências Agrárias, Ciências Biológicas, Ciências da Saúde, Ciências Humanas, Ciências Sociais Aplicadas, Linguística, Letras e Artes). Menções ambíguas foram categorizadas como "Não classificada".
           </p>
+        </div>
+
+        {/* Subseção Detalhada: Normalização de Gênero */}
+        <div className="bg-[#0e162b] border border-teal-900/50 rounded-lg p-4 sm:p-5 space-y-3.5">
+          <div className="flex items-center gap-2 text-teal-300">
+            <Info className="w-4 h-4 shrink-0 text-teal-400" />
+            <h3 className="font-bold text-sm text-slate-100">
+              Normalização e Aglutinação das Autodeclarações de Gênero
+            </h3>
+          </div>
+
+          <p className="text-xs text-slate-300 leading-relaxed">
+            No formulário eletrônico, o item de gênero disponibilizou tanto opções fechadas quanto a possibilidade de digitação livre (campo aberto "Outro / Como você se identifica"). Essa flexibilidade gerou <strong>53 variações textuais distintas</strong> entre os 4.878 respondentes.
+          </p>
+
+          <p className="text-xs text-slate-300 leading-relaxed">
+            Para viabilizar filtros cruzados consistentes, cálculos de índices e comparações estatísticas válidas <strong>sem descartar respostas legítimas</strong>, o painel aplica regras algorítmicas transparentes de normalização no servidor:
+          </p>
+
+          <div className="overflow-x-auto rounded-lg border border-[#223154]">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead className="bg-[#080d1a] text-slate-200 font-semibold border-b border-[#223154]">
+                <tr>
+                  <th className="px-3 py-2.5 w-44">Categoria Normalizada</th>
+                  <th className="px-3 py-2.5 w-24">Respondentes</th>
+                  <th className="px-3 py-2.5">Critérios de Aglutinação e Strings Originais Mapeadas</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#1f2d4e] text-slate-300">
+                <tr className="hover:bg-[#141f3d] transition-colors">
+                  <td className="px-3 py-2.5 font-bold text-teal-300">
+                    Mulheres (ou Mulher)
+                  </td>
+                  <td className="px-3 py-2.5 font-mono text-slate-200 font-semibold">
+                    2.695 (55,2%)
+                  </td>
+                  <td className="px-3 py-2.5 text-[11px] leading-relaxed">
+                    Consolida <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Mulher (cisgênero)</code> (2.658), <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Mulher (transgênero)</code> (25), respostas diretas <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Mulher</code> (6), variações com pontuação/espaçamento (<code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Mulher </code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Mulher, </code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Mulher negra...</code>) e correções de digitação evidentes como <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">FEMINIMO</code> (1) identificadas via correspondência fonética/radical <code className="text-amber-200 font-mono">%femin%</code>.
+                  </td>
+                </tr>
+                <tr className="hover:bg-[#141f3d] transition-colors">
+                  <td className="px-3 py-2.5 font-bold text-teal-300">
+                    Homens (ou Homem)
+                  </td>
+                  <td className="px-3 py-2.5 font-mono text-slate-200 font-semibold">
+                    2.030 (41,6%)
+                  </td>
+                  <td className="px-3 py-2.5 text-[11px] leading-relaxed">
+                    Consolida <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Homem (cisgênero)</code> (1.970), <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Homem (transgênero)</code> (39), respostas <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Homem</code> / <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">homem</code> (4), variantes afirmativas livres (<code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Apenas HOMEM</code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Homem bagual</code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Homem biológico</code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Homem Macho alpha</code>, etc.) e menções sem o termo "homem" mas declarando sexo masculino (<code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Masculino </code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Sexo masculino </code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Possuo cromossomos XY (masculino)...</code>) capturadas via <code className="text-amber-200 font-mono">%masculin%</code>.
+                  </td>
+                </tr>
+                <tr className="hover:bg-[#141f3d] transition-colors">
+                  <td className="px-3 py-2.5 font-bold text-teal-300">
+                    Não-binárias e Dissidências
+                  </td>
+                  <td className="px-3 py-2.5 font-mono text-slate-200 font-semibold">
+                    80 (1,6%)
+                  </td>
+                  <td className="px-3 py-2.5 text-[11px] leading-relaxed">
+                    Reúne autodeclarações de <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Não-binário</code> (72), <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Agênero</code> (2), variações de <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Gênero Fluido/fluído</code> (4), <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Demigirl</code> (1), <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Alexigênero</code> (1) e espectros multigênero/dissidentes.
+                  </td>
+                </tr>
+                <tr className="hover:bg-[#141f3d] transition-colors">
+                  <td className="px-3 py-2.5 font-bold text-teal-300">
+                    Pessoas Trans e Travestis
+                  </td>
+                  <td className="px-3 py-2.5 font-mono text-slate-200 font-semibold">
+                    6 (específicas) / 70 (amostra total)
+                  </td>
+                  <td className="px-3 py-2.5 text-[11px] leading-relaxed">
+                    Identidades autodeclaradas como <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Travesti</code> (6). Em gráficos específicos de vivências e discriminações contra minorias de gênero (aba Ambiente e Violências), compõem o grupo destacado de Pessoas Trans/Travestis junto a homens e mulheres trans (70 pessoas no total). Nos filtros gerais amplos, travestis integram o espectro de identidades transfemininas.
+                  </td>
+                </tr>
+                <tr className="hover:bg-[#141f3d] transition-colors">
+                  <td className="px-3 py-2.5 font-bold text-teal-300">
+                    Prefiro não responder
+                  </td>
+                  <td className="px-3 py-2.5 font-mono text-slate-200 font-semibold">
+                    53 (1,1%)
+                  </td>
+                  <td className="px-3 py-2.5 text-[11px] leading-relaxed">
+                    Opção ética resguardada pelo protocolo institucional de pesquisa para os participantes que optaram por não declarar sua identidade de gênero.
+                  </td>
+                </tr>
+                <tr className="hover:bg-[#141f3d] transition-colors">
+                  <td className="px-3 py-2.5 font-bold text-teal-300">
+                    Declarações Invalidadas / Sem Informação
+                  </td>
+                  <td className="px-3 py-2.5 font-mono text-slate-200 font-semibold">
+                    14 (0,3%)
+                  </td>
+                  <td className="px-3 py-2.5 text-[11px] leading-relaxed">
+                    Respostas em que o participante preencheu termos de orientação sexual no campo de gênero (<code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Hetero</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Bissexual</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">gay</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">sapatão</code>) ou utilizou termos zombeteiros/protesto (<code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Geladeira Frost Free</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Me identifico como um jegue</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Patrola</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">tio paulo</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Acho o genero totalmente desnecessário</code>). São preservadas intactas no banco e tratadas nos filtros analíticos como "Outras declarações", preservando o restante do questionário preenchido.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="pt-1 text-[11px] text-slate-400 leading-relaxed">
+            * <strong>Nota de rigor estatístico:</strong> Todas as consultas analíticas utilizam operadores padronizados com expressões regulares insensíveis a maiúsculas/minúsculas (<code className="text-teal-300 font-mono">ILIKE</code>) para garantir que filtros por "Mulheres" e "Homens" abranjam 100% dos respondentes válidos sem distorções de digitação ou formatação.
+          </div>
         </div>
       </section>
 
