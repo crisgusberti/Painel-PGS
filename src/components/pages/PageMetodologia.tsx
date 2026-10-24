@@ -64,7 +64,7 @@ export const PageMetodologia: React.FC = () => {
           <span>Antes de usar os dados</span>
         </div>
         <p className="leading-relaxed text-amber-200/90">
-          Os resultados apresentados descrevem os <strong>4.878 integrantes da comunidade acadêmica</strong> que
+          Os resultados apresentados descrevem os <strong>4.857 integrantes da comunidade acadêmica analisados</strong> (de um total bruto de 4.878 submissões, após a exclusão metodológica de 21 registros de trabalhadores terceirizados) que
           responderam voluntariamente ao formulário. Eles <strong>não constituem estimativas populacionais probabilísticas</strong> do
           IFRS. Recomendamos a leitura atenta da seção{' '}
           <a href="#limites-pesquisa" className="underline font-semibold hover:text-amber-100">
@@ -84,7 +84,7 @@ export const PageMetodologia: React.FC = () => {
           <a href="#visao-geral" className="px-2.5 py-1 rounded-md bg-[#162342] hover:bg-[#1f315c] border border-[#263761] transition-colors">2. Visão Geral</a>
           <a href="#periodo" className="px-2.5 py-1 rounded-md bg-[#162342] hover:bg-[#1f315c] border border-[#263761] transition-colors">3. Coleta</a>
           <a href="#quem-respondeu" className="px-2.5 py-1 rounded-md bg-[#162342] hover:bg-[#1f315c] border border-[#263761] transition-colors">4. Respondentes & Ética</a>
-          <a href="#fonte-dados" className="px-2.5 py-1 rounded-md bg-[#162342] hover:bg-[#1f315c] border border-[#263761] transition-colors">5. Fonte</a>
+          <a href="#fonte-dados" className="px-2.5 py-1 rounded-md bg-[#162342] hover:bg-[#1f315c] border border-[#263761] transition-colors">5. Fonte & Regra de Ouro de Gênero</a>
           <a href="#como-ler" className="px-2.5 py-1 rounded-md bg-[#162342] hover:bg-[#1f315c] border border-[#263761] transition-colors">6. Leitura dos Indicadores</a>
           <a href="#graficos-paginas" className="px-2.5 py-1 rounded-md bg-[#162342] hover:bg-[#1f315c] border border-[#263761] transition-colors">7. Guia das Páginas</a>
           <a href="#ordem-leitura" className="px-2.5 py-1 rounded-md bg-[#162342] hover:bg-[#1f315c] border border-[#263761] transition-colors">8. Roteiro Sugerido</a>
@@ -165,12 +165,12 @@ export const PageMetodologia: React.FC = () => {
             </span>
           </div>
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-4">
-            <span className="text-xs text-slate-400 block">Total de Participações Válidas:</span>
+            <span className="text-xs text-slate-400 block">Total de Participações Analisadas no Painel:</span>
             <span className="text-xl font-extrabold text-slate-100 mt-1 block">
-              4.878 respondentes
+              4.857 respondentes
             </span>
             <span className="text-[11px] text-teal-300 mt-0.5 block">
-              Amostra unificada em banco de dados estruturado.
+              Extraídos de 4.878 registros brutos após a exclusão de 21 registros de terceirizados (4.790 com gênero válido).
             </span>
           </div>
         </div>
@@ -183,10 +183,9 @@ export const PageMetodologia: React.FC = () => {
           <h2 className="text-base sm:text-lg font-bold text-slate-100">4. Perfil dos Respondentes e Rigor Ético</h2>
         </div>
         <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-          O instrumento foi disponibilizado a todos os vínculos ativos do IFRS: <strong>discentes</strong>,
-          <strong> docentes</strong> (efetivos e substitutos) e <strong>servidores técnico-administrativos em educação (TAEs)</strong>,
-          além de trabalhadores terceirizados nos blocos institucionais pertinentes. Foram coletadas autodeclarações de campus,
-          gênero, identidade de gênero detalhada, orientação sexual, cor/raça, faixa etária, pessoa com deficiência e encargos de cuidado.
+          O painel analisa os vínculos institucionais de carreira e estudantis do IFRS: <strong>discentes</strong> (3.216; 66,2%),
+          <strong> docentes efetivos</strong> (763; 15,7%), <strong>docentes substitutos</strong> (151; 3,1%) e <strong>servidores técnico-administrativos em educação — TAEs</strong> (679; 14,0%), além de 17 servidores efetivos sem cargo específico declarado e 31 respondentes que optaram por "Prefiro não responder" no vínculo.
+          <strong> Trabalhadores terceirizados (21 registros na base bruta) foram integralmente removidos de todas as análises, gráficos, indicadores e filtros do painel</strong> por diretriz metodológica institucional.
           Em todas as perguntas sensíveis, foi assegurada a opção <strong>"Prefiro não responder"</strong>.
         </p>
 
@@ -215,7 +214,7 @@ export const PageMetodologia: React.FC = () => {
       <section id="fonte-dados" className="bg-[#131d36] rounded-xl border border-[#223154] p-5 sm:p-6 space-y-4">
         <div className="flex items-center gap-2 text-teal-400">
           <Database className="w-5 h-5 shrink-0" />
-          <h2 className="text-base sm:text-lg font-bold text-slate-100">5. Fonte dos Dados, Tratamento e Normalizações Estatísticas</h2>
+          <h2 className="text-base sm:text-lg font-bold text-slate-100">5. Fonte dos Dados, Tratamento e Regra de Ouro de Normalização de Gênero</h2>
         </div>
         <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
           Os dados brutos originam-se da extração tabular da pesquisa institucional, saneados e estruturados em banco relacional PostgreSQL (Supabase).
@@ -224,104 +223,121 @@ export const PageMetodologia: React.FC = () => {
 
         <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-4 text-xs space-y-2 text-slate-300">
           <p>
-            • <strong>Preservação das respostas originais:</strong> Nenhuma informação foi alterada ou suprimida no banco de dados. Os 4.878 registros mantêm o teor exato submetido pelos participantes para fins de auditoria e pesquisa qualitativa.
+            • <strong>Preservação das respostas originais:</strong> Nenhuma informação foi alterada ou suprimida no banco de dados bruto (4.878 registros originais mantêm o teor exato submetido pelos participantes para fins de auditoria).
+          </p>
+          <p>
+            • <strong>Exclusão Global de Trabalhadores Terceirizados (<code className="text-teal-300 font-mono">SQL_FILTRO_SEM_TERCEIRIZADOS</code>):</strong> Os 21 registros de profissionais terceirizados (20 com <code className="text-teal-300 font-mono">vinculo = 'Terceirizado'</code> e 1 com <code className="text-teal-300 font-mono">cargo = 'Terceirizado'</code>) são excluídos globalmente de todas as análises, KPIs, gráficos e filtros do painel, resultando no universo analítico oficial de <strong>4.857 respondentes</strong>.
+          </p>
+          <p>
+            • <strong>Normalização de Orientação Sexual (<code className="text-teal-300 font-mono">SQL_ORIENTACAO_NORMALIZADA</code>):</strong> Variantes com grafia divergente ou autodeclarações equivalentes são consolidadas automaticamente (ex.: <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Demisexual</code> + <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Demissexual</code> → <strong>Demissexual</strong>; <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Hétero</code> / <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Normal</code> → <strong>Heterossexual</strong>; <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Panssexual</code> / <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Panromantica</code> → <strong>Pansexual</strong>; <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Bissexual</code> / <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Bi</code> → <strong>Bissexual</strong>).
           </p>
           <p>
             • <strong>Classificação de Áreas STEM dos estudantes:</strong> Devido ao preenchimento textual livre do nome do curso pelo discente, um algoritmo determinístico de correspondência de termos agrupou as menções em Grandes Áreas do Conhecimento (Engenharias e Tecnologia, Ciências Exatas e da Terra, Ciências Agrárias, Ciências Biológicas, Ciências da Saúde, Ciências Humanas, Ciências Sociais Aplicadas, Linguística, Letras e Artes). Menções ambíguas foram categorizadas como "Não classificada".
           </p>
         </div>
 
-        {/* Subseção Detalhada: Normalização de Gênero */}
+        {/* Subseção Detalhada: Normalização de Gênero (Regra de Ouro Oficial) */}
         <div className="bg-[#0e162b] border border-teal-900/50 rounded-lg p-4 sm:p-5 space-y-3.5">
           <div className="flex items-center gap-2 text-teal-300">
             <Info className="w-4 h-4 shrink-0 text-teal-400" />
             <h3 className="font-bold text-sm text-slate-100">
-              Normalização e Aglutinação das Autodeclarações de Gênero
+              Regra de Ouro Oficial: Normalização e Classificação de Gênero (6 Categorias Estritas)
             </h3>
           </div>
 
           <p className="text-xs text-slate-300 leading-relaxed">
-            No formulário eletrônico, o item de gênero disponibilizou tanto opções fechadas quanto a possibilidade de digitação livre (campo aberto "Outro / Como você se identifica"). Essa flexibilidade gerou <strong>53 variações textuais distintas</strong> entre os 4.878 respondentes.
+            No formulário eletrônico, o item de gênero disponibilizou tanto opções fechadas quanto a possibilidade de digitação livre (campo aberto "Outro / Como você se identifica"). Essa flexibilidade gerou <strong>53 variações textuais distintas</strong> na base de dados.
           </p>
 
           <p className="text-xs text-slate-300 leading-relaxed">
-            Para viabilizar filtros cruzados consistentes, cálculos de índices e comparações estatísticas válidas <strong>sem descartar respostas legítimas</strong>, o painel aplica regras algorítmicas transparentes de normalização no servidor:
+            Para assegurar consistência absoluta entre todos os gráficos, indicadores, filtros globais e o construtor dinâmico, o painel adota uma <strong>Regra de Ouro única parametrizada no servidor</strong> (<code className="text-teal-300 font-mono">SQL_GENERO_NORMALIZADO</code>). Entre os 4.857 respondentes analisados (sem terceirizados), todas as respostas válidas são classificadas estritamente em <strong>6 categorias oficiais</strong> (<code className="text-teal-300 font-mono">n = 4.790</code>; 98,62% da amostra), enquanto respostas sem declaração de gênero ou invalidadas (<code className="text-slate-300 font-mono">n = 67</code>; 1,38%) são desconsideradas dos gráficos e filtros de gênero:
           </p>
 
           <div className="overflow-x-auto rounded-lg border border-[#223154]">
             <table className="w-full text-left text-xs border-collapse">
               <thead className="bg-[#080d1a] text-slate-200 font-semibold border-b border-[#223154]">
                 <tr>
-                  <th className="px-3 py-2.5 w-44">Categoria Normalizada</th>
-                  <th className="px-3 py-2.5 w-24">Respondentes</th>
-                  <th className="px-3 py-2.5">Critérios de Aglutinação e Strings Originais Mapeadas</th>
+                  <th className="px-3 py-2.5 w-40">Categoria Oficial</th>
+                  <th className="px-3 py-2.5 w-28">Respondentes</th>
+                  <th className="px-3 py-2.5">Critérios de Classificação e Autodeclarações Mapeadas</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#1f2d4e] text-slate-300">
                 <tr className="hover:bg-[#141f3d] transition-colors">
                   <td className="px-3 py-2.5 font-bold text-teal-300">
-                    Mulheres (ou Mulher)
+                    Mulher
                   </td>
                   <td className="px-3 py-2.5 font-mono text-slate-200 font-semibold">
-                    2.695 (55,2%)
+                    2.650 (55,3%*)
                   </td>
                   <td className="px-3 py-2.5 text-[11px] leading-relaxed">
-                    Consolida <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Mulher (cisgênero)</code> (2.658), <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Mulher (transgênero)</code> (25), respostas diretas <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Mulher</code> (6), variações com pontuação/espaçamento (<code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Mulher </code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Mulher, </code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Mulher negra...</code>) e correções de digitação evidentes como <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">FEMINIMO</code> (1) identificadas via correspondência fonética/radical <code className="text-amber-200 font-mono">%femin%</code>.
+                    Consolida <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Mulher (cisgênero)</code> (2.639), respostas diretas <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Mulher</code> (6), variações com pontuação/espaçamento (<code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Mulher </code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Mulher, </code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Mulher, hétero.</code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Mulher negra, mas não sei porque tantos rótulos</code>) e <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">FEMINIMO</code> (1).
                   </td>
                 </tr>
                 <tr className="hover:bg-[#141f3d] transition-colors">
                   <td className="px-3 py-2.5 font-bold text-teal-300">
-                    Homens (ou Homem)
+                    Homem
                   </td>
                   <td className="px-3 py-2.5 font-mono text-slate-200 font-semibold">
-                    2.030 (41,6%)
+                    1.989 (41,5%*)
                   </td>
                   <td className="px-3 py-2.5 text-[11px] leading-relaxed">
-                    Consolida <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Homem (cisgênero)</code> (1.970), <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Homem (transgênero)</code> (39), respostas <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Homem</code> / <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">homem</code> (4), variantes afirmativas livres (<code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Apenas HOMEM</code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Homem bagual</code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Homem biológico</code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Homem Macho alpha</code>, etc.) e menções sem o termo "homem" mas declarando sexo masculino (<code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Masculino </code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Sexo masculino </code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Possuo cromossomos XY (masculino)...</code>) capturadas via <code className="text-amber-200 font-mono">%masculin%</code>.
+                    Consolida <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Homem (cisgênero)</code> (1.969), <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Homem</code> / <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">homem</code> (4), variantes afirmativas livres (<code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Apenas HOMEM</code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Homem normal</code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Homem biológico</code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Homem hétero</code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Homem bagual</code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Homem Macho alpha</code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">O biologicamente correto, homem cisgênero</code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Homem, até onde eu sabia...</code>) e autodeclarações de sexo masculino (<code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Masculino </code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Sexo masculino </code>, <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Possuo cromossomos XY (masculino)...</code>).
                   </td>
                 </tr>
                 <tr className="hover:bg-[#141f3d] transition-colors">
                   <td className="px-3 py-2.5 font-bold text-teal-300">
-                    Não-binárias e Dissidências
+                    Mulher Trans
                   </td>
                   <td className="px-3 py-2.5 font-mono text-slate-200 font-semibold">
-                    80 (1,6%)
+                    25 (0,5%*)
                   </td>
                   <td className="px-3 py-2.5 text-[11px] leading-relaxed">
-                    Reúne autodeclarações de <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Não-binário</code> (72), <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Agênero</code> (2), variações de <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Gênero Fluido/fluído</code> (4), <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Demigirl</code> (1), <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Alexigênero</code> (1) e espectros multigênero/dissidentes.
+                    Corresponde integralmente às respondentes autodeclaradas como <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Mulher (transgênero)</code> (25).
                   </td>
                 </tr>
                 <tr className="hover:bg-[#141f3d] transition-colors">
                   <td className="px-3 py-2.5 font-bold text-teal-300">
-                    Pessoas Trans e Travestis
+                    Homem Trans
                   </td>
                   <td className="px-3 py-2.5 font-mono text-slate-200 font-semibold">
-                    6 (específicas) / 70 (amostra total)
+                    40 (0,8%*)
                   </td>
                   <td className="px-3 py-2.5 text-[11px] leading-relaxed">
-                    Identidades autodeclaradas como <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Travesti</code> (6). Em gráficos específicos de vivências e discriminações contra minorias de gênero (aba Ambiente e Violências), compõem o grupo destacado de Pessoas Trans/Travestis junto a homens e mulheres trans (70 pessoas no total). Nos filtros gerais amplos, travestis integram o espectro de identidades transfemininas.
+                    Consolida <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Homem (transgênero)</code> (39) e <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Transmasculino</code> (1).
                   </td>
                 </tr>
                 <tr className="hover:bg-[#141f3d] transition-colors">
                   <td className="px-3 py-2.5 font-bold text-teal-300">
-                    Prefiro não responder
+                    Travesti
                   </td>
                   <td className="px-3 py-2.5 font-mono text-slate-200 font-semibold">
-                    53 (1,1%)
+                    6 (0,1%*)
                   </td>
                   <td className="px-3 py-2.5 text-[11px] leading-relaxed">
-                    Opção ética resguardada pelo protocolo institucional de pesquisa para os participantes que optaram por não declarar sua identidade de gênero.
+                    Corresponde integralmente às respondentes autodeclaradas como <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Travesti</code> (6).
                   </td>
                 </tr>
                 <tr className="hover:bg-[#141f3d] transition-colors">
                   <td className="px-3 py-2.5 font-bold text-teal-300">
-                    Declarações Invalidadas / Sem Informação
+                    Não-binárias
                   </td>
                   <td className="px-3 py-2.5 font-mono text-slate-200 font-semibold">
-                    14 (0,3%)
+                    80 (1,7%*)
                   </td>
                   <td className="px-3 py-2.5 text-[11px] leading-relaxed">
-                    Respostas em que o participante preencheu termos de orientação sexual no campo de gênero (<code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Hetero</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Bissexual</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">gay</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">sapatão</code>) ou utilizou termos zombeteiros/protesto (<code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Geladeira Frost Free</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Me identifico como um jegue</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Patrola</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">tio paulo</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Acho o genero totalmente desnecessário</code>). São preservadas intactas no banco e tratadas nos filtros analíticos como "Outras declarações", preservando o restante do questionário preenchido.
+                    Reúne todas as autodeclarações não-binárias e dissidentes: <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Não-binário</code> (71), <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Agênero</code> (2), variações de <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Gênero Fluido / fluído / fluido</code> (4), <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Demigirl</code> (1), <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Alexigênero</code> (1) e <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Pangênero</code> (1).
+                  </td>
+                </tr>
+                <tr className="bg-slate-900/60 hover:bg-[#141f3d] transition-colors">
+                  <td className="px-3 py-2.5 font-bold text-rose-300">
+                    Desconsideradas nos Gráficos de Gênero (NULL)
+                  </td>
+                  <td className="px-3 py-2.5 font-mono text-rose-200 font-semibold">
+                    67 (1,4% do total)
+                  </td>
+                  <td className="px-3 py-2.5 text-[11px] leading-relaxed">
+                    Engloba <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Prefiro não responder</code> (53) e <strong>14 respostas invalidadas</strong> por conterem orientação sexual no campo de gênero (<code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Hetero</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Bissexual</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">gay</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">sapatão</code>), protesto/recusa (<code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Acho o genero totalmente desnecessário</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Não tenho gênero...</code>) ou respostas satíricas/"zueras" (<code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Geladeira Frost Free</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Me identifico como um jegue</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Patrola</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">tio paulo</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Jedi</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">sem gênero com pênis</code>). Estes 67 registros permanecem nos indicadores gerais da pesquisa (N = 4.857), mas são filtrados (<code className="text-rose-300 font-mono">IS NOT NULL</code>) em todos os gráficos e recortes por gênero.
                   </td>
                 </tr>
               </tbody>
@@ -329,7 +345,7 @@ export const PageMetodologia: React.FC = () => {
           </div>
 
           <div className="pt-1 text-[11px] text-slate-400 leading-relaxed">
-            * <strong>Nota de rigor estatístico:</strong> Todas as consultas analíticas utilizam operadores padronizados com expressões regulares insensíveis a maiúsculas/minúsculas (<code className="text-teal-300 font-mono">ILIKE</code>) para garantir que filtros por "Mulheres" e "Homens" abranjam 100% dos respondentes válidos sem distorções de digitação ou formatação.
+            * <strong>Nota de rigor estatístico:</strong> Os percentuais com asterisco (*) são calculados sobre o total de <strong>4.790 respostas válidas de gênero</strong> (após exclusão de terceirizados). O parâmetro centralizado <code className="text-teal-300 font-mono">SQL_GENERO_NORMALIZADO</code> é reutilizado em todas as consultas SQL do painel, garantindo que nenhum gráfico classifique gêneros de forma divergente.
           </div>
         </div>
       </section>
@@ -344,13 +360,13 @@ export const PageMetodologia: React.FC = () => {
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3 space-y-1">
             <span className="font-bold text-teal-300">Base Analisada (Denominador)</span>
             <p className="text-slate-300">
-              Corresponde ao total de respondentes elegíveis para a questão. Perguntas exclusivas de servidores ou discentes usam suas bases específicas e não o total de 4.878.
+              Corresponde ao total de respondentes elegíveis para a questão (sem trabalhadores terceirizados). Perguntas exclusivas de servidores ou discentes usam suas bases específicas e não o total de 4.857. Nos gráficos por gênero, o denominador corresponde aos respondentes com gênero válido dentro das 6 categorias oficiais (até 4.790).
             </p>
           </div>
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3 space-y-1">
             <span className="font-bold text-teal-300">Cálculo de Percentuais (%)</span>
             <p className="text-slate-300">
-              Calculados sobre as respostas dadas. Categorias como "Prefiro não responder" e "Não sei avaliar" integram o denominador para retratar a proporção real da amostra.
+              Calculados sobre as respostas válidas da dimensão analisada. Nos gráficos que segmentam por gênero, declarações "Prefiro não responder" no campo de gênero e respostas invalidadas não são contabilizadas.
             </p>
           </div>
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3 space-y-1">
@@ -366,9 +382,9 @@ export const PageMetodologia: React.FC = () => {
             </p>
           </div>
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3 space-y-1">
-            <span className="font-bold text-teal-300">Índices Normalizados (0 a 100)</span>
+            <span className="font-bold text-teal-300">Índices Normalizados (0% a 100%)</span>
             <p className="text-slate-300">
-              Calculados linearmente a partir das médias de 1 a 5 pela fórmula <code>((Média − 1) / 4) × 100</code>. Quanto mais próximo de 100, mais positiva a percepção institucional.
+              Calculados linearmente a partir das médias de 1 a 5 pela fórmula <code>((Média − 1) / 4) × 100</code>. Quanto mais próximo de 100%, mais positiva a percepção institucional.
             </p>
           </div>
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3 space-y-1">
@@ -378,21 +394,27 @@ export const PageMetodologia: React.FC = () => {
             </p>
           </div>
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3 space-y-1">
-            <span className="font-bold text-teal-300">Taxa de Vitimização / Discriminação</span>
+            <span className="font-bold text-teal-300">Ocorrência de Assédios e Violências</span>
             <p className="text-slate-300">
               Percentual que assinalou "Sim" para vivência ou presenciamento de violência ou discriminação (por raça/cor e/ou por identidade de gênero / orientação sexual).
             </p>
           </div>
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3 space-y-1">
-            <span className="font-bold text-teal-300">Diversidade de Shannon e Pluralidade</span>
+            <span className="font-bold text-teal-300">Diversidade de Shannon e Categorias Oficiais</span>
             <p className="text-slate-300">
-              Shannon avalia o equilíbrio proporcional entre categorias. A pluralidade reflete o número de identidades declaradas (no painel, são exibidas categorias com mais de 1 relato para rigor e proteção individual).
+              Shannon avalia o equilíbrio proporcional entre grupos. Na identidade de gênero, os gráficos exibem estritamente as 6 categorias oficiais padronizadas pela Regra de Ouro.
+            </p>
+          </div>
+          <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3 space-y-1">
+            <span className="font-bold text-rose-300">Taxa de Renúncia com Cuidado (Carreira)</span>
+            <p className="text-slate-300">
+              Mede a proporção de servidores com encargos de cuidado (responsabilidade principal <em>"Sim"</em> somada à responsabilidade compartilhada <em>"Divido igualmente"</em>) que declararam já ter deixado de se candidatar a cargos ou funções de gestão (<em>"Sim"</em>) devido às demandas de cuidado familiar.
             </p>
           </div>
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3 space-y-1">
             <span className="font-bold text-amber-300">Amostra Pequena (n &lt; 10)</span>
             <p className="text-slate-300">
-              Células ou categorias com menos de 10 respondentes exibem advertência visual de cautela estatística para evitar generalizações indevidas.
+              Células ou categorias com menos de 10 respondentes exigem cautela estatística na leitura para evitar generalizações indevidas.
             </p>
           </div>
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3 space-y-1">
@@ -418,28 +440,28 @@ export const PageMetodologia: React.FC = () => {
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3.5 space-y-1.5">
             <h3 className="font-bold text-teal-300 text-sm">Página 0 — Visão Geral</h3>
             <p className="text-slate-300 leading-relaxed">
-              Painel executivo com os principais indicadores institucionais: Total de Respondentes (4.878), Taxa de Discriminação/Violência, Índice de Convivência Institucional, Conhecimento dos Mecanismos de Denúncia, Percepção de Efetividade dos Canais, Índice de Desencorajamento Discente e Responsabilidade de Cuidado. Inclui gráfico comparativo de respondentes por campus empilhado por vínculo e tabela de síntese.
+              Painel executivo com os principais indicadores institucionais: Total de Respondentes (4.857 em 18 unidades: 17 campi + Reitoria, sem terceirizados), Composição da Amostra (Discentes vs. Servidores), Ocorrência de Assédios e Violências, Índice de Convivência e Clima Institucional (em %), Conhece Canais de Denúncia (com detalhamento explícito de "Sim, conheço" + "Conheço em parte" vs. "Não conheço" + "Não sei"), Efetividade dos Canais de Denúncia (com detalhamento de "Muito efetivos" + "Parcialmente efetivos" vs. "Pouco efetivos" + "Não são efetivos"), Desencorajamento na Participação Acadêmica por Gênero, Raça, Orientação Sexual ou Outras Características, e Responsabilidade de Cuidado (somando cuidadores principais e compartilhados com detalhamento explícito). Inclui gráfico de respondentes por unidade separando Discentes, Docentes Efetivos, Técnicos TAEs e Docentes Substitutos.
             </p>
           </div>
 
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3.5 space-y-1.5">
-            <h3 className="font-bold text-teal-300 text-sm">Página 1 — Perfil e Representatividade</h3>
+            <h3 className="font-bold text-teal-300 text-sm">Página 1 — Perfil Demográfico e Representatividade</h3>
             <p className="text-slate-300 leading-relaxed">
-              Mapeamento sociodemográfico da amostra: distribuição por campus, vínculo, gênero agrupado, identidade de gênero detalhada (categorias com mais de 1 resposta), cor/raça, faixa etária, pessoas com deficiência (PCD), adoção de nome social e orientação sexual. Inclui cartões de Shannon por campus/vínculo, mapa de calor campus × vínculo e indicador de pluralidade.
+              Mapeamento sociodemográfico com seletores individuais por categoria (<strong>Geral, Docente, Técnico TAE e Discente</strong>) em todos os gráficos: Identidade de Gênero Detalhada (nas 6 categorias oficiais: Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binárias), Cor ou Raça (Autodeclaração IBGE), Pirâmide / Distribuição Etária, Pessoas com Deficiência (PCD) e Orientação Sexual (com termos normalizados). Inclui cartões de Diversidade de Shannon por campus/vínculo e mapa de calor Campus × Vínculo.
             </p>
           </div>
 
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3.5 space-y-1.5">
             <h3 className="font-bold text-teal-300 text-sm">Página 2 — Carreira, Progressão e Equidade Institucional (Servidores)</h3>
             <p className="text-slate-300 leading-relaxed">
-              Foco exclusivo em servidores docentes e técnicos (TAEs). Apresenta KPIs de liderança feminina e negra, funil de cargos, tipologia de funções de gestão (CD, FG, FCC) com seletores de segmento (Geral, Docentes, Técnicos). Traz o comparativo dos 3 universos e detalhado por categoria com termos aglutinados de concordância (Concordo totalmente + Concordo, Neutro, Discordo totalmente + Discordo) para <strong>Avaliação da Progressão por Mérito</strong> e para <strong>Equidade no Acesso a Oportunidades e Bolsas</strong>. Apresenta o bloco unificado de <strong>Cruzamento: Cuidado × Deixou de se Candidatar à Gestão</strong> com gráfico interativo em barras empilhadas e tabela detalhada sincrônica por segmento e gênero.
+              Foco exclusivo em servidores docentes e técnicos (TAEs). Apresenta KPIs de liderança feminina e negra, <strong>Composição de Servidores por Cargo e Gênero</strong> e <strong>Tipologia de Função de Gestão (CD, FG, FCC)</strong> estruturados pelas 6 categorias oficiais de gênero. Traz o comparativo dos 3 universos e detalhado pelas 6 categorias oficiais de gênero com termos aglutinados de concordância (Concordo totalmente + Concordo, Neutro, Discordo totalmente + Discordo) para <strong>Avaliação da Progressão por Mérito</strong> e para <strong>Equidade no Acesso a Oportunidades e Bolsas</strong>. Apresenta o bloco unificado de <strong>Cruzamento: Cuidado × Deixou de se Candidatar à Gestão</strong> (ordenado da maior para a menor barra, com o indicador dinâmico de <strong>Taxa de Renúncia com Cuidado</strong> e tabela detalhada sincrônica por segmento e gênero).
             </p>
           </div>
 
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3.5 space-y-1.5">
             <h3 className="font-bold text-teal-300 text-sm">Página 3 — Ambiente, Segurança e Violências</h3>
             <p className="text-slate-300 leading-relaxed">
-              Diagnóstico do clima institucional: diagrama divergente de concordância nos 6 itens de convivência (com destaque para o item invertido sobre maternidade), índice de clima por campus comparado à média geral, taxas específicas de violência e discriminação por gênero, cor/raça e orientação sexual, tabela 2D de vitimização cruzada, desencorajamento de discentes por vulnerabilidade e funil de denúncia em 3 etapas consecutivas (conhecimento, efetividade e justiça das respostas).
+              Diagnóstico do clima institucional: diagrama divergente de concordância nos 6 itens de convivência (com destaque para o item invertido sobre maternidade), índice de clima por campus comparado à média geral, taxas específicas de violência e discriminação por gênero (nas 6 categorias oficiais), cor/raça e orientação sexual, tabela 2D de vitimização cruzada, desencorajamento de discentes por vulnerabilidade e funil de denúncia em 3 etapas consecutivas (conhecimento, efetividade e justiça das respostas).
             </p>
           </div>
 
@@ -453,28 +475,28 @@ export const PageMetodologia: React.FC = () => {
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3.5 space-y-1.5">
             <h3 className="font-bold text-teal-300 text-sm">Página 5 — Cuidado, Parentalidade e Permanência</h3>
             <p className="text-slate-300 leading-relaxed">
-              Investigação da sobrecarga reprodutiva e parental: distribuição de responsabilidades de cuidado (cuidado direto, dividido, sem cuidado), avaliação de políticas de apoio a pais e mães estudantes, percepção sobre licenças e flexibilização, divergente do impacto da maternidade na carreira acadêmica e contagem de estudantes com dependentes sob seus cuidados por campus e nível de formação.
+              Investigação da sobrecarga reprodutiva e parental: distribuição de responsabilidades de cuidado (cuidado direto, dividido, sem cuidado) pelas 6 categorias oficiais de gênero, avaliação de políticas de apoio a pais e mães estudantes, percepção sobre licenças e flexibilização, divergente do impacto da maternidade na carreira acadêmica e contagem de estudantes com dependentes sob seus cuidados por campus e nível de formação.
             </p>
           </div>
 
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3.5 space-y-1.5">
             <h3 className="font-bold text-teal-300 text-sm">Página 6 — Áreas de Conhecimento e STEM</h3>
             <p className="text-slate-300 leading-relaxed">
-              Distribuição discente nas áreas de Ciência, Tecnologia, Engenharia e Matemática: proporção feminina por grande área do conhecimento em barras 100% empilhadas, diversidade racial em cursos de tecnologia e engenharias, taxas de desencorajamento acadêmico comparando áreas STEM vs Não-STEM e tabela de cobertura do algoritmo de mapeamento de cursos.
+              Distribuição discente nas áreas de Ciência, Tecnologia, Engenharia e Matemática: proporção feminina por grande área do conhecimento, diversidade racial em cursos de tecnologia e engenharias, taxas de desencorajamento acadêmico comparando áreas STEM vs Não-STEM e tabela de cobertura do algoritmo de mapeamento de cursos.
             </p>
           </div>
 
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3.5 space-y-1.5">
             <h3 className="font-bold text-teal-300 text-sm">Página 7 — Construtor Dinâmico de Gráficos</h3>
             <p className="text-slate-300 leading-relaxed">
-              Módulo de exploração aberta que permite cruzar até 2 variáveis categóricas no eixo principal, uma dimensão de série de cor e múltiplos filtros combinados. O motor calcula dinamicamente frequências, médias, concordâncias top 2 e proporções com exportação instantânea dos dados em formato CSV e dos gráficos em PNG.
+              Módulo de exploração aberta que permite cruzar até 2 variáveis categóricas no eixo principal, uma dimensão de série de cor e múltiplos filtros combinados (utilizando a Regra de Ouro nas dimensões de gênero). O motor calcula dinamicamente frequências, médias, concordâncias top 2 e proporções com exportação instantânea dos dados em formato CSV e dos gráficos em PNG.
             </p>
           </div>
 
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3.5 space-y-1.5">
             <h3 className="font-bold text-teal-300 text-sm">Página 8 — Metodologia, Dicionário e Governança</h3>
             <p className="text-slate-300 leading-relaxed">
-              Página de referência permanente com documentação epistemológica, limites metodológicos, catálogo oficial de campos do banco de dados e fórmulas de cálculo de todos os índices compostos.
+              Página de referência permanente com documentação epistemológica, Regra de Ouro de classificação de gênero, limites metodológicos, catálogo oficial de campos do banco de dados e fórmulas de cálculo de todos os índices compostos.
             </p>
           </div>
         </div>
@@ -744,12 +766,22 @@ export const PageMetodologia: React.FC = () => {
                 <td className="px-4 py-3 font-semibold text-emerald-400">0 a 100</td>
               </tr>
               <tr className="hover:bg-[#1a2647] transition-colors">
-                <td className="px-4 py-3 font-bold text-slate-200">Ocorrência Direta de Discriminação</td>
+                <td className="px-4 py-3 font-bold text-slate-200">Ocorrência de Assédios e Violências</td>
                 <td className="px-4 py-3 text-slate-300">
-                  Proporção de respondentes com pelo menos um relato vivenciado ou presenciado de discriminação por raça, cor, gênero ou orientação.
+                  Proporção de respondentes com pelo menos um relato vivenciado ou presenciado de discriminação/violência por raça/cor e/ou identidade de gênero/orientação sexual.
                 </td>
                 <td className="px-4 py-3 font-mono text-[11px] text-teal-300">
                   (n_relatos / n_respondentes) × 100
+                </td>
+                <td className="px-4 py-3 font-semibold text-rose-400">0 a 100%</td>
+              </tr>
+              <tr className="hover:bg-[#1a2647] transition-colors">
+                <td className="px-4 py-3 font-bold text-slate-200">Taxa de Renúncia com Cuidado</td>
+                <td className="px-4 py-3 text-slate-300">
+                  Proporção de servidores com responsabilidade de cuidado direta (<em>"Sim"</em>) ou compartilhada (<em>"Divido igualmente"</em>) que deixaram de se candidatar a cargos/funções de gestão (<em>"Sim"</em>).
+                </td>
+                <td className="px-4 py-3 font-mono text-[11px] text-teal-300">
+                  (n_renuncia_com_cuidado / n_total_com_cuidado) × 100
                 </td>
                 <td className="px-4 py-3 font-semibold text-rose-400">0 a 100%</td>
               </tr>

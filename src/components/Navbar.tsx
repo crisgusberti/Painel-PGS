@@ -19,7 +19,6 @@ import {
   X,
 } from 'lucide-react';
 import { FiltrosGlobaisState } from '../lib/types';
-import { formatarNumero } from '../lib/formatters';
 
 export interface TabItem {
   id: string;
@@ -28,15 +27,15 @@ export interface TabItem {
 }
 
 export const ABAS_PAINEL: TabItem[] = [
-  { id: 'visao_geral', label: 'Visão Geral', icone: <LayoutDashboard className="w-4 h-4" /> },
-  { id: 'perfil', label: '1. Perfil e Representatividade', icone: <Users className="w-4 h-4" /> },
-  { id: 'carreira', label: '2. Carreira e Gestão', icone: <Briefcase className="w-4 h-4" /> },
-  { id: 'ambiente_violencias', label: '3. Clima e Violências', icone: <ShieldAlert className="w-4 h-4" /> },
-  { id: 'nucleos', label: '4. Núcleos e Políticas', icone: <Building2 className="w-4 h-4" /> },
-  { id: 'cuidado', label: '5. Cuidado e Parentalidade', icone: <HeartHandshake className="w-4 h-4" /> },
-  { id: 'stem', label: '6. Áreas e STEM', icone: <Cpu className="w-4 h-4" /> },
-  { id: 'construtor', label: '7. Construtor Dinâmico', icone: <Wand2 className="w-4 h-4 text-emerald-600" /> },
-  { id: 'metodologia', label: '8. Metodologia e Dicionário', icone: <BookOpen className="w-4 h-4" /> },
+  { id: 'visao_geral', label: 'Visão Geral', icone: <LayoutDashboard className="w-4 h-4 shrink-0" /> },
+  { id: 'perfil', label: '1. Perfil e Representatividade', icone: <Users className="w-4 h-4 shrink-0" /> },
+  { id: 'carreira', label: '2. Carreira e Gestão', icone: <Briefcase className="w-4 h-4 shrink-0" /> },
+  { id: 'ambiente_violencias', label: '3. Clima e Violências', icone: <ShieldAlert className="w-4 h-4 shrink-0" /> },
+  { id: 'nucleos', label: '4. Núcleos e Políticas', icone: <Building2 className="w-4 h-4 shrink-0" /> },
+  { id: 'cuidado', label: '5. Cuidado e Parentalidade', icone: <HeartHandshake className="w-4 h-4 shrink-0" /> },
+  { id: 'stem', label: '6. Áreas e STEM', icone: <Cpu className="w-4 h-4 shrink-0" /> },
+  { id: 'construtor', label: '7. Construtor Dinâmico', icone: <Wand2 className="w-4 h-4 text-emerald-500 shrink-0" /> },
+  { id: 'metodologia', label: '8. Metodologia e Dicionário', icone: <BookOpen className="w-4 h-4 shrink-0" /> },
 ];
 
 interface NavbarProps {
@@ -56,7 +55,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   aoAbrirFiltros,
   aoLimparFiltros,
   aoRemoverFiltro,
-  nFiltrado = 4878,
+  nFiltrado = 4857,
 }) => {
   // Contar filtros ativos
   const listaFiltrosAtivos: { chave: keyof FiltrosGlobaisState; label: string; valor: string }[] = [];
@@ -150,9 +149,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Faixa de chips de filtros ativos */}
       {temFiltroAtivo && (
-        <div className="bg-[#101b33] border-t border-[#1f2d4e] px-4 sm:px-6 lg:px-8 py-1.5 text-xs flex items-center gap-1.5 overflow-x-auto">
+        <div className="bg-[#101b33] border-t border-[#1f2d4e] px-4 sm:px-6 lg:px-8 py-1.5 text-xs flex items-center gap-1.5 flex-wrap">
           <span className="font-semibold text-teal-300 shrink-0 mr-1">Filtros ativos:</span>
-          <div className="flex items-center gap-1.5 flex-nowrap">
+          <div className="flex items-center gap-1.5 flex-wrap">
             {listaFiltrosAtivos.map((fa, i) => (
               <span
                 key={i}
@@ -173,8 +172,8 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       )}
 
-      {/* Navegação por Abas */}
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-1 overflow-x-auto border-t border-[#1a2647] no-scrollbar">
+      {/* Navegação por Abas — sem barra de rolagem, títulos em até 2 linhas */}
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-1 border-t border-[#1a2647]">
         {ABAS_PAINEL.map((aba) => {
           const ativa = abaAtiva === aba.id;
           return (
@@ -182,14 +181,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               key={aba.id}
               type="button"
               onClick={() => aoMudarAba(aba.id)}
-              className={`flex items-center gap-2 py-3 px-3.5 text-xs font-semibold border-b-2 whitespace-nowrap transition-all ${
+              className={`flex items-center justify-start gap-2 py-2 px-2.5 text-[11px] leading-tight font-semibold border-b-2 transition-all min-w-0 ${
                 ativa
                   ? 'border-teal-400 text-teal-300 bg-[#162342]'
                   : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-600 hover:bg-[#131d36]/40'
               }`}
             >
               {aba.icone}
-              <span>{aba.label}</span>
+              <span className="text-left line-clamp-2 break-words">{aba.label}</span>
             </button>
           );
         })}

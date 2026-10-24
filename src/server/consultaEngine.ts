@@ -7,6 +7,11 @@ import { z } from 'zod';
 import { getDbPool } from './db';
 import { CATALOGO_CAMPOS, CAMPOS_PERMITIDOS_CONSULTA } from '../lib/catalogo';
 import {
+  SQL_GENERO_NORMALIZADO,
+  SQL_FILTRO_SEM_TERCEIRIZADOS,
+  SQL_ORIENTACAO_NORMALIZADA,
+} from '../lib/escalas';
+import {
   RequisicaoConsulta,
   RespostaConsulta,
   LinhaResultadoConsulta,
@@ -55,19 +60,14 @@ export const RequisicaoConsultaSchema = z.object({
 // Cache simples em memória com TTL de 5 minutos (300.000 ms)
 const cacheConsulta = new Map<string, { expira: number; data: RespostaConsulta }>();
 
-// Expressão SQL para campos derivados
+// Expressão SQL para campos derivados (Regra de Ouro de Gênero Normalizado e Orientação Sexual Normalizada)
 function expressaoCampoSql(campoKey: string): string {
-  if (campoKey === 'genero_agrupado') {
-    return `(
-      CASE
-        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
-        WHEN genero ILIKE '%não-binário%' OR genero ILIKE '%nao-binario%' OR genero ILIKE '%travesti%' OR genero ILIKE '%agênero%' OR genero ILIKE '%alexigênero%' OR genero ILIKE '%fluido%' OR genero ILIKE '%fluído%' OR genero ILIKE '%demigirl%' OR genero ILIKE '%multigênero%' THEN 'Pessoa não-binária/outras'
-        WHEN genero = 'Prefiro não responder' THEN 'Prefiro não responder'
-        WHEN genero IS NOT NULL THEN 'Pessoa não-binária/outras'
-        ELSE 'Não informado'
-      END
-    )`;
+  if (campoKey === 'genero_agrupado' || campoKey === 'genero') {
+    return SQL_GENERO_NORMALIZADO;
+  }
+
+  if (campoKey === 'orientacao_sexual') {
+    return SQL_ORIENTACAO_NORMALIZADA;
   }
 
   if (campoKey === 'area_conhecimento') {
@@ -122,7 +122,7 @@ export async function executarConsulta(req: RequisicaoConsulta): Promise<Respost
 
   const pool = getDbPool();
   const params: any[] = [];
-  const whereClauses: string[] = [];
+  const whereClauses: string[] = [SQL_FILTRO_SEM_TERCEIRIZADOS];
 
   // Filtros de segurança e valores
   if (req.filtros && req.filtros.length > 0) {
@@ -154,6 +154,19 @@ export async function executarConsulta(req: RequisicaoConsulta): Promise<Respost
     }
   }
 
+  const campoEixo1 = req.campos_eixo[0];
+  const campoEixo2 = req.campos_eixo[1] || null;
+  const campoCor = req.campos_cor?.[0] || null;
+
+  // Regra de Ouro de Gênero e Orientação Sexual: excluir declarações desconsideradas (NULL)
+  const camposEnvolvidos = [campoEixo1, campoEixo2, campoCor].filter(Boolean) as string[];
+  if (camposEnvolvidos.some((c) => c === 'genero' || c === 'genero_agrupado')) {
+    whereClauses.push(`${SQL_GENERO_NORMALIZADO} IS NOT NULL`);
+  }
+  if (camposEnvolvidos.some((c) => c === 'orientacao_sexual')) {
+    whereClauses.push(`${SQL_ORIENTACAO_NORMALIZADA} IS NOT NULL`);
+  }
+
   // Toggle de "Prefiro não responder"
   if (req.medida.incluir_prefiro_nao_responder === false) {
     for (const c of req.campos_eixo) {
@@ -163,10 +176,6 @@ export async function executarConsulta(req: RequisicaoConsulta): Promise<Respost
   }
 
   const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
-
-  const campoEixo1 = req.campos_eixo[0];
-  const campoEixo2 = req.campos_eixo[1] || null;
-  const campoCor = req.campos_cor?.[0] || null;
 
   const exprEixo1 = expressaoCampoSql(campoEixo1);
   const exprEixo2 = campoEixo2 ? expressaoCampoSql(campoEixo2) : 'NULL';
@@ -276,7 +285,7 @@ export async function executarConsulta(req: RequisicaoConsulta): Promise<Respost
 
   const resposta: RespostaConsulta = {
     linhas,
-    n_total: 4878,
+    n_total: 4857,
     n_filtrado: nFiltrado,
     base_descricao: `Respondentes com filtros aplicados (n = ${nFiltrado.toLocaleString('pt-BR')})`,
     avisos,

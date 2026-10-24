@@ -127,7 +127,7 @@ apiRouter.get('/filtros-opcoes', async (_req: Request, res: Response) => {
   try {
     const pool = getDbPool();
     const [campusRes, corRes, faixaRes, orientacaoRes] = await Promise.all([
-      pool.query('SELECT DISTINCT campus FROM public.respostas_pgs WHERE campus IS NOT NULL ORDER BY campus'),
+      pool.query("SELECT DISTINCT campus FROM public.respostas_pgs WHERE campus IS NOT NULL AND campus != 'Prefiro não responder' ORDER BY campus"),
       pool.query('SELECT DISTINCT cor_raca FROM public.respostas_pgs WHERE cor_raca IS NOT NULL ORDER BY cor_raca'),
       pool.query('SELECT DISTINCT faixa_etaria FROM public.respostas_pgs WHERE faixa_etaria IS NOT NULL ORDER BY faixa_etaria'),
       pool.query('SELECT DISTINCT orientacao_sexual FROM public.respostas_pgs WHERE orientacao_sexual IS NOT NULL ORDER BY orientacao_sexual'),
@@ -137,15 +137,23 @@ apiRouter.get('/filtros-opcoes', async (_req: Request, res: Response) => {
       campus: campusRes.rows.map((r) => r.campus),
       cor_raca: corRes.rows.map((r) => r.cor_raca),
       faixa_etaria: faixaRes.rows.map((r) => r.faixa_etaria),
-      orientacao_sexual: orientacaoRes.rows.map((r) => r.orientacao_sexual),
+      orientacao_sexual: [
+        'Heterossexual',
+        'Bissexual',
+        'Homossexual (Gay/Lésbica)',
+        'Pansexual',
+        'Assexual',
+        'Demissexual',
+        'Prefiro não responder',
+      ],
       vinculo: [
         'Discente (estudante)',
         'Docente (professor/a) ou Técnico-Administrativo em Educação (TAE) Efetivo',
         'Docente (professor/a) Substituto',
-        'Terceirizado',
+
         'Prefiro não responder',
       ],
-      genero_agrupado: ['Mulher', 'Homem', 'Pessoa não-binária/outras', 'Prefiro não responder'],
+      genero_agrupado: ['Mulher', 'Homem', 'Mulher Trans', 'Homem Trans', 'Travesti', 'Não-binárias'],
       pcd: ['Sim', 'Não', 'Prefiro não responder'],
       responsabilidade_cuidado: [
         'Sim',

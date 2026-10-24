@@ -8,6 +8,7 @@ import { ChartCard } from '../ChartCard';
 import { RotateCcw, SlidersHorizontal } from 'lucide-react';
 import { formatarNumero } from '../../lib/formatters';
 import { PALETA_ACESSIVEL, CORES_LIKERT } from '../../lib/chartTheme';
+import { CATEGORIAS_GENERO_OFICIAIS, CategoriaGeneroOficial } from '../../lib/escalas';
 
 interface PageAmbienteViolenciasProps {
   dados: any;
@@ -15,7 +16,7 @@ interface PageAmbienteViolenciasProps {
 }
 
 type SegmentoOpcao = 'geral' | 'docentes' | 'tecnicos';
-type GeneroOpcao = 'todos' | 'Mulheres' | 'Homens';
+type GeneroOpcao = 'todos' | CategoriaGeneroOficial;
 
 // Componentes Reutilizáveis de Seleção por Gráfico
 const SeletorSegmento: React.FC<{
@@ -63,8 +64,8 @@ const SeletorGenero: React.FC<{
   valor: GeneroOpcao;
   aoMudar: (val: GeneroOpcao) => void;
 }> = ({ valor, aoMudar }) => (
-  <div className="inline-flex items-center p-0.5 rounded-lg bg-[#0a1020] border border-[#223154] text-xs">
-    {(['todos', 'Mulheres', 'Homens'] as const).map((g) => (
+  <div className="inline-flex items-center flex-wrap p-0.5 rounded-lg bg-[#0a1020] border border-[#223154] text-xs">
+    {(['todos', ...CATEGORIAS_GENERO_OFICIAIS] as const).map((g) => (
       <button
         key={g}
         type="button"
@@ -150,12 +151,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
     const dist = item.distribuicao || [];
     const filtrada = dist.filter((d: any) => {
       const matchSeg = segmentoDivergente === 'geral' ? true : d.segmento === segmentoDivergente;
-      const matchGen =
-        generoDivergente === 'todos'
-          ? true
-          : generoDivergente === 'Mulheres'
-          ? d.genero_grp === 'Mulheres' || d.genero_grp === 'Mulher'
-          : d.genero_grp === 'Homens' || d.genero_grp === 'Homem';
+      const matchGen = generoDivergente === 'todos' ? true : d.genero_grp === generoDivergente;
       return matchSeg && matchGen;
     });
 
@@ -182,12 +178,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
   const violenciaCorFiltrada = (() => {
     const filtradas = violenciaCor.filter((r: any) => {
       const matchSeg = segmentoCor === 'geral' ? true : r.segmento === segmentoCor;
-      const matchGen =
-        generoCor === 'todos'
-          ? true
-          : generoCor === 'Mulheres'
-          ? r.genero_grp === 'Mulheres' || r.genero_grp === 'Mulher'
-          : r.genero_grp === 'Homens' || r.genero_grp === 'Homem';
+      const matchGen = generoCor === 'todos' ? true : r.genero_grp === generoCor;
       return matchSeg && matchGen;
     });
 
@@ -207,7 +198,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
         n_sim: val.n_sim,
         taxa_pct: val.n_total > 0 ? Number(((val.n_sim * 100) / val.n_total).toFixed(1)) : 0,
       }))
-      .sort((a, b) => a.taxa_pct - b.taxa_pct); // Ordenação para barras horizontais
+      .sort((a, b) => a.taxa_pct - b.taxa_pct);
   })();
 
   const nTotalCor = violenciaCorFiltrada.reduce((acc, r) => acc + r.n_total, 0);
@@ -221,12 +212,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
   const violenciaGeneroFiltrada = (() => {
     const filtradas = violenciaGenero.filter((r: any) => {
       const matchSeg = segmentoGen === 'geral' ? true : r.segmento === segmentoGen;
-      const matchGen =
-        generoGen === 'todos'
-          ? true
-          : generoGen === 'Mulheres'
-          ? r.genero_grp === 'Mulheres' || r.genero_grp === 'Mulher'
-          : r.genero_grp === 'Homens' || r.genero_grp === 'Homem';
+      const matchGen = generoGen === 'todos' ? true : r.genero_grp === generoGen;
       return matchSeg && matchGen;
     });
 
@@ -258,7 +244,9 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
   const [filtroGenero, setFiltroGenero] = useState<string>('todos');
 
   const opcoesCorRaca = Array.from(new Set(vitimizacaoIntersec.map((r: any) => r.cor_raca))).filter(Boolean) as string[];
-  const opcoesGeneroMatriz = Array.from(new Set(vitimizacaoIntersec.map((r: any) => r.genero_grp))).filter(Boolean) as string[];
+  const opcoesGeneroMatriz = CATEGORIAS_GENERO_OFICIAIS.filter((cat) =>
+    vitimizacaoIntersec.some((r: any) => r.genero_grp === cat)
+  );
 
   const matrizFiltrada = vitimizacaoIntersec.filter((row: any) => {
     const matchCor = filtroCorRaca === 'todos' || row.cor_raca === filtroCorRaca;
@@ -641,7 +629,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
         <ChartCard
           key={`violencia_gen_${segmentoGen}_${generoGen}`}
           titulo="Taxa de Discriminação por Gênero e Orientação (% Sim)"
-          subtitulo="Proporção que já sofreu LGBTfobia ou violência de gênero (pergunta direta)"
+          subtitulo="Proporção que já sofreu LGBTfobia ou violência de gênero nas 6 categorias oficiais"
           n={nTotalGen > 0 ? nTotalGen : undefined}
           elementoCabecalho={
             <div className="flex items-center justify-between gap-2.5 flex-wrap w-full">
@@ -726,7 +714,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
                 onChange={(e) => setFiltroGenero(e.target.value)}
                 className="bg-[#131d36] border border-[#2b3e6c] rounded-md px-2.5 py-1 text-xs text-slate-200 focus:outline-none focus:border-teal-500"
               >
-                <option value="todos">Todos os Grupos de Gênero ({opcoesGeneroMatriz.length})</option>
+                <option value="todos">Todos os Gêneros ({opcoesGeneroMatriz.length})</option>
                 {opcoesGeneroMatriz.map((gen) => (
                   <option key={gen} value={gen}>
                     {gen}
@@ -799,16 +787,16 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
               )}
             </tbody>
             {matrizFiltrada.length > 0 && (
-              <tfoot className="bg-[#0e162b] border-t-2 border-[#2b3e6c] font-semibold text-slate-200">
+              <tfoot className="bg-[#0b1222] font-semibold border-t-2 border-[#2b3e6c] text-slate-200">
                 <tr>
-                  <td colSpan={2} className="px-4 py-3 text-teal-300 font-bold">
-                    Subtotal do Recorte Selecionado
+                  <td className="px-4 py-3" colSpan={2}>
+                    Total do Recorte ({matrizFiltrada.length} combinações)
                   </td>
-                  <td className="px-4 py-3 font-bold text-slate-100">{formatarNumero(subtotalRespondentes)}</td>
-                  <td className="px-4 py-3 font-bold text-rose-300">{formatarNumero(subtotalVitimas)}</td>
-                  <td className="px-4 py-3 font-bold text-teal-300">{taxaPonderadaRecorte}% (média ponderada)</td>
-                  <td className="px-4 py-3 text-slate-400 text-[11px]">
-                    {subtotalRespondentes >= 10 ? 'base consistente' : 'amostra reduzida'}
+                  <td className="px-4 py-3 text-slate-100">{formatarNumero(subtotalRespondentes)}</td>
+                  <td className="px-4 py-3 text-rose-400 font-bold">{formatarNumero(subtotalVitimas)}</td>
+                  <td className="px-4 py-3 font-bold text-teal-300">{taxaPonderadaRecorte}%</td>
+                  <td className="px-4 py-3 text-[11px] text-slate-400 font-normal">
+                    Média ponderada do filtro
                   </td>
                 </tr>
               </tfoot>
@@ -817,12 +805,12 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
         </div>
       </div>
 
-      {/* 4. Funil de Mecanismos de Denúncia */}
+      {/* 4. Funil de Denúncia e Confiança */}
       <ChartCard
-        titulo="Funil dos Mecanismos de Denúncia e Acolhimento"
-        subtitulo="Sequência: Conhece canais → Considera efetivos → Percebe resultados justos"
+        titulo="Funil de Conhecimento, Efetividade e Justiça dos Canais de Denúncia"
+        subtitulo="Comparação sequencial das 3 etapas institucionais por vínculo"
         option={optionFunil}
-        altura={350}
+        altura={360}
         carregando={carregando}
       />
     </div>

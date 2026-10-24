@@ -3,39 +3,148 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ChartCard } from '../ChartCard';
-import { KpiCard } from '../KpiCard';
-import { Users, Sparkles, Layers, ShieldCheck } from 'lucide-react';
 import { formatarNumero, formatarPercentual } from '../../lib/formatters';
 import { PALETA_ACESSIVEL } from '../../lib/chartTheme';
+import { CATEGORIAS_GENERO_OFICIAIS } from '../../lib/escalas';
+
+type CategoriaComunidade = 'geral' | 'docente' | 'tecnico_tae' | 'discente';
+
+const OPCOES_SEGMENTO: { id: CategoriaComunidade; label: string }[] = [
+  { id: 'geral', label: 'Geral' },
+  { id: 'docente', label: 'Docente' },
+  { id: 'tecnico_tae', label: 'Técnico TAE' },
+  { id: 'discente', label: 'Discente' },
+];
+
+const SeletorCategoriaPerfil: React.FC<{
+  valor: CategoriaComunidade;
+  aoMudar: (val: CategoriaComunidade) => void;
+}> = ({ valor, aoMudar }) => (
+  <div className="flex items-center gap-1.5 flex-wrap">
+    <span className="text-[11px] text-slate-400 font-medium">Categoria:</span>
+    <div className="inline-flex items-center p-0.5 rounded-lg bg-[#0a1020] border border-[#223154] text-xs flex-wrap">
+      {OPCOES_SEGMENTO.map((op) => (
+        <button
+          key={op.id}
+          type="button"
+          onClick={() => aoMudar(op.id)}
+          className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
+            valor === op.id
+              ? 'bg-teal-500 text-slate-950 shadow-xs'
+              : 'text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          {op.label}
+        </button>
+      ))}
+    </div>
+  </div>
+);
 
 interface PagePerfilProps {
   dados: any;
   carregando: boolean;
 }
 
+const ORDEM_FAIXA_ETARIA = [
+  'Até 17 anos',
+  '18 a 24 anos',
+  '25 a 34 anos',
+  '35 a 44 anos',
+  '45 a 54 anos',
+  '55 a 64 anos',
+  '65 anos ou mais',
+  'Prefiro não responder',
+];
+
 export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => {
-  const total = dados?.total || 0;
-  const campus = dados?.campus || [];
-  const vinculo = dados?.vinculo || [];
-  const generoAgrup = dados?.genero_agrupado || [];
-  const generoDet = dados?.genero_detalhado || [];
-  const corRaca = dados?.cor_raca || [];
-  const faixaEtaria = dados?.faixa_etaria || [];
-  const pcd = dados?.pcd || [];
-  const nomeSocial = dados?.nome_social || [];
-  const orientacao = dados?.orientacao_sexual || [];
-  const shannon = dados?.shannon_por_campus || {};
-  const pluralidade = dados?.pluralidade || {};
+  const generoDetRaw = dados?.genero_detalhado || [];
+  const corRacaRaw = dados?.cor_raca || [];
+  const orientacaoRaw = dados?.orientacao_sexual || [];
+  const faixaEtariaRaw = dados?.faixa_etaria || [];
+  const pcdRaw = dados?.pcd || [];
 
-  // Filtrar apenas respostas com mais de 1 ocorrência para Identidade de Gênero Detalhada e Orientação Sexual
-  const generoDetFiltrado = generoDet.filter((g: any) => g.categoria && g.n > 1);
-  const orientacaoFiltrada = orientacao.filter((o: any) => o.categoria && o.n > 1);
+  // Estados independentes de filtro de categoria ("Geral", "Docente", "Técnico TAE", "Discente") para cada gráfico
+  const [segGenero, setSegGenero] = useState<CategoriaComunidade>('geral');
+  const [segCorRaca, setSegCorRaca] = useState<CategoriaComunidade>('geral');
+  const [segOrientacao, setSegOrientacao] = useState<CategoriaComunidade>('geral');
+  const [segFaixaEtaria, setSegFaixaEtaria] = useState<CategoriaComunidade>('geral');
+  const [segPcd, setSegPcd] = useState<CategoriaComunidade>('geral');
 
-  // Função auxiliar para criar opção de barra horizontal ordenada
-  const criarOpcaoBarra = (itens: { categoria: string; n: number }[], paletaCor = PALETA_ACESSIVEL[0]) => {
-    const ordenados = [...itens].sort((a, b) => b.n - a.n);
+  // Função utilitária que filtra por segmento e soma quantidades por categoria
+  const agregarPorCategoria = (
+    rows: any[],
+    segmentoSelecionado: CategoriaComunidade,
+    categoriasFixas?: readonly string[]
+  ): { itens: { categoria: string; n: number }[]; totalSegmento: number } => {
+    const filtrados = rows.filter((r: any) =>
+      segmentoSelecionado === 'geral' ? true : r.segmento === segmentoSelecionado
+    );
+
+    const mapa: Record<string, number> = {};
+    if (categoriasFixas) {
+      categoriasFixas.forEach((c) => {
+        mapa[c] = 0;
+      });
+    }
+
+    filtrados.forEach((r: any) => {
+      if (!r.categoria) return;
+      mapa[r.categoria] = (mapa[r.categoria] || 0) + Number(r.n || 0);
+    });
+
+    const itens = Object.entries(mapa)
+      .map(([categoria, n]) => ({ categoria, n }))
+      .filter((item) => (categoriasFixas ? true : item.n > 0));
+
+    const totalSegmento = itens.reduce((acc, i) => acc + i.n, 0);
+    return { itens, totalSegmento };
+  };
+
+  // 1. Identidade de Gênero Detalhada (6 categorias oficiais da Regra de Ouro)
+  const { itens: generoItens, totalSegmento: totalGenero } = agregarPorCategoria(
+    generoDetRaw,
+    segGenero,
+    CATEGORIAS_GENERO_OFICIAIS
+  );
+
+  // 2. Cor / Raça
+  const { itens: corRacaItens, totalSegmento: totalCorRaca } = agregarPorCategoria(
+    corRacaRaw,
+    segCorRaca
+  );
+
+  // 3. Orientação Sexual (termos normalizados e grafias unificadas)
+  const { itens: orientacaoItens, totalSegmento: totalOrientacao } = agregarPorCategoria(
+    orientacaoRaw,
+    segOrientacao
+  );
+
+  // 4. Faixa Etária
+  const { itens: faixaItensBrutos, totalSegmento: totalFaixa } = agregarPorCategoria(
+    faixaEtariaRaw,
+    segFaixaEtaria
+  );
+  const faixaItens = [...faixaItensBrutos].sort((a, b) => {
+    const idxA = ORDEM_FAIXA_ETARIA.indexOf(a.categoria);
+    const idxB = ORDEM_FAIXA_ETARIA.indexOf(b.categoria);
+    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+    return b.n - a.n;
+  });
+
+  // 5. PCD
+  const { itens: pcdItens, totalSegmento: totalPcd } = agregarPorCategoria(pcdRaw, segPcd);
+
+  // Função auxiliar para criar opção de barra horizontal
+  const criarOpcaoBarra = (
+    itens: { categoria: string; n: number }[],
+    paletaCor = PALETA_ACESSIVEL[0],
+    denominadorBase = 0,
+    manterOrdem = false
+  ) => {
+    const ordenados = manterOrdem ? [...itens] : [...itens].sort((a, b) => b.n - a.n);
     return {
       tooltip: {
         trigger: 'axis',
@@ -46,14 +155,14 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
         formatter: (params: any[]) => {
           const item = params[0];
           const val = Number(item.value || 0);
-          const pct = total > 0 ? ((val / total) * 100).toFixed(1) : '0,0';
+          const pct = denominadorBase > 0 ? ((val / denominadorBase) * 100).toFixed(1) : '0,0';
           return `<div class="font-bold text-slate-100">${item.name}</div>
             <div class="text-xs text-slate-300 mt-1">
               Quantidade: <strong class="text-teal-300">${formatarNumero(val)}</strong> (${pct}%)
             </div>`;
         },
       },
-      grid: { left: '3%', right: '8%', top: '4%', bottom: '5%', containLabel: true },
+      grid: { left: '3%', right: '12%', top: '4%', bottom: '5%', containLabel: true },
       xAxis: {
         type: 'value',
         axisLabel: { fontSize: 10, color: '#94a3b8' },
@@ -62,7 +171,7 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
       yAxis: {
         type: 'category',
         data: ordenados.map((i) => i.categoria || 'Não informado').reverse(),
-        axisLabel: { fontSize: 11, width: 140, overflow: 'truncate', color: '#cbd5e1' },
+        axisLabel: { fontSize: 11, width: 160, overflow: 'truncate', color: '#cbd5e1' },
       },
       series: [
         {
@@ -73,7 +182,7 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
             show: true,
             position: 'right',
             formatter: (p: any) => {
-              const pct = total > 0 ? ((p.value / total) * 100).toFixed(1) : 0;
+              const pct = denominadorBase > 0 ? ((p.value / denominadorBase) * 100).toFixed(1) : '0.0';
               return `${formatarNumero(p.value)} (${pct}%)`;
             },
             fontSize: 10,
@@ -82,33 +191,6 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
         },
       ],
     };
-  };
-
-  // Gráfico de Rosca para Gênero Agrupado
-  const optionRoscaGenero = {
-    tooltip: {
-      trigger: 'item',
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
-      formatter: (p: any) => {
-        return `<div class="font-bold text-slate-100">${p.name}</div>
-          <div class="text-xs mt-1 text-slate-300">Respondentes: <strong class="text-teal-300">${formatarNumero(p.value)}</strong> (${p.percent}%)</div>`;
-      },
-    },
-    legend: { bottom: '0', textStyle: { fontSize: 11, color: '#cbd5e1' } },
-    series: [
-      {
-        name: 'Gênero Agrupado',
-        type: 'pie',
-        radius: ['45%', '70%'],
-        avoidLabelOverlap: true,
-        itemStyle: { borderRadius: 6, borderColor: '#131d36', borderWidth: 2 },
-        color: PALETA_ACESSIVEL,
-        label: { show: false },
-        data: generoAgrup.map((g: any) => ({ name: g.categoria || 'Não informado', value: g.n })),
-      },
-    ],
   };
 
   // Gráfico de Rosca para PCD
@@ -132,18 +214,16 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
         avoidLabelOverlap: true,
         itemStyle: { borderRadius: 6, borderColor: '#131d36', borderWidth: 2 },
         color: [PALETA_ACESSIVEL[1], PALETA_ACESSIVEL[0], PALETA_ACESSIVEL[9]],
-        label: { show: false },
-        data: pcd.map((item: any) => ({ name: item.categoria || 'Não informado', value: item.n })),
+        label: {
+          show: true,
+          formatter: '{b}: {d}%',
+          color: '#cbd5e1',
+          fontSize: 11,
+        },
+        data: pcdItens.map((item) => ({ name: item.categoria || 'Não informado', value: item.n })),
       },
     ],
   };
-
-  // Média do Índice de Shannon geral
-  const valoresShannon = Object.values(shannon) as number[];
-  const mediaShannon =
-    valoresShannon.length > 0
-      ? (valoresShannon.reduce((a, b) => a + b, 0) / valoresShannon.length).toFixed(1)
-      : '0';
 
   return (
     <div className="space-y-6">
@@ -151,182 +231,94 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
       <div className="border-b border-[#1f2d4e] pb-3">
         <h2 className="text-xl font-bold text-slate-100">1. Perfil Demográfico e Representatividade</h2>
         <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
-          Caracterização demográfica da comunidade do IFRS: vínculo, identidade de gênero, autodeclaração
-          étnico-racial, faixa etária, pessoas com deficiência e índices de diversidade.
+          Caracterização sociodemográfica da comunidade do IFRS por identidade de gênero, autodeclaração
+          étnico-racial, orientação sexual, faixa etária e pessoas com deficiência, com filtro individual por segmento (Geral, Docente, Técnico TAE e Discente).
         </p>
       </div>
 
-      {/* Destaques de Pluralidade e Shannon */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard
-          titulo="Índice de Diversidade Médio (Shannon)"
-          valorPrincipal={`${mediaShannon} / 100`}
-          subvalor="equitabilidade"
-          textoComplementar="Medida consolidada da diversidade demográfica nos campi"
-          notaMetodologica="H' normalizado (−Σ pᵢ·ln(pᵢ) / ln k) sobre as categorias declaradas nos campi"
-          icone={<Sparkles className="w-5 h-5 text-emerald-400" />}
-          corDestaque="emerald"
-        />
-
-        <KpiCard
-          titulo="Pluralidade de Gênero"
-          valorPrincipal={`${generoDetFiltrado.length || pluralidade.genero || 0} identidades`}
-          subvalor="com mais de 1 relato"
-          textoComplementar="Expressões e identidades com mais de 1 ocorrência"
-          notaMetodologica="Considera apenas identidades de gênero com mais de uma ocorrência (n > 1 respondentes). Respostas com ocorrência única foram desconsideradas."
-          icone={<Users className="w-5 h-5 text-sky-400" />}
-          corDestaque="blue"
-        />
-
-        <KpiCard
-          titulo="Pluralidade Étnico-Racial"
-          valorPrincipal={`${pluralidade.cor_raca || 0} categorias`}
-          subvalor="autodeclaradas"
-          textoComplementar="Representação de todos os grupos do censo nacional"
-          notaMetodologica="Todas as 5 categorias do IBGE + Prefiro não responder presentes"
-          icone={<Layers className="w-5 h-5 text-indigo-400" />}
-          corDestaque="indigo"
-        />
-
-        <KpiCard
-          titulo="Uso de Nome Social"
-          valorPrincipal={formatarPercentual(
-            total > 0
-              ? (Number(nomeSocial.find((r: any) => r.categoria === 'Sim')?.n || 0) / total) * 100
-              : 0
-          )}
-          subvalor={`${formatarNumero(nomeSocial.find((r: any) => r.categoria === 'Sim')?.n || 0)} pessoas`}
-          textoComplementar={`${formatarNumero(nomeSocial.find((r: any) => r.categoria === 'Sim')?.n || 0)} pessoas utilizam nome social institucional`}
-          notaMetodologica="Garantia e exercício do direito ao nome social institucional"
-          icone={<ShieldCheck className="w-5 h-5 text-sky-400" />}
-          corDestaque="blue"
-        />
-      </div>
-
-      {/* Gráficos de Perfil: Campus e Vínculo */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ChartCard
-          titulo="Distribuição de Respondentes por Campus"
-          subtitulo="Total de participações voluntárias em cada unidade"
-          option={criarOpcaoBarra(campus, PALETA_ACESSIVEL[0])}
-          altura={420}
-          carregando={carregando}
-          tabelaDados={{
-            cabecalhos: ['Campus', 'Respondentes', '% Amostra'],
-            linhas: campus.map((c: any) => [
-              c.categoria,
-              c.n,
-              formatarPercentual(total > 0 ? (c.n / total) * 100 : 0),
-            ]),
-          }}
-        />
-
-        <ChartCard
-          titulo="Distribuição por Vínculo Institucional"
-          subtitulo="Segmentos da comunidade acadêmica do IFRS"
-          option={criarOpcaoBarra(vinculo, PALETA_ACESSIVEL[1])}
-          altura={420}
-          carregando={carregando}
-          tabelaDados={{
-            cabecalhos: ['Vínculo', 'Respondentes', '% Amostra'],
-            linhas: vinculo.map((v: any) => [
-              v.categoria,
-              v.n,
-              formatarPercentual(total > 0 ? (v.n / total) * 100 : 0),
-            ]),
-          }}
-        />
-      </div>
-
-      {/* Gráficos de Gênero e Cor/Raça */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <ChartCard
-          titulo="Gênero (Agrupado)"
-          subtitulo="Distribuição agregada das identidades"
-          option={optionRoscaGenero}
-          altura={340}
-          carregando={carregando}
-          tabelaDados={{
-            cabecalhos: ['Gênero', 'Respondentes', '% Amostra'],
-            linhas: generoAgrup.map((g: any) => [
+      {/* Gráfico 1: Identidade de Gênero Detalhada (Largura Completa) */}
+      <ChartCard
+        titulo="Identidade de Gênero Detalhada"
+        subtitulo="Classificação padronizada nas 6 categorias oficiais: Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binárias"
+        n={totalGenero}
+        elementoCabecalho={<SeletorCategoriaPerfil valor={segGenero} aoMudar={setSegGenero} />}
+        option={criarOpcaoBarra(generoItens, PALETA_ACESSIVEL[3], totalGenero)}
+        altura={340}
+        carregando={carregando}
+        avisoCustomizado="Nota metodológica: contempla estritamente as 6 categorias oficiais de gênero (Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binárias). Respostas inválidas e 'Prefiro não responder' são desconsideradas."
+        tabelaDados={{
+          cabecalhos: ['Identidade de Gênero', 'Respondentes', '% Válidos no Segmento'],
+          linhas: [...generoItens]
+            .sort((a, b) => b.n - a.n)
+            .map((g) => [
               g.categoria,
               g.n,
-              formatarPercentual(total > 0 ? (g.n / total) * 100 : 0),
+              formatarPercentual(totalGenero > 0 ? (g.n / totalGenero) * 100 : 0),
             ]),
-          }}
-        />
+        }}
+      />
 
-        <div className="lg:col-span-2">
-          <ChartCard
-            titulo="Identidade de Gênero Detalhada"
-            subtitulo="Todas as autodeclarações de gênero fornecidas pelos respondentes"
-            option={criarOpcaoBarra(generoDetFiltrado, PALETA_ACESSIVEL[3])}
-            altura={340}
-            carregando={carregando}
-            avisoCustomizado="Nota informativa: são exibidas apenas categorias com mais de uma ocorrência (n > 1 respondentes). Respostas com ocorrência única foram desconsideradas."
-            tabelaDados={{
-              cabecalhos: ['Identidade Declarada', 'Respondentes', '% Amostra'],
-              linhas: generoDetFiltrado.map((g: any) => [
-                g.categoria,
-                g.n,
-                formatarPercentual(total > 0 ? (g.n / total) * 100 : 0),
-              ]),
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Gráficos de Cor/Raça e Orientação Sexual */}
+      {/* Gráficos 2 e 3: Cor/Raça e Orientação Sexual */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ChartCard
           titulo="Autodeclaração Étnico-Racial (Cor / Raça)"
-          subtitulo="Categorias censitárias autodeclaradas"
-          option={criarOpcaoBarra(corRaca, PALETA_ACESSIVEL[2])}
+          subtitulo="Categorias censitárias autodeclaradas (IBGE)"
+          n={totalCorRaca}
+          elementoCabecalho={<SeletorCategoriaPerfil valor={segCorRaca} aoMudar={setSegCorRaca} />}
+          option={criarOpcaoBarra(corRacaItens, PALETA_ACESSIVEL[2], totalCorRaca)}
           altura={350}
           carregando={carregando}
           tabelaDados={{
-            cabecalhos: ['Cor/Raça', 'Respondentes', '% Amostra'],
-            linhas: corRaca.map((c: any) => [
-              c.categoria,
-              c.n,
-              formatarPercentual(total > 0 ? (c.n / total) * 100 : 0),
-            ]),
+            cabecalhos: ['Cor/Raça', 'Respondentes', '% no Segmento'],
+            linhas: [...corRacaItens]
+              .sort((a, b) => b.n - a.n)
+              .map((c) => [
+                c.categoria,
+                c.n,
+                formatarPercentual(totalCorRaca > 0 ? (c.n / totalCorRaca) * 100 : 0),
+              ]),
           }}
         />
 
         <ChartCard
           titulo="Orientação Sexual"
-          subtitulo="Diversidade de orientações declaradas"
-          option={criarOpcaoBarra(orientacaoFiltrada, PALETA_ACESSIVEL[6])}
+          subtitulo="Diversidade de orientações sexuais declaradas (com termos equivalentes e variações de grafia consolidados)"
+          n={totalOrientacao}
+          elementoCabecalho={<SeletorCategoriaPerfil valor={segOrientacao} aoMudar={setSegOrientacao} />}
+          option={criarOpcaoBarra(orientacaoItens, PALETA_ACESSIVEL[6], totalOrientacao)}
           altura={350}
           carregando={carregando}
-          avisoCustomizado="Nota informativa: são exibidas apenas categorias com mais de uma ocorrência (n > 1 respondentes). Respostas com ocorrência única foram desconsideradas."
+          avisoCustomizado="Nota metodológica: grafias equivalentes (como 'Demissexual' e 'Demisexual', 'Heterossexual' e 'Hetero', 'Homossexual' e 'Gay') foram consolidadas. Respostas satíricas ou inválidas foram desconsideradas."
           tabelaDados={{
-            cabecalhos: ['Orientação Sexual', 'Respondentes', '% Amostra'],
-            linhas: orientacaoFiltrada.map((o: any) => [
-              o.categoria,
-              o.n,
-              formatarPercentual(total > 0 ? (o.n / total) * 100 : 0),
-            ]),
+            cabecalhos: ['Orientação Sexual', 'Respondentes', '% no Segmento'],
+            linhas: [...orientacaoItens]
+              .sort((a, b) => b.n - a.n)
+              .map((o) => [
+                o.categoria,
+                o.n,
+                formatarPercentual(totalOrientacao > 0 ? (o.n / totalOrientacao) * 100 : 0),
+              ]),
           }}
         />
       </div>
 
-      {/* Faixa Etária e PCD */}
+      {/* Gráficos 4 e 5: Faixa Etária e PCD */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <ChartCard
             titulo="Distribuição por Faixa Etária"
             subtitulo="Estrutura etária dos respondentes"
-            option={criarOpcaoBarra(faixaEtaria, PALETA_ACESSIVEL[4])}
-            altura={320}
+            n={totalFaixa}
+            elementoCabecalho={<SeletorCategoriaPerfil valor={segFaixaEtaria} aoMudar={setSegFaixaEtaria} />}
+            option={criarOpcaoBarra(faixaItens, PALETA_ACESSIVEL[4], totalFaixa, true)}
+            altura={340}
             carregando={carregando}
             tabelaDados={{
-              cabecalhos: ['Faixa Etária', 'Respondentes', '% Amostra'],
-              linhas: faixaEtaria.map((f: any) => [
+              cabecalhos: ['Faixa Etária', 'Respondentes', '% no Segmento'],
+              linhas: faixaItens.map((f) => [
                 f.categoria,
                 f.n,
-                formatarPercentual(total > 0 ? (f.n / total) * 100 : 0),
+                formatarPercentual(totalFaixa > 0 ? (f.n / totalFaixa) * 100 : 0),
               ]),
             }}
           />
@@ -335,16 +327,20 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
         <ChartCard
           titulo="Pessoas com Deficiência (PCD)"
           subtitulo="Proporção de pessoas autodeclaradas com deficiência"
+          n={totalPcd}
+          elementoCabecalho={<SeletorCategoriaPerfil valor={segPcd} aoMudar={setSegPcd} />}
           option={optionRoscaPcd}
-          altura={320}
+          altura={340}
           carregando={carregando}
           tabelaDados={{
-            cabecalhos: ['Declaração PCD', 'Respondentes', '% Amostra'],
-            linhas: pcd.map((item: any) => [
-              item.categoria,
-              item.n,
-              formatarPercentual(total > 0 ? (item.n / total) * 100 : 0),
-            ]),
+            cabecalhos: ['Declaração PCD', 'Respondentes', '% no Segmento'],
+            linhas: [...pcdItens]
+              .sort((a, b) => b.n - a.n)
+              .map((item) => [
+                item.categoria,
+                item.n,
+                formatarPercentual(totalPcd > 0 ? (item.n / totalPcd) * 100 : 0),
+              ]),
           }}
         />
       </div>

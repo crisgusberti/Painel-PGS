@@ -3,6 +3,76 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+/**
+ * Regra de Ouro de Classificação e Normalização de Gênero em todo o Painel:
+ * Contém estritamente as 6 categorias válidas. Qualquer outra resposta (zueras,
+ * orientações sexuais preenchidas no campo de gênero ou 'Prefiro não responder')
+ * retorna NULL e é desconsiderada nos gráficos e filtros de gênero.
+ */
+export const CATEGORIAS_GENERO_OFICIAIS = [
+  'Mulher',
+  'Homem',
+  'Mulher Trans',
+  'Homem Trans',
+  'Travesti',
+  'Não-binárias',
+] as const;
+
+export type CategoriaGeneroOficial = (typeof CATEGORIAS_GENERO_OFICIAIS)[number];
+
+export const SQL_GENERO_NORMALIZADO = `(
+  CASE
+    WHEN genero ILIKE '%travesti%' THEN 'Travesti'
+    WHEN genero ILIKE '%não-binár%' OR genero ILIKE '%nao-binar%'
+      OR genero ILIKE '%agênero%' OR genero ILIKE '%alexigênero%'
+      OR genero ILIKE '%fluido%' OR genero ILIKE '%fluído%'
+      OR genero ILIKE '%demigirl%' OR genero ILIKE '%multigênero%' THEN 'Não-binárias'
+    WHEN genero ILIKE '%mulher%' AND genero ILIKE '%trans%' THEN 'Mulher Trans'
+    WHEN genero ILIKE '%homem%' AND genero ILIKE '%trans%' THEN 'Homem Trans'
+    WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
+    WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
+    ELSE NULL
+  END
+)`;
+
+/**
+ * Regra Global de Escopo Institucional:
+ * Trabalhadores terceirizados são removidos de todas as análises e gráficos do painel.
+ */
+export const SQL_FILTRO_SEM_TERCEIRIZADOS = `(
+  (vinculo IS NULL OR vinculo NOT ILIKE '%Terceirizado%')
+  AND (cargo IS NULL OR cargo NOT ILIKE '%Terceirizado%')
+)`;
+
+/**
+ * Normalização de Orientação Sexual (consolida termos com grafia variante como Demisexual/Demissexual,
+ * Hetero/Heterossexual, Gay/Homossexual, etc. e expurga respostas inválidas de ocorrência única).
+ */
+export const SQL_ORIENTACAO_NORMALIZADA = `(
+  CASE
+    WHEN trim(orientacao_sexual) ILIKE 'demissexual%' OR trim(orientacao_sexual) ILIKE 'demisexual%' THEN 'Demissexual'
+    WHEN trim(orientacao_sexual) ILIKE 'heterossexual%' OR trim(orientacao_sexual) ILIKE 'hetero' THEN 'Heterossexual'
+    WHEN trim(orientacao_sexual) ILIKE 'homossexual%' OR trim(orientacao_sexual) ILIKE 'gay%' THEN 'Homossexual (Gay/Lésbica)'
+    WHEN trim(orientacao_sexual) ILIKE 'bissexual%' THEN 'Bissexual'
+    WHEN trim(orientacao_sexual) ILIKE 'pansexual%' OR trim(orientacao_sexual) ILIKE 'pan %' THEN 'Pansexual'
+    WHEN trim(orientacao_sexual) ILIKE 'assexual%' OR trim(orientacao_sexual) ILIKE 'aroace%' OR trim(orientacao_sexual) ILIKE 'graysexual%' OR trim(orientacao_sexual) ILIKE 'arromântic%' THEN 'Assexual'
+    WHEN trim(orientacao_sexual) = 'Prefiro não responder' THEN 'Prefiro não responder'
+    ELSE NULL
+  END
+)`;
+
+/**
+ * Classificação de segmento da comunidade acadêmica (Docente, Técnico TAE, Discente)
+ */
+export const SQL_SEGMENTO_COMUNIDADE = `(
+  CASE
+    WHEN vinculo ILIKE '%Discente%' THEN 'discente'
+    WHEN vinculo ILIKE '%Substituto%' OR cargo ILIKE '%Docente%' THEN 'docente'
+    WHEN cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%' THEN 'tecnico_tae'
+    ELSE 'outro'
+  END
+)`;
+
 export const ESCALA_CONCORDANCIA_Q24: Record<string, number> = {
   'Concordo Totalmente': 5,
   'Concordo': 4,

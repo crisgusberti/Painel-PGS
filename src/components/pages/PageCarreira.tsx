@@ -7,9 +7,10 @@ import React, { useState, useRef } from 'react';
 import ReactECharts from 'echarts-for-react';
 import { ChartCard } from '../ChartCard';
 import { KpiCard } from '../KpiCard';
-import { Briefcase, Award, TrendingUp, Info, Download, BarChart3, Table, Layers } from 'lucide-react';
+import { Briefcase, Award, TrendingUp, Info, Download, BarChart3, Table, Layers, AlertCircle } from 'lucide-react';
 import { formatarNumero, formatarPercentual, formatarNota } from '../../lib/formatters';
 import { PALETA_ACESSIVEL } from '../../lib/chartTheme';
+import { CATEGORIAS_GENERO_OFICIAIS, CategoriaGeneroOficial } from '../../lib/escalas';
 
 type SegmentoCarreira = 'geral' | 'docentes' | 'tecnicos';
 
@@ -80,7 +81,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
   const [modoAcesso, setModoAcesso] = useState<'comparativo' | 'detalhado'>('comparativo');
 
   // Seletor independente de gênero e modo de visão para o bloco integrado de Responsabilidade de Cuidado
-  const [generoCuidado, setGeneroCuidado] = useState<'todos' | 'Mulheres' | 'Homens'>('todos');
+  const [generoCuidado, setGeneroCuidado] = useState<'todos' | CategoriaGeneroOficial>('todos');
   const [visaoCuidado, setVisaoCuidado] = useState<'integrada' | 'grafico' | 'tabela'>('integrada');
   const chartCuidadoRef = useRef<any>(null);
 
@@ -119,9 +120,9 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
   });
 
   // ========================================================
-  // COMPARAÇÃO DOS 3 UNIVERSOS AGLUTINADA: PROGRESSÃO POR MÉRITO
+  // COMPARAÇÃO DOS 3 UNIVERSOS AGLUTINADA (100% EMPILHADO): PROGRESSÃO POR MÉRITO
   // Aglutina: Positivo (Notas 4 e 5: Concordo), Neutro (Nota 3), Negativo (Notas 1 e 2: Discordo)
-  // Sem separar por sexo, comparando Geral x Docentes x Técnicos
+  // Sem separar por sexo, comparando Geral x Docentes x Técnicos de forma 100% proporcional
   // ========================================================
   const universosProgressao = [
     { id: 'geral', nome: 'Geral (Todos)', itens: progressaoDist },
@@ -146,9 +147,9 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
       neu,
       neg,
       total,
-      pctPos: total > 0 ? ((pos / total) * 100).toFixed(1) : '0,0',
-      pctNeu: total > 0 ? ((neu / total) * 100).toFixed(1) : '0,0',
-      pctNeg: total > 0 ? ((neg / total) * 100).toFixed(1) : '0,0',
+      pctPos: total > 0 ? Number(((pos / total) * 100).toFixed(1)) : 0,
+      pctNeu: total > 0 ? Number(((neu / total) * 100).toFixed(1)) : 0,
+      pctNeg: total > 0 ? Number(((neg / total) * 100).toFixed(1)) : 0,
     };
   });
 
@@ -164,16 +165,18 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
         const itemObj = dadosAglutinadosProgressao.find((d) => d.universo === uniNome);
         let html = `<div class="font-bold text-slate-100 mb-1">${uniNome}</div>`;
         if (itemObj) {
-          html += `<div class="text-[11px] text-slate-400 mb-2">Total: <strong>${formatarNumero(itemObj.total)}</strong> respondentes</div>`;
+          html += `<div class="text-[11px] text-slate-400 mb-2">Total de respondentes: <strong>${formatarNumero(itemObj.total)}</strong></div>`;
         }
         params.forEach((p) => {
-          const pct =
-            itemObj && itemObj.total > 0
-              ? ((Number(p.value || 0) / itemObj.total) * 100).toFixed(1)
-              : '0,0';
+          let nAbsoluto = 0;
+          if (itemObj) {
+            if (p.seriesName.includes('Concordo')) nAbsoluto = itemObj.pos;
+            else if (p.seriesName.includes('Neutro')) nAbsoluto = itemObj.neu;
+            else if (p.seriesName.includes('Discordo')) nAbsoluto = itemObj.neg;
+          }
           html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
             <span>${p.marker} ${p.seriesName}</span>
-            <span class="font-bold text-slate-100">${formatarNumero(p.value)} (${pct}%)</span>
+            <span class="font-bold text-slate-100">${Number(p.value || 0).toFixed(1)}% <span class="text-slate-400 font-normal">(${formatarNumero(nAbsoluto)} resp.)</span></span>
           </div>`;
         });
         return html;
@@ -196,7 +199,9 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
     },
     yAxis: {
       type: 'value',
-      axisLabel: { color: '#94a3b8' },
+      min: 0,
+      max: 100,
+      axisLabel: { formatter: '{value}%', color: '#94a3b8' },
       splitLine: { lineStyle: { stroke: '#1f2d4e' } },
     },
     series: [
@@ -208,15 +213,12 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
         label: {
           show: true,
           position: 'inside',
-          formatter: (p: any) => {
-            const itemObj = dadosAglutinadosProgressao[p.dataIndex];
-            return itemObj ? `${itemObj.pctPos}%` : '';
-          },
+          formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
           color: '#ffffff',
           fontWeight: 'bold',
           fontSize: 11,
         },
-        data: dadosAglutinadosProgressao.map((d) => d.pos),
+        data: dadosAglutinadosProgressao.map((d) => d.pctPos),
       },
       {
         name: 'Neutro',
@@ -226,14 +228,11 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
         label: {
           show: true,
           position: 'inside',
-          formatter: (p: any) => {
-            const itemObj = dadosAglutinadosProgressao[p.dataIndex];
-            return itemObj ? `${itemObj.pctNeu}%` : '';
-          },
+          formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
           color: '#f1f5f9',
           fontSize: 10,
         },
-        data: dadosAglutinadosProgressao.map((d) => d.neu),
+        data: dadosAglutinadosProgressao.map((d) => d.pctNeu),
       },
       {
         name: 'Discordo (Discordo totalmente + Discordo)',
@@ -243,21 +242,18 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
         label: {
           show: true,
           position: 'inside',
-          formatter: (p: any) => {
-            const itemObj = dadosAglutinadosProgressao[p.dataIndex];
-            return itemObj ? `${itemObj.pctNeg}%` : '';
-          },
+          formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
           color: '#ffffff',
           fontWeight: 'bold',
           fontSize: 10,
         },
-        data: dadosAglutinadosProgressao.map((d) => d.neg),
+        data: dadosAglutinadosProgressao.map((d) => d.pctNeg),
       },
     ],
   };
 
   // ========================================================
-  // COMPARAÇÃO DOS 3 UNIVERSOS AGLUTINADA: ACESSO A OPORTUNIDADES
+  // COMPARAÇÃO DOS 3 UNIVERSOS AGLUTINADA (100% EMPILHADO): ACESSO A OPORTUNIDADES
   // Aglutina: "Muito equitativo" + "Equitativo" vs "Pouco equitativo" + "Nada equitativo"
   // e "Não sei avaliar / Prefiro não responder"
   // ========================================================
@@ -287,9 +283,9 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
       neg,
       neutro,
       total,
-      pctPos: total > 0 ? ((pos / total) * 100).toFixed(1) : '0,0',
-      pctNeg: total > 0 ? ((neg / total) * 100).toFixed(1) : '0,0',
-      pctNeu: total > 0 ? ((neutro / total) * 100).toFixed(1) : '0,0',
+      pctPos: total > 0 ? Number(((pos / total) * 100).toFixed(1)) : 0,
+      pctNeg: total > 0 ? Number(((neg / total) * 100).toFixed(1)) : 0,
+      pctNeu: total > 0 ? Number(((neutro / total) * 100).toFixed(1)) : 0,
     };
   });
 
@@ -305,16 +301,18 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
         const itemObj = dadosAglutinadosAcesso.find((d) => d.universo === uniNome);
         let html = `<div class="font-bold text-slate-100 mb-1">${uniNome}</div>`;
         if (itemObj) {
-          html += `<div class="text-[11px] text-slate-400 mb-2">Total: <strong>${formatarNumero(itemObj.total)}</strong> respondentes</div>`;
+          html += `<div class="text-[11px] text-slate-400 mb-2">Total de respondentes: <strong>${formatarNumero(itemObj.total)}</strong></div>`;
         }
         params.forEach((p) => {
-          const pct =
-            itemObj && itemObj.total > 0
-              ? ((Number(p.value || 0) / itemObj.total) * 100).toFixed(1)
-              : '0,0';
+          let nAbsoluto = 0;
+          if (itemObj) {
+            if (p.seriesName.includes('Equitativo')) nAbsoluto = itemObj.pos;
+            else if (p.seriesName.includes('Pouco ou nada')) nAbsoluto = itemObj.neg;
+            else if (p.seriesName.includes('Não sei avaliar')) nAbsoluto = itemObj.neutro;
+          }
           html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
             <span>${p.marker} ${p.seriesName}</span>
-            <span class="font-bold text-slate-100">${formatarNumero(p.value)} (${pct}%)</span>
+            <span class="font-bold text-slate-100">${Number(p.value || 0).toFixed(1)}% <span class="text-slate-400 font-normal">(${formatarNumero(nAbsoluto)} resp.)</span></span>
           </div>`;
         });
         return html;
@@ -333,7 +331,9 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
     },
     yAxis: {
       type: 'value',
-      axisLabel: { color: '#94a3b8' },
+      min: 0,
+      max: 100,
+      axisLabel: { formatter: '{value}%', color: '#94a3b8' },
       splitLine: { lineStyle: { stroke: '#1f2d4e' } },
     },
     series: [
@@ -345,15 +345,12 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
         label: {
           show: true,
           position: 'inside',
-          formatter: (p: any) => {
-            const itemObj = dadosAglutinadosAcesso[p.dataIndex];
-            return itemObj ? `${itemObj.pctPos}%` : '';
-          },
+          formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
           color: '#ffffff',
           fontWeight: 'bold',
           fontSize: 11,
         },
-        data: dadosAglutinadosAcesso.map((d) => d.pos),
+        data: dadosAglutinadosAcesso.map((d) => d.pctPos),
       },
       {
         name: 'Pouco ou nada equitativo',
@@ -363,15 +360,12 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
         label: {
           show: true,
           position: 'inside',
-          formatter: (p: any) => {
-            const itemObj = dadosAglutinadosAcesso[p.dataIndex];
-            return itemObj ? `${itemObj.pctNeg}%` : '';
-          },
+          formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
           color: '#ffffff',
           fontWeight: 'bold',
           fontSize: 10,
         },
-        data: dadosAglutinadosAcesso.map((d) => d.neg),
+        data: dadosAglutinadosAcesso.map((d) => d.pctNeg),
       },
       {
         name: 'Não sei avaliar / Sem resposta',
@@ -381,14 +375,11 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
         label: {
           show: true,
           position: 'inside',
-          formatter: (p: any) => {
-            const itemObj = dadosAglutinadosAcesso[p.dataIndex];
-            return itemObj ? `${itemObj.pctNeu}%` : '';
-          },
+          formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
           color: '#f1f5f9',
           fontSize: 10,
         },
-        data: dadosAglutinadosAcesso.map((d) => d.neutro),
+        data: dadosAglutinadosAcesso.map((d) => d.pctNeu),
       },
     ],
   };
@@ -407,7 +398,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
     segmentoProgressao === 'geral' ? 'Geral' : segmentoProgressao === 'docentes' ? 'Docentes' : 'Técnicos (TAE)';
   const notaRodapeProgressao =
     mediaMulher && mediaHomem
-      ? `Médias (${rotuloSegProgressao}): Geral (${mediaGeralSeg.replace('.', ',')}) | Mulheres (${String(mediaMulher).replace('.', ',')}) | Homens (${String(mediaHomem).replace('.', ',')})`
+      ? `Médias (${rotuloSegProgressao}): Geral (${mediaGeralSeg.replace('.', ',')}) | Mulher (${String(mediaMulher).replace('.', ',')}) | Homem (${String(mediaHomem).replace('.', ',')})`
       : `Médias calculadas sobre o segmento: ${rotuloSegProgressao}`;
 
   // 1. Proporção em cargos de gestão
@@ -416,7 +407,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
     .reduce((acc: number, r: any) => acc + Number(r.n), 0);
 
   const mulheresGestoras = gestaoIntersec
-    .filter((r: any) => r.ocupa_cargo_gestao === 'Sim' && r.genero_grp === 'Mulher')
+    .filter((r: any) => r.ocupa_cargo_gestao === 'Sim' && (r.genero_grp === 'Mulher' || r.genero_grp === 'Mulher Trans'))
     .reduce((acc: number, r: any) => acc + Number(r.n), 0);
 
   const negrosGestores = gestaoIntersec
@@ -432,8 +423,24 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
         ).toFixed(2)
       : '—';
 
-  // Opção ECharts: Funil de Cargos por Gênero
-  const cargosUnicos = Array.from(new Set(funilCargo.map((r: any) => r.cargo)));
+  // Opção ECharts: Composição de Servidores por Cargo e Gênero (6 categorias oficiais da Regra de Ouro)
+  const ordemCargosPreferencial = [
+    'Docente',
+    'Técnico-Administrativo Nível E',
+    'Técnico-Administrativo Nível D',
+    'Técnico-Administrativo Nível C',
+    'Prefiro não responder',
+  ];
+  const cargosUnicos: string[] = Array.from(new Set<string>(funilCargo.map((r: any) => String(r.cargo)))).sort((a: string, b: string) => {
+    const idxA = ordemCargosPreferencial.indexOf(a);
+    const idxB = ordemCargosPreferencial.indexOf(b);
+    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+    return a.localeCompare(b);
+  });
+
+  const cargosYAxis = [...cargosUnicos].reverse();
+  const totalFunilCargo = funilCargo.reduce((acc: number, r: any) => acc + Number(r.n || 0), 0);
+
   const optionFunilCargo = {
     tooltip: {
       trigger: 'axis',
@@ -441,29 +448,59 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
       backgroundColor: '#0e162b',
       borderColor: '#223154',
       textStyle: { color: '#f1f5f9' },
+      formatter: (params: any[]) => {
+        const cargoNome = params[0]?.axisValueLabel || '';
+        const totalCargo = params.reduce((acc, p) => acc + Number(p.value || 0), 0);
+        let html = `<div class="font-bold text-slate-100 mb-1">${cargoNome}</div>`;
+        html += `<div class="text-[11px] text-slate-400 mb-2">Total no cargo: <strong>${formatarNumero(totalCargo)}</strong></div>`;
+        params.forEach((p) => {
+          const val = Number(p.value || 0);
+          const pct = totalCargo > 0 ? ((val / totalCargo) * 100).toFixed(1) : '0.0';
+          html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
+            <span>${p.marker} ${p.seriesName}</span>
+            <span class="font-bold text-slate-100">${formatarNumero(val)} <span class="text-slate-400 font-normal">(${pct}%)</span></span>
+          </div>`;
+        });
+        return html;
+      },
     },
-    legend: { data: ['Mulher', 'Homem', 'Pessoa não-binária/outras'], bottom: 0, textStyle: { color: '#cbd5e1' } },
-    grid: { left: '3%', right: '4%', top: '4%', bottom: '12%', containLabel: true },
+    legend: { data: [...CATEGORIAS_GENERO_OFICIAIS], bottom: 0, textStyle: { color: '#cbd5e1', fontSize: 10 } },
+    grid: { left: '3%', right: '4%', top: '4%', bottom: '14%', containLabel: true },
     xAxis: {
       type: 'value',
       axisLabel: { color: '#94a3b8' },
       splitLine: { lineStyle: { stroke: '#1f2d4e' } },
     },
-    yAxis: { type: 'category', data: cargosUnicos, axisLabel: { color: '#cbd5e1', fontSize: 11 } },
-    series: ['Mulher', 'Homem', 'Pessoa não-binária/outras'].map((g, idx) => ({
+    yAxis: { type: 'category', data: cargosYAxis, axisLabel: { color: '#cbd5e1', fontSize: 11 } },
+    series: CATEGORIAS_GENERO_OFICIAIS.map((g, idx) => ({
       name: g,
       type: 'bar',
       stack: 'total',
-      itemStyle: { color: PALETA_ACESSIVEL[idx] },
-      data: cargosUnicos.map((cargo) => {
-        const item = funilCargo.find((r: any) => r.cargo === cargo && r.genero_grp === g);
-        return item ? item.n : 0;
+      itemStyle: { color: PALETA_ACESSIVEL[idx % PALETA_ACESSIVEL.length] },
+      data: cargosYAxis.map((cargo) => {
+        return funilCargo
+          .filter((r: any) => r.cargo === cargo && r.genero_grp === g)
+          .reduce((acc: number, it: any) => acc + Number(it.n || 0), 0);
       }),
     })),
   };
 
-  // Opção ECharts: Funções de Gestão (CD, FG, FCC) com filtro de segmento
-  const funcoesUnicas = Array.from(new Set(funcoesFiltradas.map((r: any) => r.funcao)));
+  // Opção ECharts: Funções de Gestão (CD, FG, FCC) com filtro de segmento (6 categorias oficiais da Regra de Ouro)
+  const ordemFuncoesPreferencial = [
+    'FG (Gratificada)',
+    'CD (Direção)',
+    'FCC/FUC (Coordenação)',
+    'Prefiro não responder',
+  ];
+  const funcoesUnicas: string[] = Array.from(new Set<string>(funcoesFiltradas.map((r: any) => String(r.funcao)))).sort((a: string, b: string) => {
+    const idxA = ordemFuncoesPreferencial.indexOf(a);
+    const idxB = ordemFuncoesPreferencial.indexOf(b);
+    if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+    return a.localeCompare(b);
+  });
+  const funcoesYAxis = [...funcoesUnicas].reverse();
+  const totalFuncoesFiltradas = funcoesFiltradas.reduce((acc: number, r: any) => acc + Number(r.n || 0), 0);
+
   const optionFuncoes = {
     tooltip: {
       trigger: 'axis',
@@ -471,9 +508,24 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
       backgroundColor: '#0e162b',
       borderColor: '#223154',
       textStyle: { color: '#f1f5f9' },
+      formatter: (params: any[]) => {
+        const funcNome = params[0]?.axisValueLabel || '';
+        const totalFunc = params.reduce((acc, p) => acc + Number(p.value || 0), 0);
+        let html = `<div class="font-bold text-slate-100 mb-1">${funcNome}</div>`;
+        html += `<div class="text-[11px] text-slate-400 mb-2">Total na função: <strong>${formatarNumero(totalFunc)}</strong></div>`;
+        params.forEach((p) => {
+          const val = Number(p.value || 0);
+          const pct = totalFunc > 0 ? ((val / totalFunc) * 100).toFixed(1) : '0.0';
+          html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
+            <span>${p.marker} ${p.seriesName}</span>
+            <span class="font-bold text-slate-100">${formatarNumero(val)} <span class="text-slate-400 font-normal">(${pct}%)</span></span>
+          </div>`;
+        });
+        return html;
+      },
     },
-    legend: { data: ['Mulher', 'Homem', 'Outras identidades'], bottom: 0, textStyle: { color: '#cbd5e1' } },
-    grid: { left: '3%', right: '4%', top: '4%', bottom: '12%', containLabel: true },
+    legend: { data: [...CATEGORIAS_GENERO_OFICIAIS], bottom: 0, textStyle: { color: '#cbd5e1', fontSize: 10 } },
+    grid: { left: '3%', right: '4%', top: '4%', bottom: '14%', containLabel: true },
     xAxis: {
       type: 'value',
       axisLabel: { color: '#94a3b8' },
@@ -481,17 +533,17 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
     },
     yAxis: {
       type: 'category',
-      data: funcoesUnicas.length > 0 ? funcoesUnicas : ['Nenhum registro'],
+      data: funcoesYAxis.length > 0 ? funcoesYAxis : ['Nenhum registro'],
       axisLabel: { color: '#cbd5e1', fontSize: 11 },
     },
-    series: ['Mulher', 'Homem', 'Outras identidades'].map((g, idx) => ({
+    series: CATEGORIAS_GENERO_OFICIAIS.map((g, idx) => ({
       name: g,
       type: 'bar',
       stack: 'total',
-      itemStyle: { color: PALETA_ACESSIVEL[idx] },
-      data: funcoesUnicas.map((func) => {
+      itemStyle: { color: PALETA_ACESSIVEL[idx % PALETA_ACESSIVEL.length] },
+      data: funcoesYAxis.map((func) => {
         const itens = funcoesFiltradas.filter((r: any) => r.funcao === func && r.genero_grp === g);
-        return itens.reduce((acc: number, it: any) => acc + Number(it.n), 0);
+        return itens.reduce((acc: number, it: any) => acc + Number(it.n || 0), 0);
       }),
     })),
   };
@@ -503,10 +555,10 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
     segmentoCuidado === 'geral' ? 'Geral' : segmentoCuidado === 'docentes' ? 'Docentes' : 'Técnicos (TAE)';
 
   // ========================================================
-  // DETALHADO POR GÊNERO AGLUTINADO: PROGRESSÃO POR MÉRITO
-  // Aglutinação clara: Concordo, Neutro, Discordo por gênero
+  // DETALHADO POR GÊNERO: PROGRESSÃO POR MÉRITO (BARRAS HORIZONTAIS 100% EMPILHADAS)
+  // Escala normalizada de 0% a 100% para comparação visual justa independente do tamanho da amostra
   // ========================================================
-  const generosDetalhado = ['Mulher', 'Homem', 'Outras identidades'];
+  const generosDetalhado = [...CATEGORIAS_GENERO_OFICIAIS];
   const dadosDetalhadoProgressao = generosDetalhado.map((g) => {
     const itensG = progressaoFiltrada.filter((r: any) => r.genero_grp === g);
     const pos = itensG
@@ -525,11 +577,15 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
       neu,
       neg,
       total,
-      pctPos: total > 0 ? ((pos / total) * 100).toFixed(1) : '0,0',
-      pctNeu: total > 0 ? ((neu / total) * 100).toFixed(1) : '0,0',
-      pctNeg: total > 0 ? ((neg / total) * 100).toFixed(1) : '0,0',
+      pctPos: total > 0 ? Number(((pos / total) * 100).toFixed(1)) : 0,
+      pctNeu: total > 0 ? Number(((neu / total) * 100).toFixed(1)) : 0,
+      pctNeg: total > 0 ? Number(((neg / total) * 100).toFixed(1)) : 0,
+      rotuloComN: `${g} (n=${formatarNumero(total)})`,
     };
   });
+
+  // Inverte a ordem das categorias para que a primeira oficial ('Mulher') apareça no topo das barras horizontais
+  const dadosOrdenadosProg = [...dadosDetalhadoProgressao].reverse();
 
   const optionDetalhadoProgressao = {
     tooltip: {
@@ -539,21 +595,32 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
       borderColor: '#223154',
       textStyle: { color: '#f1f5f9' },
       formatter: (params: any[]) => {
-        const gen = params[0]?.axisValueLabel || '';
-        const itemObj = dadosDetalhadoProgressao.find((d) => d.genero === gen);
-        let html = `<div class="font-bold text-slate-100 mb-1">${gen} (${rotuloSegProgressao})</div>`;
+        const rotulo = params[0]?.axisValueLabel || '';
+        const itemObj = dadosDetalhadoProgressao.find(
+          (d) => d.rotuloComN === rotulo || d.genero === rotulo
+        );
+        let html = `<div class="font-bold text-slate-100 mb-1">${itemObj?.genero || rotulo} (${rotuloSegProgressao})</div>`;
         if (itemObj) {
-          html += `<div class="text-[11px] text-slate-400 mb-2">Total de respostas: <strong>${formatarNumero(itemObj.total)}</strong></div>`;
+          html += `<div class="text-[11px] text-slate-400 mb-2">Total de respondentes: <strong>${formatarNumero(itemObj.total)}</strong></div>`;
         }
         params.forEach((p) => {
-          const val = Number(p.value || 0);
-          const pct =
-            itemObj && itemObj.total > 0 ? ((val / itemObj.total) * 100).toFixed(1) : '0,0';
+          let nAbsoluto = 0;
+          if (itemObj) {
+            if (p.seriesName.includes('Concordo')) nAbsoluto = itemObj.pos;
+            else if (p.seriesName.includes('Neutro')) nAbsoluto = itemObj.neu;
+            else if (p.seriesName.includes('Discordo')) nAbsoluto = itemObj.neg;
+          }
+          const valPct = Number(p.value || 0).toFixed(1);
           html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
             <span>${p.marker} ${p.seriesName}</span>
-            <span class="font-bold text-slate-100">${formatarNumero(val)} (${pct}%)</span>
+            <span class="font-bold text-slate-100">${valPct}% <span class="text-slate-400 font-normal">(${formatarNumero(nAbsoluto)} resp.)</span></span>
           </div>`;
         });
+        if (itemObj && itemObj.total === 0) {
+          html += `<div class="mt-2 pt-1.5 border-t border-slate-700 text-[11px] text-slate-400 italic">
+            Nenhum registro nesta categoria para este segmento.
+          </div>`;
+        }
         return html;
       },
     },
@@ -566,76 +633,70 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
       bottom: 0,
       textStyle: { color: '#cbd5e1', fontSize: 11 },
     },
-    grid: { left: '3%', right: '4%', top: '6%', bottom: '15%', containLabel: true },
+    grid: { left: '3%', right: '5%', top: '6%', bottom: '14%', containLabel: true },
     xAxis: {
-      type: 'category',
-      data: generosDetalhado,
-      axisLabel: { color: '#f1f5f9', fontWeight: 'bold' },
+      type: 'value',
+      min: 0,
+      max: 100,
+      axisLabel: { formatter: '{value}%', color: '#94a3b8' },
+      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
     },
     yAxis: {
-      type: 'value',
-      axisLabel: { color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      type: 'category',
+      data: dadosOrdenadosProg.map((d) => d.rotuloComN),
+      axisLabel: { color: '#f1f5f9', fontWeight: 'bold', fontSize: 11 },
     },
     series: [
       {
         name: 'Concordo (Concordo totalmente + Concordo)',
         type: 'bar',
-        stack: 'det_prog',
-        itemStyle: { color: '#0d9488' },
+        stack: 'det_prog_100',
+        itemStyle: { color: '#0d9488' }, // Teal
         label: {
           show: true,
           position: 'inside',
-          formatter: (p: any) => {
-            const itemObj = dadosDetalhadoProgressao[p.dataIndex];
-            return itemObj && itemObj.pos > 0 ? `${itemObj.pctPos}%` : '';
-          },
+          formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
           color: '#ffffff',
           fontWeight: 'bold',
-          fontSize: 11,
+          fontSize: 10,
         },
-        data: dadosDetalhadoProgressao.map((d) => d.pos),
+        data: dadosOrdenadosProg.map((d) => d.pctPos),
       },
       {
         name: 'Neutro',
         type: 'bar',
-        stack: 'det_prog',
-        itemStyle: { color: '#64748b' },
+        stack: 'det_prog_100',
+        itemStyle: { color: '#64748b' }, // Slate
         label: {
           show: true,
           position: 'inside',
-          formatter: (p: any) => {
-            const itemObj = dadosDetalhadoProgressao[p.dataIndex];
-            return itemObj && itemObj.neu > 0 ? `${itemObj.pctNeu}%` : '';
-          },
+          formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
           color: '#f1f5f9',
           fontSize: 10,
         },
-        data: dadosDetalhadoProgressao.map((d) => d.neu),
+        data: dadosOrdenadosProg.map((d) => d.pctNeu),
       },
       {
         name: 'Discordo (Discordo totalmente + Discordo)',
         type: 'bar',
-        stack: 'det_prog',
-        itemStyle: { color: '#e11d48' },
+        stack: 'det_prog_100',
+        itemStyle: { color: '#e11d48' }, // Rose
         label: {
           show: true,
           position: 'inside',
-          formatter: (p: any) => {
-            const itemObj = dadosDetalhadoProgressao[p.dataIndex];
-            return itemObj && itemObj.neg > 0 ? `${itemObj.pctNeg}%` : '';
-          },
+          formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
           color: '#ffffff',
           fontWeight: 'bold',
           fontSize: 10,
         },
-        data: dadosDetalhadoProgressao.map((d) => d.neg),
+        data: dadosOrdenadosProg.map((d) => d.pctNeg),
       },
     ],
   };
 
   // ========================================================
-  // DETALHADO POR GÊNERO AGLUTINADO: ACESSO A OPORTUNIDADES
+  // DETALHADO POR GÊNERO: ACESSO A OPORTUNIDADES (BARRAS HORIZONTAIS 100% EMPILHADAS)
+  // Escala normalizada de 0% a 100% para comparação visual justa independente do tamanho da amostra
   // ========================================================
   const dadosDetalhadoAcesso = generosDetalhado.map((g) => {
     const itensG = acessoFiltrado.filter((r: any) => r.genero_grp === g);
@@ -658,11 +719,14 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
       neg,
       neutro,
       total,
-      pctPos: total > 0 ? ((pos / total) * 100).toFixed(1) : '0,0',
-      pctNeg: total > 0 ? ((neg / total) * 100).toFixed(1) : '0,0',
-      pctNeu: total > 0 ? ((neutro / total) * 100).toFixed(1) : '0,0',
+      pctPos: total > 0 ? Number(((pos / total) * 100).toFixed(1)) : 0,
+      pctNeg: total > 0 ? Number(((neg / total) * 100).toFixed(1)) : 0,
+      pctNeu: total > 0 ? Number(((neutro / total) * 100).toFixed(1)) : 0,
+      rotuloComN: `${g} (n=${formatarNumero(total)})`,
     };
   });
+
+  const dadosOrdenadosAcesso = [...dadosDetalhadoAcesso].reverse();
 
   const optionDetalhadoAcesso = {
     tooltip: {
@@ -672,21 +736,32 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
       borderColor: '#223154',
       textStyle: { color: '#f1f5f9' },
       formatter: (params: any[]) => {
-        const gen = params[0]?.axisValueLabel || '';
-        const itemObj = dadosDetalhadoAcesso.find((d) => d.genero === gen);
-        let html = `<div class="font-bold text-slate-100 mb-1">${gen} (${rotuloSegAcesso})</div>`;
+        const rotulo = params[0]?.axisValueLabel || '';
+        const itemObj = dadosDetalhadoAcesso.find(
+          (d) => d.rotuloComN === rotulo || d.genero === rotulo
+        );
+        let html = `<div class="font-bold text-slate-100 mb-1">${itemObj?.genero || rotulo} (${rotuloSegAcesso})</div>`;
         if (itemObj) {
-          html += `<div class="text-[11px] text-slate-400 mb-2">Total: <strong>${formatarNumero(itemObj.total)}</strong> respondentes</div>`;
+          html += `<div class="text-[11px] text-slate-400 mb-2">Total de respondentes: <strong>${formatarNumero(itemObj.total)}</strong></div>`;
         }
         params.forEach((p) => {
-          const val = Number(p.value || 0);
-          const pct =
-            itemObj && itemObj.total > 0 ? ((val / itemObj.total) * 100).toFixed(1) : '0,0';
+          let nAbsoluto = 0;
+          if (itemObj) {
+            if (p.seriesName.includes('Equitativo')) nAbsoluto = itemObj.pos;
+            else if (p.seriesName.includes('Pouco ou nada')) nAbsoluto = itemObj.neg;
+            else if (p.seriesName.includes('Não sei avaliar')) nAbsoluto = itemObj.neutro;
+          }
+          const valPct = Number(p.value || 0).toFixed(1);
           html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
             <span>${p.marker} ${p.seriesName}</span>
-            <span class="font-bold text-slate-100">${formatarNumero(val)} (${pct}%)</span>
+            <span class="font-bold text-slate-100">${valPct}% <span class="text-slate-400 font-normal">(${formatarNumero(nAbsoluto)} resp.)</span></span>
           </div>`;
         });
+        if (itemObj && itemObj.total === 0) {
+          html += `<div class="mt-2 pt-1.5 border-t border-slate-700 text-[11px] text-slate-400 italic">
+            Nenhum registro nesta categoria para este segmento.
+          </div>`;
+        }
         return html;
       },
     },
@@ -699,70 +774,63 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
       bottom: 0,
       textStyle: { color: '#cbd5e1', fontSize: 11 },
     },
-    grid: { left: '3%', right: '4%', top: '6%', bottom: '15%', containLabel: true },
+    grid: { left: '3%', right: '5%', top: '6%', bottom: '14%', containLabel: true },
     xAxis: {
-      type: 'category',
-      data: generosDetalhado,
-      axisLabel: { color: '#f1f5f9', fontWeight: 'bold' },
+      type: 'value',
+      min: 0,
+      max: 100,
+      axisLabel: { formatter: '{value}%', color: '#94a3b8' },
+      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
     },
     yAxis: {
-      type: 'value',
-      axisLabel: { color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      type: 'category',
+      data: dadosOrdenadosAcesso.map((d) => d.rotuloComN),
+      axisLabel: { color: '#f1f5f9', fontWeight: 'bold', fontSize: 11 },
     },
     series: [
       {
         name: 'Equitativo (Muito equitativo + Equitativo)',
         type: 'bar',
-        stack: 'det_acesso',
+        stack: 'det_acesso_100',
         itemStyle: { color: '#0d9488' },
         label: {
           show: true,
           position: 'inside',
-          formatter: (p: any) => {
-            const itemObj = dadosDetalhadoAcesso[p.dataIndex];
-            return itemObj && itemObj.pos > 0 ? `${itemObj.pctPos}%` : '';
-          },
+          formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
           color: '#ffffff',
           fontWeight: 'bold',
-          fontSize: 11,
+          fontSize: 10,
         },
-        data: dadosDetalhadoAcesso.map((d) => d.pos),
+        data: dadosOrdenadosAcesso.map((d) => d.pctPos),
       },
       {
         name: 'Pouco ou nada equitativo',
         type: 'bar',
-        stack: 'det_acesso',
+        stack: 'det_acesso_100',
         itemStyle: { color: '#e11d48' },
         label: {
           show: true,
           position: 'inside',
-          formatter: (p: any) => {
-            const itemObj = dadosDetalhadoAcesso[p.dataIndex];
-            return itemObj && itemObj.neg > 0 ? `${itemObj.pctNeg}%` : '';
-          },
+          formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
           color: '#ffffff',
           fontWeight: 'bold',
           fontSize: 10,
         },
-        data: dadosDetalhadoAcesso.map((d) => d.neg),
+        data: dadosOrdenadosAcesso.map((d) => d.pctNeg),
       },
       {
         name: 'Não sei avaliar / Sem resposta',
         type: 'bar',
-        stack: 'det_acesso',
+        stack: 'det_acesso_100',
         itemStyle: { color: '#64748b' },
         label: {
           show: true,
           position: 'inside',
-          formatter: (p: any) => {
-            const itemObj = dadosDetalhadoAcesso[p.dataIndex];
-            return itemObj && itemObj.neutro > 0 ? `${itemObj.pctNeu}%` : '';
-          },
+          formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
           color: '#f1f5f9',
           fontSize: 10,
         },
-        data: dadosDetalhadoAcesso.map((d) => d.neutro),
+        data: dadosOrdenadosAcesso.map((d) => d.pctNeu),
       },
     ],
   };
@@ -818,7 +886,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
       total,
       taxaImpacto,
     };
-  });
+  }).sort((a, b) => b.total - a.total);
 
   const optionCuidadoGestao = {
     tooltip: {
@@ -843,11 +911,6 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
             <span class="font-bold text-slate-100">${formatarNumero(val)} (${pct}%)</span>
           </div>`;
         });
-        if (itemObj && itemObj.total > 0) {
-          html += `<div class="mt-2 pt-1.5 border-t border-slate-700/80 text-xs font-semibold text-rose-300">
-            Impacto do cuidado: ${itemObj.taxaImpacto}% declarou ter deixado de se candidatar à gestão
-          </div>`;
-        }
         return html;
       },
     },
@@ -869,6 +932,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
     },
     yAxis: {
       type: 'category',
+      inverse: true,
       data: dadosCuidadoGrafico.map((d) => d.rotuloCurto),
       axisLabel: { color: '#f1f5f9', fontWeight: 'bold', fontSize: 11 },
     },
@@ -945,6 +1009,11 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
   const taxaRenunciaCuidado =
     totalCuidadoDeclarado > 0 ? ((evitouComCuidado / totalCuidadoDeclarado) * 100).toFixed(1) : '0,0';
 
+  const totalRespondentesCuidadoBloco = evitouCuidadoFiltrado.reduce(
+    (acc: number, r: any) => acc + Number(r.n || 0),
+    0
+  );
+
   return (
     <div className="space-y-6">
       {/* Título de Seção com Aviso Obrigatório de Base */}
@@ -976,7 +1045,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           valorPrincipal={formatarPercentual(totalGestores > 0 ? (mulheresGestoras / totalGestores) * 100 : 0)}
           subvalor={`${formatarNumero(mulheresGestoras)} gestoras`}
           textoComplementar={`${formatarNumero(mulheresGestoras)} de ${formatarNumero(totalGestores)} cargos de gestão`}
-          notaMetodologica="Participação feminina nos postos de direção e chefia"
+          notaMetodologica="Participação feminina (Mulher e Mulher Trans) nos postos de direção e chefia"
           icone={<Award className="w-5 h-5 text-emerald-400" />}
           corDestaque="emerald"
         />
@@ -1006,19 +1075,32 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ChartCard
           titulo="Composição de Servidores por Cargo e Gênero"
-          subtitulo="Distribuição entre docentes e níveis de técnicos-administrativos (TAE)"
+          subtitulo="Distribuição entre docentes e níveis de técnicos-administrativos (TAE) pelas 6 categorias oficiais de gênero"
+          n={totalFunilCargo}
           option={optionFunilCargo}
           altura={360}
           carregando={carregando}
           tabelaDados={{
-            cabecalhos: ['Cargo', 'Gênero', 'Quantidade'],
-            linhas: funilCargo.map((r: any) => [r.cargo, r.genero_grp, r.n]),
+            cabecalhos: ['Cargo', 'Gênero', 'Quantidade', '% no Cargo'],
+            linhas: cargosUnicos.flatMap((cargo) => {
+              const totalCargo = funilCargo
+                .filter((r: any) => r.cargo === cargo)
+                .reduce((acc: number, it: any) => acc + Number(it.n || 0), 0);
+              return CATEGORIAS_GENERO_OFICIAIS.map((g) => {
+                const qtd = funilCargo
+                  .filter((r: any) => r.cargo === cargo && r.genero_grp === g)
+                  .reduce((acc: number, it: any) => acc + Number(it.n || 0), 0);
+                const pct = totalCargo > 0 ? formatarPercentual((qtd / totalCargo) * 100) : '0,0%';
+                return [cargo, g, qtd, pct];
+              }).filter(([, , qtd]) => Number(qtd) > 0);
+            }),
           }}
         />
 
         <ChartCard
           titulo="Tipologia de Função de Gestão (CD, FG, FCC)"
-          subtitulo="Cargos de Direção (CD), Funções Gratificadas (FG) e Funções de Coordenação (FCC/FUC)"
+          subtitulo="Cargos de Direção (CD), Funções Gratificadas (FG) e Funções de Coordenação (FCC/FUC) pelas 6 categorias oficiais de gênero"
+          n={totalFuncoesFiltradas}
           option={optionFuncoes}
           altura={360}
           carregando={carregando}
@@ -1026,15 +1108,19 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
             <SeletorSegmento valor={segmentoFuncoes} aoMudar={setSegmentoFuncoes} />
           }
           tabelaDados={{
-            cabecalhos: ['Função', 'Gênero', 'Quantidade'],
-            linhas: funcoesUnicas.flatMap((func) =>
-              ['Mulher', 'Homem', 'Outras identidades'].map((g) => {
+            cabecalhos: ['Função', 'Gênero', 'Quantidade', '% na Função'],
+            linhas: funcoesUnicas.flatMap((func) => {
+              const totalFunc = funcoesFiltradas
+                .filter((r: any) => r.funcao === func)
+                .reduce((acc: number, it: any) => acc + Number(it.n || 0), 0);
+              return CATEGORIAS_GENERO_OFICIAIS.map((g) => {
                 const total = funcoesFiltradas
                   .filter((r: any) => r.funcao === func && r.genero_grp === g)
-                  .reduce((acc: number, it: any) => acc + Number(it.n), 0);
-                return [func, g, total];
-              }).filter(([, , total]) => Number(total) > 0)
-            ),
+                  .reduce((acc: number, it: any) => acc + Number(it.n || 0), 0);
+                const pct = totalFunc > 0 ? formatarPercentual((total / totalFunc) * 100) : '0,0%';
+                return [func, g, total, pct];
+              }).filter(([, , total]) => Number(total) > 0);
+            }),
           }}
         />
       </div>
@@ -1045,8 +1131,13 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           titulo="Avaliação da Progressão por Mérito"
           subtitulo={
             modoProgressao === 'comparativo'
-              ? 'Comparativo dos 3 universos: aglutinação de Concordo (Concordo totalmente + Concordo), Neutro e Discordo (Discordo totalmente + Discordo)'
-              : `Distribuição por gênero no segmento ${rotuloSegProgressao}: Concordo, Neutro e Discordo`
+              ? 'Avalia se os servidores consideram os critérios de progressão na carreira justos, transparentes e baseados no mérito entre Docentes e Técnicos (TAE)'
+              : `Avalia se os servidores (${rotuloSegProgressao}) consideram a progressão na carreira justa, transparente e livre de desigualdades por identidade de gênero`
+          }
+          n={
+            modoProgressao === 'comparativo'
+              ? dadosAglutinadosProgressao[0]?.total || 0
+              : progressaoFiltrada.reduce((acc: number, r: any) => acc + Number(r.n || 0), 0)
           }
           option={modoProgressao === 'comparativo' ? optionComparativoProgressao : optionDetalhadoProgressao}
           altura={380}
@@ -1087,11 +1178,6 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
                 </div>
               )}
             </div>
-          }
-          notaRodape={
-            modoProgressao === 'comparativo'
-              ? 'Concordância (Concordo totalmente + Concordo): Técnicos TAE (75,4%) • Geral (70,9%) • Docentes (67,6%)'
-              : notaRodapeProgressao
           }
           tabelaDados={
             modoProgressao === 'comparativo'
@@ -1138,8 +1224,13 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           titulo="Equidade no Acesso a Oportunidades e Bolsas"
           subtitulo={
             modoAcesso === 'comparativo'
-              ? 'Comparativo dos 3 universos: Equitativo vs Pouco/Nada Equitativo vs Sem Avaliação'
-              : `Distribuição por gênero no segmento ${rotuloSegAcesso}: Equitativo, Pouco/Nada Equitativo e Sem Avaliação`
+              ? 'Avalia se os servidores percebem igualdade de condições no acesso a editais de pesquisa, extensão, capacitação, bolsas e comissões entre Docentes e Técnicos (TAE)'
+              : `Avalia se os servidores (${rotuloSegAcesso}) percebem igualdade de oportunidades por identidade de gênero no acesso a editais, bolsas, projetos e espaços de representação`
+          }
+          n={
+            modoAcesso === 'comparativo'
+              ? dadosAglutinadosAcesso[0]?.total || 0
+              : acessoFiltrado.reduce((acc: number, r: any) => acc + Number(r.n || 0), 0)
           }
           option={modoAcesso === 'comparativo' ? optionComparativoAcesso : optionDetalhadoAcesso}
           altura={380}
@@ -1180,11 +1271,6 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
                 </div>
               )}
             </div>
-          }
-          notaRodape={
-            modoAcesso === 'comparativo'
-              ? 'Percepção de equidade: Docentes (62,9% Equitativo) vs Técnicos TAE (47,3% Equitativo)'
-              : `Distribuição detalhada das respostas no segmento ${rotuloSegAcesso}`
           }
           tabelaDados={
             modoAcesso === 'comparativo'
@@ -1243,7 +1329,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
                 </span>
               </div>
               <p className="text-xs text-slate-400 mt-1">
-                Análise integrada do impacto do trabalho de cuidado na renúncia a pleitear posições de liderança e gestão institucional.
+                Análise integrada do impacto do trabalho de cuidado na renúncia a pleitear posições de liderança e gestão institucional • n = {formatarNumero(totalRespondentesCuidadoBloco)}
               </p>
             </div>
 
@@ -1310,8 +1396,8 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-[11px] text-slate-400 font-medium">Gênero:</span>
-              <div className="inline-flex items-center p-0.5 rounded-lg bg-[#0a1020] border border-[#223154] text-xs">
-                {(['todos', 'Mulheres', 'Homens'] as const).map((g) => (
+              <div className="inline-flex items-center p-0.5 rounded-lg bg-[#0a1020] border border-[#223154] text-xs flex-wrap">
+                {(['todos', ...CATEGORIAS_GENERO_OFICIAIS] as const).map((g) => (
                   <button
                     key={g}
                     type="button"
@@ -1328,6 +1414,13 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
               </div>
             </div>
           </div>
+
+          <div className="mt-3 flex items-center gap-1.5 text-xs text-amber-300 bg-amber-950/40 border border-amber-800/60 px-2.5 py-1.5 rounded-lg">
+            <AlertCircle className="w-4 h-4 shrink-0 text-amber-400" />
+            <span>
+              Nota metodológica: contempla estritamente as 6 categorias oficiais de gênero (Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binárias). Respostas inválidas e 'Prefiro não responder' são desconsideradas.
+            </span>
+          </div>
         </div>
 
         {/* Parte 1: Gráfico Interativo */}
@@ -1338,9 +1431,6 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
                 <span className="flex items-center gap-1.5 text-teal-400">
                   <BarChart3 className="w-4 h-4" />
                   Visualização Gráfica das Respostas
-                </span>
-                <span className="text-[11px] text-slate-400 font-normal">
-                  Barras horizontais empilhadas com percentuais
                 </span>
               </div>
             )}
@@ -1422,9 +1512,9 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
 
         {/* Rodapé Integrado */}
         <div className="pt-3 border-t border-[#1f2d4e] flex flex-col sm:flex-row items-start sm:items-center justify-between text-[11px] text-slate-400 gap-1.5">
-          <span>Fonte: Questionário aplicado com 4878 respondentes</span>
+          <span>Fonte: Questionário aplicado com 4.857 respondentes</span>
           <span className="italic text-slate-400">
-            Recorte ativo: {rotuloSegCuidado} • {generoCuidado === 'todos' ? 'Todos os gêneros' : generoCuidado} • {formatarNumero(evitouComCuidado)} de {formatarNumero(totalCuidadoDeclarado)} respondentes com cuidado declararam renúncia à gestão ({taxaRenunciaCuidado}%).
+            Recorte ativo: {rotuloSegCuidado} • {generoCuidado === 'todos' ? 'Todos os gêneros válidos' : generoCuidado} • {formatarNumero(evitouComCuidado)} de {formatarNumero(totalCuidadoDeclarado)} respondentes com cuidado declararam renúncia à gestão ({taxaRenunciaCuidado}%).
           </span>
         </div>
       </div>

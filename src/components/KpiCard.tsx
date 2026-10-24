@@ -13,8 +13,8 @@ interface KpiCardProps {
   n?: number;
   baseTotal?: number;
   baseDescricao?: string;
-  textoComplementar?: string;
-  notaMetodologica?: string;
+  textoComplementar?: React.ReactNode;
+  notaMetodologica?: React.ReactNode;
   icone?: React.ReactNode;
   corDestaque?: 'emerald' | 'blue' | 'amber' | 'rose' | 'indigo' | 'slate';
   aoClicar?: () => void;
@@ -55,19 +55,19 @@ export const KpiCard: React.FC<KpiCardProps> = ({
 
   return (
     <div
-      className={`rounded-xl border p-4.5 shadow-sm transition-all flex flex-col justify-between ${
+      className={`rounded-xl border p-4.5 shadow-sm transition-all flex flex-col justify-between h-full ${
         borderColors[corDestaque]
       }`}
     >
       <div>
         <div className="flex items-start justify-between gap-2 mb-2">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 leading-snug">
             {titulo}
           </span>
-          {icone && <div className="text-slate-400">{icone}</div>}
+          {icone && <div className="text-slate-400 shrink-0">{icone}</div>}
         </div>
 
-        <div className="flex items-baseline gap-2 mb-1">
+        <div className="flex items-baseline gap-2 mb-1.5 flex-wrap">
           <span className={`text-2xl lg:text-3xl font-bold tracking-tight ${textColors[corDestaque]}`}>
             {valorPrincipal}
           </span>
@@ -75,24 +75,26 @@ export const KpiCard: React.FC<KpiCardProps> = ({
         </div>
 
         {textoComplementar ? (
-          <div className="text-xs text-slate-300 font-medium mb-2">
+          <div className="text-xs text-slate-300 font-medium mb-2.5 leading-snug">
             {textoComplementar}
           </div>
-        ) : (n !== undefined || baseTotal !== undefined) && (
-          <div className="text-xs text-slate-300 font-medium mb-2">
-            {n !== undefined ? `${n.toLocaleString('pt-BR')}` : ''}
-            {baseTotal !== undefined && ` de ${baseTotal.toLocaleString('pt-BR')}`} ({baseDescricao})
-          </div>
+        ) : (
+          (n !== undefined || baseTotal !== undefined) && (
+            <div className="text-xs text-slate-300 font-medium mb-2.5 leading-snug">
+              {n !== undefined ? `${n.toLocaleString('pt-BR')}` : ''}
+              {baseTotal !== undefined && ` de ${baseTotal.toLocaleString('pt-BR')}`} ({baseDescricao})
+            </div>
+          )
         )}
       </div>
 
       <div>
         {notaMetodologica && (
-          <div className="flex items-center gap-1.5 text-[11px] text-slate-400 bg-[#0a1020]/70 rounded-md px-2 py-1.5 border border-[#223154] mt-1">
-            <Info className="w-3 h-3 text-slate-400 shrink-0" />
-            <span className="truncate" title={notaMetodologica}>
+          <div className="flex items-start gap-1.5 text-[11px] text-slate-300 bg-[#0a1020]/70 rounded-md px-2.5 py-2 border border-[#223154] mt-1 leading-snug">
+            <Info className="w-3.5 h-3.5 text-teal-400/80 shrink-0 mt-0.5" />
+            <div className="whitespace-normal break-words flex-1">
               {notaMetodologica}
-            </span>
+            </div>
           </div>
         )}
 

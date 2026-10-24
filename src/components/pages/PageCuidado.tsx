@@ -8,47 +8,29 @@ import { ChartCard } from '../ChartCard';
 import { PALETA_ACESSIVEL, CORES_LIKERT } from '../../lib/chartTheme';
 import { formatarNumero } from '../../lib/formatters';
 import { SlidersHorizontal, RotateCcw } from 'lucide-react';
+import { CATEGORIAS_GENERO_OFICIAIS, CategoriaGeneroOficial } from '../../lib/escalas';
 
-type SegmentoLicencas = 'geral' | 'homens' | 'mulheres';
+type SegmentoLicencas = 'geral' | CategoriaGeneroOficial;
 
 const SeletorSegmento: React.FC<{
   valor: SegmentoLicencas;
   aoMudar: (val: SegmentoLicencas) => void;
 }> = ({ valor, aoMudar }) => (
-  <div className="inline-flex items-center p-0.5 rounded-lg bg-[#0a1020] border border-[#223154] text-xs">
-    <button
-      type="button"
-      onClick={() => aoMudar('geral')}
-      className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
-        valor === 'geral'
-          ? 'bg-teal-500 text-slate-950 shadow-xs'
-          : 'text-slate-400 hover:text-slate-200'
-      }`}
-    >
-      Geral
-    </button>
-    <button
-      type="button"
-      onClick={() => aoMudar('homens')}
-      className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
-        valor === 'homens'
-          ? 'bg-teal-500 text-slate-950 shadow-xs'
-          : 'text-slate-400 hover:text-slate-200'
-      }`}
-    >
-      Homens
-    </button>
-    <button
-      type="button"
-      onClick={() => aoMudar('mulheres')}
-      className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
-        valor === 'mulheres'
-          ? 'bg-teal-500 text-slate-950 shadow-xs'
-          : 'text-slate-400 hover:text-slate-200'
-      }`}
-    >
-      Mulheres
-    </button>
+  <div className="inline-flex items-center flex-wrap p-0.5 rounded-lg bg-[#0a1020] border border-[#223154] text-xs">
+    {(['geral', ...CATEGORIAS_GENERO_OFICIAIS] as const).map((g) => (
+      <button
+        key={g}
+        type="button"
+        onClick={() => aoMudar(g)}
+        className={`px-2 py-1 rounded-md text-xs font-semibold transition-all ${
+          valor === g
+            ? 'bg-teal-500 text-slate-950 shadow-xs'
+            : 'text-slate-400 hover:text-slate-200'
+        }`}
+      >
+        {g === 'geral' ? 'Geral' : g}
+      </button>
+    ))}
   </div>
 );
 
@@ -72,7 +54,7 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
   const [filtroCampus, setFiltroCampus] = useState<string>('todos');
   const [filtroNivel, setFiltroNivel] = useState<string>('todos');
 
-  // 1. Gráfico Responsabilidade de Cuidado por Gênero
+  // 1. Gráfico Responsabilidade de Cuidado por Gênero (6 categorias oficiais)
   const categoriasCuidado = [
     'Sim',
     'Divido a responsabilidade igualmente com outra(s) pessoa(s)',
@@ -80,6 +62,8 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
     'Não tenho responsabilidade de cuidado sobre ninguém',
     'Prefiro não responder',
   ];
+
+  const generosOficiais = [...CATEGORIAS_GENERO_OFICIAIS];
 
   const optionCuidadoGenero = {
     tooltip: {
@@ -93,8 +77,8 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
     grid: { left: '3%', right: '4%', top: '4%', bottom: '15%', containLabel: true },
     xAxis: {
       type: 'category',
-      data: ['Mulher', 'Homem', 'Não-binária / Outras'],
-      axisLabel: { color: '#cbd5e1' },
+      data: generosOficiais,
+      axisLabel: { color: '#cbd5e1', interval: 0, fontSize: 11 },
     },
     yAxis: {
       type: 'value',
@@ -106,14 +90,14 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
       type: 'bar',
       stack: 'total',
       itemStyle: { color: PALETA_ACESSIVEL[idx % PALETA_ACESSIVEL.length] },
-      data: ['Mulher', 'Homem', 'Não-binária / Outras'].map((g) => {
-        const item = respCuidado.find((r: any) => r.responsabilidade_cuidado === cat && r.genero_grp === g);
-        return item ? item.n : 0;
+      data: generosOficiais.map((g) => {
+        const itens = respCuidado.filter((r: any) => r.responsabilidade_cuidado === cat && r.genero_grp === g);
+        return itens.reduce((acc: number, item: any) => acc + Number(item.n || 0), 0);
       }),
     })),
   };
 
-  // 2. Gráfico Licenças e Apoio aos Pais com filtro por recorte (Geral, Homens, Mulheres)
+  // 2. Gráfico Licenças e Apoio aos Pais com filtro por recorte (Geral ou qualquer uma das 6 categorias oficiais)
   const obterTotalLicenca = (
     lista: any[],
     filtroResp: (r: string) => boolean
@@ -228,7 +212,7 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
     ],
   };
 
-  // 3. Maternidade e Carreira
+  // 3. Maternidade e Carreira (6 categorias oficiais)
   const optionMaternidade = {
     tooltip: {
       trigger: 'axis',
@@ -245,8 +229,8 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
     grid: { left: '3%', right: '4%', top: '4%', bottom: '15%', containLabel: true },
     xAxis: {
       type: 'category',
-      data: ['Mulher', 'Homem', 'Não-binária / Outras'],
-      axisLabel: { color: '#cbd5e1' },
+      data: generosOficiais,
+      axisLabel: { color: '#cbd5e1', interval: 0, fontSize: 11 },
     },
     yAxis: {
       type: 'value',
@@ -272,13 +256,9 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
           CORES_LIKERT.concordoTotalmente,
         ][idx],
       },
-      data: ['Mulher', 'Homem', 'Não-binária / Outras'].map((g) => {
+      data: generosOficiais.map((g) => {
         const items = maternidadeImpacto.filter(
-          (r: any) =>
-            r.maternidade_impacto_carreira === resp &&
-            (r.genero_grp === g ||
-              (g === 'Mulher' && r.genero_grp === 'Mulheres') ||
-              (g === 'Homem' && r.genero_grp === 'Homens'))
+          (r: any) => r.maternidade_impacto_carreira === resp && r.genero_grp === g
         );
         return items.reduce((acc: number, r: any) => acc + Number(r.n || 0), 0);
       }),
@@ -337,7 +317,7 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ChartCard
           titulo="Responsabilidade Principal de Cuidado por Identidade de Gênero"
-          subtitulo="Divisão do trabalho reprodutivo e de cuidado de dependentes entre mulheres e homens"
+          subtitulo="Divisão do trabalho reprodutivo e de cuidado de dependentes nas 6 categorias oficiais de gênero"
           option={optionCuidadoGenero}
           altura={380}
           carregando={carregando}
@@ -346,7 +326,7 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
         <ChartCard
           titulo="Suficiência das Licenças e Apoio a Estudantes com Filhos"
           subtitulo={`Percepção sobre adequação dos prazos de licença maternidade/paternidade e suporte institucional • Recorte: ${
-            segmentoLicencas === 'geral' ? 'Geral' : segmentoLicencas === 'homens' ? 'Homens' : 'Mulheres'
+            segmentoLicencas === 'geral' ? 'Geral' : segmentoLicencas
           }`}
           elementoCabecalho={<SeletorSegmento valor={segmentoLicencas} aoMudar={setSegmentoLicencas} />}
           option={optionLicencas}
@@ -506,4 +486,3 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
     </div>
   );
 };
-

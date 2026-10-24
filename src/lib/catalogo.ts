@@ -33,7 +33,7 @@ export const CATALOGO_CAMPOS: Record<string, CampoCatalogo> = {
     tipo: 'nominal',
     grupo: 'perfil',
     dinamico: true,
-    descricao: 'Vínculo do respondente com o IFRS (discente, servidor efetivo, substituto, terceirizado).',
+    descricao: 'Vínculo do respondente com o IFRS (discente, servidor efetivo, docente substituto). Trabalhadores terceirizados não integram as análises.',
   },
   genero: {
     key: 'genero',
@@ -49,7 +49,7 @@ export const CATALOGO_CAMPOS: Record<string, CampoCatalogo> = {
     tipo: 'nominal',
     grupo: 'diversidade',
     dinamico: true,
-    descricao: 'Agrupamento sintético: Mulher, Homem, Pessoa não-binária/outras e Prefiro não responder.',
+    descricao: 'Classificação oficial normalizada em 6 categorias: Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binárias.',
   },
   cor_raca: {
     key: 'cor_raca',

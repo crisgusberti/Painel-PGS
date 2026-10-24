@@ -4,15 +4,24 @@
  */
 
 import { getDbPool } from './db';
-import { normalizarIndice100, calcularIndiceShannon } from '../lib/escalas';
+import {
+  normalizarIndice100,
+  calcularIndiceShannon,
+  SQL_GENERO_NORMALIZADO,
+  SQL_FILTRO_SEM_TERCEIRIZADOS,
+  SQL_ORIENTACAO_NORMALIZADA,
+  SQL_SEGMENTO_COMUNIDADE,
+} from '../lib/escalas';
 import { FiltrosGlobaisState } from '../lib/types';
 import { MAPA_TEXTOS_AREA, GRANDES_AREAS_CNPQ } from '../lib/areaMap';
 
 export function montarWhereFiltrosGlobais(filtros?: FiltrosGlobaisState): { whereSql: string; params: any[] } {
-  if (!filtros) return { whereSql: '', params: [] };
-
-  const conditions: string[] = [];
+  const conditions: string[] = [SQL_FILTRO_SEM_TERCEIRIZADOS];
   const params: any[] = [];
+
+  if (!filtros) {
+    return { whereSql: `WHERE ${conditions.join(' AND ')}`, params };
+  }
 
   const addInCondition = (colExpr: string, values?: string[]) => {
     if (values && values.length > 0) {
@@ -28,10 +37,10 @@ export function montarWhereFiltrosGlobais(filtros?: FiltrosGlobaisState): { wher
   addInCondition('cor_raca', filtros.cor_raca);
   addInCondition('faixa_etaria', filtros.faixa_etaria);
   addInCondition('pcd', filtros.pcd);
-  addInCondition('orientacao_sexual', filtros.orientacao_sexual);
+  addInCondition(SQL_ORIENTACAO_NORMALIZADA, filtros.orientacao_sexual);
   addInCondition('ocupa_cargo_gestao', filtros.ocupa_cargo_gestao);
   addInCondition('responsabilidade_cuidado', filtros.responsabilidade_cuidado);
-  addInCondition('genero', filtros.genero_detalhado);
+  addInCondition(SQL_GENERO_NORMALIZADO, filtros.genero_detalhado);
 
   if (filtros.vinculo && filtros.vinculo.length > 0) {
     const subConds = filtros.vinculo.map((v) => {
@@ -42,16 +51,7 @@ export function montarWhereFiltrosGlobais(filtros?: FiltrosGlobaisState): { wher
   }
 
   if (filtros.genero_agrupado && filtros.genero_agrupado.length > 0) {
-    const exprAgrupado = `(
-      CASE
-        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
-        WHEN genero ILIKE '%não-binário%' OR genero ILIKE '%nao-binario%' OR genero ILIKE '%travesti%' OR genero ILIKE '%agênero%' OR genero ILIKE '%alexigênero%' OR genero ILIKE '%fluido%' OR genero ILIKE '%fluído%' OR genero ILIKE '%demigirl%' OR genero ILIKE '%multigênero%' THEN 'Pessoa não-binária/outras'
-        WHEN genero = 'Prefiro não responder' THEN 'Prefiro não responder'
-        ELSE 'Pessoa não-binária/outras'
-      END
-    )`;
-    addInCondition(exprAgrupado, filtros.genero_agrupado);
+    addInCondition(SQL_GENERO_NORMALIZADO, filtros.genero_agrupado);
   }
 
   if (filtros.area_stem && filtros.area_stem !== 'todos') {
@@ -91,19 +91,29 @@ export async function obterKpisVisaoGeral(filtros?: FiltrosGlobaisState) {
   const sql = `
     SELECT
       count(*)::int as total_respondentes,
+      count(DISTINCT campus) FILTER (WHERE campus IS NOT NULL AND campus != 'Prefiro não responder')::int as unidades_validas,
       count(*) FILTER (WHERE vinculo ILIKE '%Discente%')::int as total_discentes,
       count(*) FILTER (WHERE vinculo ILIKE '%Efetivo%')::int as total_servidores_efetivos,
+      count(*) FILTER (WHERE vinculo ILIKE '%Efetivo%' AND cargo ILIKE '%Docente%')::int as total_docentes_efetivos,
+      count(*) FILTER (WHERE vinculo ILIKE '%Efetivo%' AND (cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%'))::int as total_taes_efetivos,
       count(*) FILTER (WHERE vinculo ILIKE '%Substituto%')::int as total_substitutos,
-      count(*) FILTER (WHERE vinculo ILIKE '%Terceirizado%')::int as total_terceirizados,
+      count(*) FILTER (WHERE vinculo ILIKE '%Efetivo%' OR vinculo ILIKE '%Substituto%')::int as total_servidores,
       count(*) FILTER (WHERE violencia_raca = 'Sim' OR violencia_orientacao_genero = 'Sim')::int as vitimizacao_sim,
       count(*) FILTER (WHERE violencia_raca = 'Sim')::int as violencia_raca_sim,
       count(*) FILTER (WHERE violencia_orientacao_genero = 'Sim')::int as violencia_genero_sim,
       count(*) FILTER (WHERE conhece_mecanismos_denuncia = 'Sim')::int as conhece_denuncia_sim,
-      count(*) FILTER (WHERE mecanismos_efetivos IN ('Sim, são muito efetivos', 'São parcialmente efetivos'))::int as confia_efetividade,
-      count(*) FILTER (WHERE mecanismos_efetivos IS NOT NULL)::int as base_efetividade,
+      count(*) FILTER (WHERE conhece_mecanismos_denuncia = 'Em parte')::int as conhece_denuncia_em_parte,
+      count(*) FILTER (WHERE conhece_mecanismos_denuncia = 'Não' OR (conhece_mecanismos_denuncia LIKE 'N%o' AND conhece_mecanismos_denuncia != 'Não sei'))::int as conhece_denuncia_nao,
+      count(*) FILTER (WHERE conhece_mecanismos_denuncia = 'Não sei')::int as conhece_denuncia_nao_sei,
+      count(*) FILTER (WHERE mecanismos_efetivos = 'Sim, são muito efetivos')::int as efetividade_muito,
+      count(*) FILTER (WHERE mecanismos_efetivos = 'São parcialmente efetivos')::int as efetividade_parcial,
+      count(*) FILTER (WHERE mecanismos_efetivos = 'São pouco efetivos')::int as efetividade_pouco,
+      count(*) FILTER (WHERE mecanismos_efetivos = 'Não são efetivos')::int as efetividade_nao,
+      count(*) FILTER (WHERE mecanismos_efetivos = 'Não sei avaliar')::int as efetividade_nao_sei,
       count(*) FILTER (WHERE vinculo ILIKE '%Discente%' AND desencorajado_participacao IN ('Sim, algumas vezes', 'Sim, frequentemente'))::int as desencorajado_discentes,
       count(*) FILTER (WHERE vinculo ILIKE '%Discente%' AND desencorajado_participacao IS NOT NULL)::int as base_desencorajado_discentes,
       count(*) FILTER (WHERE responsabilidade_cuidado = 'Sim')::int as cuidado_principal,
+      count(*) FILTER (WHERE responsabilidade_cuidado = 'Divido a responsabilidade igualmente com outra(s) pessoa(s)')::int as cuidado_dividido,
       avg(CASE
         WHEN seguranca_expressao_opiniao = 'Concordo Totalmente' THEN 5
         WHEN seguranca_expressao_opiniao = 'Concordo' THEN 4
@@ -155,14 +165,14 @@ export async function obterKpisVisaoGeral(filtros?: FiltrosGlobaisState) {
       campus,
       CASE
         WHEN vinculo ILIKE '%Discente%' THEN 'Discente'
-        WHEN vinculo ILIKE '%Efetivo%' THEN 'Servidor Efetivo'
+        WHEN vinculo ILIKE '%Efetivo%' AND cargo ILIKE '%Docente%' THEN 'Docente'
+        WHEN vinculo ILIKE '%Efetivo%' AND (cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%') THEN 'Técnico TAE'
         WHEN vinculo ILIKE '%Substituto%' THEN 'Docente Substituto'
-        WHEN vinculo ILIKE '%Terceirizado%' THEN 'Terceirizado'
-        ELSE 'Não informado'
+        ELSE 'Prefiro não responder'
       END as vinculo_simplificado,
       count(*)::int as total
     FROM public.respostas_pgs
-    ${whereSql}
+    ${whereComAnd(whereSql, "campus IS NOT NULL AND campus != 'Prefiro não responder'")}
     GROUP BY campus, vinculo_simplificado
     ORDER BY campus ASC
   `;
@@ -188,15 +198,27 @@ export async function obterKpisVisaoGeral(filtros?: FiltrosGlobaisState) {
     q24Medias.length > 0 ? q24Medias.reduce((a, b) => a + b, 0) / q24Medias.length : 0;
   const indiceClima = normalizarIndice100(climaMedia, 1, 5);
 
+  const conheceTotal = (row.conhece_denuncia_sim || 0) + (row.conhece_denuncia_em_parte || 0);
+  const naoConheceTotal = (row.conhece_denuncia_nao || 0) + (row.conhece_denuncia_nao_sei || 0);
+
+  const efetivosTotal = (row.efetividade_muito || 0) + (row.efetividade_parcial || 0);
+  const poucoOuNaoEfetivosTotal = (row.efetividade_pouco || 0) + (row.efetividade_nao || 0);
+  const baseAvaliouEfetividade = efetivosTotal + poucoOuNaoEfetivosTotal;
+
+  const cuidadoTotal = (row.cuidado_principal || 0) + (row.cuidado_dividido || 0);
+
   return {
-    n_total: 4878,
+    n_total: 4857,
     n_filtrado: n,
     kpis: {
       total_respondentes: n,
+      unidades_validas: row.unidades_validas || 18,
       discentes: { n: row.total_discentes, pct: n > 0 ? (row.total_discentes / n) * 100 : 0 },
       servidores_efetivos: { n: row.total_servidores_efetivos, pct: n > 0 ? (row.total_servidores_efetivos / n) * 100 : 0 },
+      docentes_efetivos: { n: row.total_docentes_efetivos, pct: n > 0 ? (row.total_docentes_efetivos / n) * 100 : 0 },
+      taes_efetivos: { n: row.total_taes_efetivos, pct: n > 0 ? (row.total_taes_efetivos / n) * 100 : 0 },
       docentes_substitutos: { n: row.total_substitutos, pct: n > 0 ? (row.total_substitutos / n) * 100 : 0 },
-      terceirizados: { n: row.total_terceirizados, pct: n > 0 ? (row.total_terceirizados / n) * 100 : 0 },
+      servidores_total: { n: row.total_servidores, pct: n > 0 ? (row.total_servidores / n) * 100 : 0 },
       taxa_vitimizacao: {
         pct: n > 0 ? Number(((row.vitimizacao_sim / n) * 100).toFixed(1)) : 0,
         n_sim: row.vitimizacao_sim,
@@ -210,14 +232,29 @@ export async function obterKpisVisaoGeral(filtros?: FiltrosGlobaisState) {
         n_base: n,
       },
       conhece_mecanismos: {
-        pct: n > 0 ? Number(((row.conhece_denuncia_sim / n) * 100).toFixed(1)) : 0,
+        pct: n > 0 ? Number(((conheceTotal / n) * 100).toFixed(1)) : 0,
+        n_sim_total: conheceTotal,
         n_sim: row.conhece_denuncia_sim,
+        n_em_parte: row.conhece_denuncia_em_parte,
+        n_nao_total: naoConheceTotal,
+        pct_nao_total: n > 0 ? Number(((naoConheceTotal / n) * 100).toFixed(1)) : 0,
+        n_nao: row.conhece_denuncia_nao,
+        n_nao_sei: row.conhece_denuncia_nao_sei,
         n_base: n,
       },
       confia_mecanismos: {
-        pct: row.base_efetividade > 0 ? Number(((row.confia_efetividade / row.base_efetividade) * 100).toFixed(1)) : 0,
-        n_sim: row.confia_efetividade,
-        n_base: row.base_efetividade,
+        pct: baseAvaliouEfetividade > 0 ? Number(((efetivosTotal / baseAvaliouEfetividade) * 100).toFixed(1)) : 0,
+        pct_total_amostra: n > 0 ? Number(((efetivosTotal / n) * 100).toFixed(1)) : 0,
+        n_sim: efetivosTotal,
+        n_muito: row.efetividade_muito,
+        n_parcial: row.efetividade_parcial,
+        n_negativo: poucoOuNaoEfetivosTotal,
+        pct_negativo: baseAvaliouEfetividade > 0 ? Number(((poucoOuNaoEfetivosTotal / baseAvaliouEfetividade) * 100).toFixed(1)) : 0,
+        n_pouco: row.efetividade_pouco,
+        n_nao: row.efetividade_nao,
+        n_nao_sei: row.efetividade_nao_sei,
+        n_base: baseAvaliouEfetividade,
+        n_amostra: n,
       },
       desencorajado_estudantes: {
         pct: row.base_desencorajado_discentes > 0 ? Number(((row.desencorajado_discentes / row.base_desencorajado_discentes) * 100).toFixed(1)) : 0,
@@ -225,8 +262,12 @@ export async function obterKpisVisaoGeral(filtros?: FiltrosGlobaisState) {
         n_base: row.base_desencorajado_discentes,
       },
       responsabilidade_cuidado: {
-        pct: n > 0 ? Number(((row.cuidado_principal / n) * 100).toFixed(1)) : 0,
-        n_sim: row.cuidado_principal,
+        pct: n > 0 ? Number(((cuidadoTotal / n) * 100).toFixed(1)) : 0,
+        n_total_cuidado: cuidadoTotal,
+        n_principal: row.cuidado_principal,
+        pct_principal: n > 0 ? Number(((row.cuidado_principal / n) * 100).toFixed(1)) : 0,
+        n_dividido: row.cuidado_dividido,
+        pct_dividido: n > 0 ? Number(((row.cuidado_dividido / n) * 100).toFixed(1)) : 0,
         n_base: n,
       },
     },
@@ -241,107 +282,52 @@ export async function obterDadosPerfil(filtros?: FiltrosGlobaisState) {
   const pool = getDbPool();
   const { whereSql, params } = montarWhereFiltrosGlobais(filtros);
 
-  const sqlDistrib = (campo: string, alias = 'categoria') => `
+  const sqlDistribPorSegmento = (campoExpr: string, extraWhere?: string) => `
     SELECT
-      ${campo} as ${alias},
+      ${campoExpr} as categoria,
+      ${SQL_SEGMENTO_COMUNIDADE} as segmento,
       count(*)::int as n
     FROM public.respostas_pgs
-    ${whereSql}
-    GROUP BY ${campo}
+    ${extraWhere ? whereComAnd(whereSql, extraWhere) : whereSql}
+    GROUP BY categoria, segmento
     ORDER BY n DESC
   `;
 
+  const sqlTotaisSegmento = `
+    SELECT
+      ${SQL_SEGMENTO_COMUNIDADE} as segmento,
+      count(*)::int as n
+    FROM public.respostas_pgs
+    ${whereSql}
+    GROUP BY segmento
+  `;
+
   const [
-    resCampus,
-    resVinculo,
-    resGeneroDet,
-    resGeneroAgrup,
+    resTotaisSeg,
+    resGeneroNormalizado,
     resCorRaca,
     resFaixa,
     resPcd,
-    resNomeSocial,
     resOrientacao,
-    resHeatmap,
   ] = await Promise.all([
-    pool.query(sqlDistrib('campus'), params),
-    pool.query(sqlDistrib('vinculo'), params),
-    pool.query(sqlDistrib('genero'), params),
-    pool.query(
-      `SELECT
-        CASE
-          WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
-          WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
-          WHEN genero ILIKE '%não-binário%' OR genero ILIKE '%nao-binario%' OR genero ILIKE '%travesti%' OR genero ILIKE '%agênero%' OR genero ILIKE '%alexigênero%' OR genero ILIKE '%fluido%' OR genero ILIKE '%fluído%' OR genero ILIKE '%demigirl%' OR genero ILIKE '%multigênero%' THEN 'Pessoa não-binária/outras'
-          WHEN genero = 'Prefiro não responder' THEN 'Prefiro não responder'
-          ELSE 'Pessoa não-binária/outras'
-        END as categoria,
-        count(*)::int as n
-      FROM public.respostas_pgs
-      ${whereSql}
-      GROUP BY categoria
-      ORDER BY n DESC`,
-      params
-    ),
-    pool.query(sqlDistrib('cor_raca'), params),
-    pool.query(sqlDistrib('faixa_etaria'), params),
-    pool.query(sqlDistrib('pcd'), params),
-    pool.query(sqlDistrib('nome_social'), params),
-    pool.query(sqlDistrib('orientacao_sexual'), params),
-    pool.query(
-      `SELECT
-        campus,
-        CASE
-          WHEN vinculo ILIKE '%Discente%' THEN 'Discente'
-          WHEN vinculo ILIKE '%Efetivo%' THEN 'Servidor Efetivo'
-          WHEN vinculo ILIKE '%Substituto%' THEN 'Docente Substituto'
-          WHEN vinculo ILIKE '%Terceirizado%' THEN 'Terceirizado'
-          ELSE 'Outro'
-        END as vinculo_grp,
-        count(*)::int as n
-      FROM public.respostas_pgs
-      ${whereSql}
-      GROUP BY campus, vinculo_grp
-      ORDER BY campus, vinculo_grp`,
-      params
-    ),
+    pool.query(sqlTotaisSegmento, params),
+    pool.query(sqlDistribPorSegmento(SQL_GENERO_NORMALIZADO, `${SQL_GENERO_NORMALIZADO} IS NOT NULL`), params),
+    pool.query(sqlDistribPorSegmento('cor_raca', 'cor_raca IS NOT NULL'), params),
+    pool.query(sqlDistribPorSegmento('faixa_etaria', 'faixa_etaria IS NOT NULL'), params),
+    pool.query(sqlDistribPorSegmento('pcd', 'pcd IS NOT NULL'), params),
+    pool.query(sqlDistribPorSegmento(SQL_ORIENTACAO_NORMALIZADA, `${SQL_ORIENTACAO_NORMALIZADA} IS NOT NULL`), params),
   ]);
 
-  // Total geral filtrado
-  const total = resCampus.rows.reduce((acc: number, r: any) => acc + Number(r.n), 0);
-
-  // Shannon Diversity Index por campus e por vínculo
-  const shannonPorCampus: Record<string, number> = {};
-  const campusGroups: Record<string, Record<string, number>> = {};
-  resHeatmap.rows.forEach((r: any) => {
-    if (!campusGroups[r.campus]) campusGroups[r.campus] = {};
-    campusGroups[r.campus][r.vinculo_grp] = Number(r.n);
-  });
-  Object.keys(campusGroups).forEach((c) => {
-    shannonPorCampus[c] = Number(calcularIndiceShannon(campusGroups[c]).toFixed(1));
-  });
-
-  // Tabela de pluralidade (categorias com mais de 1 resposta para gênero e orientação)
-  const pluralidade = {
-    genero: resGeneroDet.rows.filter((r: any) => r.categoria && r.n > 1).length,
-    cor_raca: resCorRaca.rows.filter((r: any) => r.categoria && r.n > 0).length,
-    orientacao_sexual: resOrientacao.rows.filter((r: any) => r.categoria && r.n > 1).length,
-    pcd: resPcd.rows.filter((r: any) => r.categoria && r.n > 0).length,
-  };
+  const total = resTotaisSeg.rows.reduce((acc: number, r: any) => acc + Number(r.n), 0);
 
   return {
     total,
-    campus: resCampus.rows,
-    vinculo: resVinculo.rows,
-    genero_detalhado: resGeneroDet.rows,
-    genero_agrupado: resGeneroAgrup.rows,
+    totais_segmento: resTotaisSeg.rows,
+    genero_detalhado: resGeneroNormalizado.rows,
     cor_raca: resCorRaca.rows,
     faixa_etaria: resFaixa.rows,
     pcd: resPcd.rows,
-    nome_social: resNomeSocial.rows,
     orientacao_sexual: resOrientacao.rows,
-    shannon_por_campus: shannonPorCampus,
-    heatmap_campus_vinculo: resHeatmap.rows,
-    pluralidade,
   };
 }
 
@@ -357,24 +343,19 @@ export async function obterDadosCarreira(filtros?: FiltrosGlobaisState) {
   };
   const { whereSql, params } = montarWhereFiltrosGlobais(baseFiltros);
 
-  // 1. Funil de liderança: cargo x genero agrupado e cargo x raça para ocupa_cargo_gestao
+  // 1. Composição de servidores: cargo x genero normalizado
   const sqlFunilCargo = `
     SELECT
       cargo,
-      CASE
-        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
-        ELSE 'Pessoa não-binária/outras'
-      END as genero_grp,
-      ocupa_cargo_gestao,
+      ${SQL_GENERO_NORMALIZADO} as genero_grp,
       count(*)::int as n
     FROM public.respostas_pgs
-    ${whereComAnd(whereSql, 'cargo IS NOT NULL')}
-    GROUP BY cargo, genero_grp, ocupa_cargo_gestao
+    ${whereComAnd(whereSql, `cargo IS NOT NULL AND ${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
+    GROUP BY cargo, genero_grp
     ORDER BY cargo, genero_grp
   `;
 
-  // 2. Proporção em cargos de gestão por raça e gênero
+  // 2. Proporção em cargos de gestão por raça e gênero normalizado
   const sqlGestaoIntersec = `
     SELECT
       ocupa_cargo_gestao,
@@ -383,14 +364,10 @@ export async function obterDadosCarreira(filtros?: FiltrosGlobaisState) {
         WHEN cor_raca = 'Branca' THEN 'Branca'
         ELSE 'Outras / Não informado'
       END as raca_grp,
-      CASE
-        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
-        ELSE 'Pessoa não-binária/outras'
-      END as genero_grp,
+      ${SQL_GENERO_NORMALIZADO} as genero_grp,
       count(*)::int as n
     FROM public.respostas_pgs
-    ${whereComAnd(whereSql, 'ocupa_cargo_gestao IS NOT NULL')}
+    ${whereComAnd(whereSql, `ocupa_cargo_gestao IS NOT NULL AND ${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
     GROUP BY ocupa_cargo_gestao, raca_grp, genero_grp
   `;
 
@@ -404,11 +381,7 @@ export async function obterDadosCarreira(filtros?: FiltrosGlobaisState) {
         WHEN funcao_gestao = 'Prefiro não responder' THEN 'Prefiro não responder'
         ELSE 'Outra / Não informado'
       END as funcao,
-      CASE
-        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
-        ELSE 'Outras identidades'
-      END as genero_grp,
+      ${SQL_GENERO_NORMALIZADO} as genero_grp,
       CASE
         WHEN cargo ILIKE '%Docente%' THEN 'docentes'
         WHEN cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
@@ -416,7 +389,7 @@ export async function obterDadosCarreira(filtros?: FiltrosGlobaisState) {
       END as segmento,
       count(*)::int as n
     FROM public.respostas_pgs
-    ${whereComAnd(whereSql, 'funcao_gestao IS NOT NULL')}
+    ${whereComAnd(whereSql, `funcao_gestao IS NOT NULL AND ${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
     GROUP BY funcao, genero_grp, segmento
     ORDER BY n DESC
   `;
@@ -425,11 +398,7 @@ export async function obterDadosCarreira(filtros?: FiltrosGlobaisState) {
   const sqlProgressao = `
     SELECT
       progressao_merito_nota as nota,
-      CASE
-        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
-        ELSE 'Outras identidades'
-      END as genero_grp,
+      ${SQL_GENERO_NORMALIZADO} as genero_grp,
       CASE
         WHEN cargo ILIKE '%Docente%' THEN 'docentes'
         WHEN cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
@@ -437,18 +406,14 @@ export async function obterDadosCarreira(filtros?: FiltrosGlobaisState) {
       END as segmento,
       count(*)::int as n
     FROM public.respostas_pgs
-    ${whereComAnd(whereSql, 'progressao_merito_nota IS NOT NULL')}
+    ${whereComAnd(whereSql, `progressao_merito_nota IS NOT NULL AND ${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
     GROUP BY progressao_merito_nota, genero_grp, segmento
     ORDER BY progressao_merito_nota
   `;
 
   const sqlProgressaoMedias = `
     SELECT
-      CASE
-        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
-        ELSE 'Outras identidades'
-      END as genero_grp,
+      ${SQL_GENERO_NORMALIZADO} as genero_grp,
       CASE
         WHEN cargo ILIKE '%Docente%' THEN 'docentes'
         WHEN cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
@@ -458,7 +423,7 @@ export async function obterDadosCarreira(filtros?: FiltrosGlobaisState) {
       round(percentile_cont(0.5) within group (order by progressao_merito_nota::float)::numeric, 2)::float as mediana,
       count(*)::int as n
     FROM public.respostas_pgs
-    ${whereComAnd(whereSql, 'progressao_merito_nota IS NOT NULL')}
+    ${whereComAnd(whereSql, `progressao_merito_nota IS NOT NULL AND ${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
     GROUP BY genero_grp, segmento
   `;
 
@@ -466,11 +431,7 @@ export async function obterDadosCarreira(filtros?: FiltrosGlobaisState) {
   const sqlAcesso = `
     SELECT
       acesso_oportunidades,
-      CASE
-        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
-        ELSE 'Outras identidades'
-      END as genero_grp,
+      ${SQL_GENERO_NORMALIZADO} as genero_grp,
       CASE
         WHEN cargo ILIKE '%Docente%' THEN 'docentes'
         WHEN cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
@@ -478,12 +439,12 @@ export async function obterDadosCarreira(filtros?: FiltrosGlobaisState) {
       END as segmento,
       count(*)::int as n
     FROM public.respostas_pgs
-    ${whereComAnd(whereSql, 'acesso_oportunidades IS NOT NULL')}
+    ${whereComAnd(whereSql, `acesso_oportunidades IS NOT NULL AND ${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
     GROUP BY acesso_oportunidades, genero_grp, segmento
     ORDER BY n DESC
   `;
 
-  // 6. Evitou candidatura por cuidado (Tabela 2x2 e cortes) com segmento docente/tecnico e genero
+  // 6. Evitou candidatura por cuidado com segmento docente/tecnico e genero normalizado
   const sqlEvitouCuidado = `
     SELECT
       responsabilidade_cuidado,
@@ -493,14 +454,10 @@ export async function obterDadosCarreira(filtros?: FiltrosGlobaisState) {
         WHEN cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
         ELSE 'outro'
       END as segmento,
-      CASE
-        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulheres'
-        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homens'
-        ELSE 'Outras'
-      END as genero_grp,
+      ${SQL_GENERO_NORMALIZADO} as genero_grp,
       count(*)::int as n
     FROM public.respostas_pgs
-    ${whereComAnd(whereSql, 'evitou_candidatura_cuidado IS NOT NULL')}
+    ${whereComAnd(whereSql, `evitou_candidatura_cuidado IS NOT NULL AND ${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
     GROUP BY responsabilidade_cuidado, evitou_candidatura_cuidado, segmento, genero_grp
   `;
 
@@ -508,14 +465,10 @@ export async function obterDadosCarreira(filtros?: FiltrosGlobaisState) {
   const sqlPgd = `
     SELECT
       adesao_pgd,
-      CASE
-        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
-        ELSE 'Outras identidades'
-      END as genero_grp,
+      ${SQL_GENERO_NORMALIZADO} as genero_grp,
       count(*)::int as n
     FROM public.respostas_pgs
-    ${whereComAnd(whereSql, 'adesao_pgd IS NOT NULL')}
+    ${whereComAnd(whereSql, `adesao_pgd IS NOT NULL AND ${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
     GROUP BY adesao_pgd, genero_grp
     ORDER BY n DESC
   `;
@@ -580,14 +533,10 @@ export async function obterDadosAmbienteViolencias(filtros?: FiltrosGlobaisState
           WHEN vinculo ILIKE '%Discente%' THEN 'discentes'
           ELSE 'outros'
         END as segmento,
-        CASE
-          WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulheres'
-          WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homens'
-          ELSE 'Outras identidades'
-        END as genero_grp,
+        ${SQL_GENERO_NORMALIZADO} as genero_grp,
         count(*)::int as n
       FROM public.respostas_pgs
-      ${whereSql}
+      ${whereComAnd(whereSql, `${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
       GROUP BY resposta, segmento, genero_grp
       ORDER BY n DESC
     `;
@@ -600,7 +549,7 @@ export async function obterDadosAmbienteViolencias(filtros?: FiltrosGlobaisState
     };
   });
 
-  // 2. Taxas de violência direta por raça com suporte a filtros de segmento e gênero
+  // 2. Taxas de violência direta por raça com suporte a filtros de segmento e gênero normalizado
   const sqlViolenciaRacaPorCor = `
     SELECT
       cor_raca,
@@ -610,74 +559,56 @@ export async function obterDadosAmbienteViolencias(filtros?: FiltrosGlobaisState
         WHEN vinculo ILIKE '%Discente%' THEN 'discentes'
         ELSE 'outros'
       END as segmento,
-      CASE
-        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulheres'
-        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homens'
-        ELSE 'Outras identidades'
-      END as genero_grp,
+      ${SQL_GENERO_NORMALIZADO} as genero_grp,
       count(*)::int as n_total,
       count(*) FILTER (WHERE violencia_raca = 'Sim')::int as n_sim
     FROM public.respostas_pgs
-    ${whereSql}
+    ${whereComAnd(whereSql, `${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
     GROUP BY cor_raca, segmento, genero_grp
     ORDER BY cor_raca
   `;
 
-  // 3. Taxas de violência de gênero/orientação com suporte a filtros de segmento e gênero
+  // 3. Taxas de violência de gênero/orientação usando a Regra de Ouro de Gênero Normalizado
   const sqlViolenciaOrientacaoPorGenero = `
     SELECT
-      CASE
-        WHEN genero ILIKE '%trans%' OR genero ILIKE '%travesti%' THEN 'Pessoas Trans/Travestis'
-        WHEN genero ILIKE '%não-binário%' OR genero ILIKE '%nao-binario%' OR genero ILIKE '%agênero%' OR genero ILIKE '%fluido%' OR genero ILIKE '%fluído%' OR genero ILIKE '%demigirl%' OR genero ILIKE '%multigênero%' THEN 'Não-binários'
-        WHEN (genero ILIKE '%mulher%' OR genero ILIKE '%femin%') AND genero NOT ILIKE '%trans%' THEN 'Mulheres Cis'
-        WHEN (genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%') AND genero NOT ILIKE '%trans%' THEN 'Homens Cis'
-        ELSE 'Outras identidades'
-      END as grupo_genero,
+      ${SQL_GENERO_NORMALIZADO} as grupo_genero,
       CASE
         WHEN cargo ILIKE '%Docente%' THEN 'docentes'
         WHEN cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
         WHEN vinculo ILIKE '%Discente%' THEN 'discentes'
         ELSE 'outros'
       END as segmento,
-      CASE
-        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulheres'
-        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homens'
-        ELSE 'Outras identidades'
-      END as genero_grp,
+      ${SQL_GENERO_NORMALIZADO} as genero_grp,
       count(*)::int as n_total,
       count(*) FILTER (WHERE violencia_orientacao_genero = 'Sim')::int as n_sim
     FROM public.respostas_pgs
-    ${whereSql}
+    ${whereComAnd(whereSql, `${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
     GROUP BY grupo_genero, segmento, genero_grp
     ORDER BY grupo_genero
   `;
 
   const sqlViolenciaPorOrientacao = `
     SELECT
-      orientacao_sexual,
+      ${SQL_ORIENTACAO_NORMALIZADA} as orientacao_sexual,
       count(*)::int as n_total,
       count(*) FILTER (WHERE violencia_orientacao_genero = 'Sim')::int as n_sim,
       round((count(*) FILTER (WHERE violencia_orientacao_genero = 'Sim') * 100.0 / nullif(count(*), 0))::numeric, 1)::float as taxa_pct
     FROM public.respostas_pgs
-    ${whereSql}
-    GROUP BY orientacao_sexual
+    ${whereComAnd(whereSql, `${SQL_ORIENTACAO_NORMALIZADA} IS NOT NULL`)}
+    GROUP BY ${SQL_ORIENTACAO_NORMALIZADA}
     ORDER BY taxa_pct DESC
   `;
 
-  // 4. Vitimização interseccional (cor/raça x gênero)
+  // 4. Vitimização interseccional (cor/raça x gênero normalizado)
   const sqlInterseccional = `
     SELECT
       cor_raca,
-      CASE
-        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulheres'
-        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homens'
-        ELSE 'Não-binárias / Trans / Outras'
-      END as genero_grp,
+      ${SQL_GENERO_NORMALIZADO} as genero_grp,
       count(*)::int as n_total,
       count(*) FILTER (WHERE violencia_raca = 'Sim' OR violencia_orientacao_genero = 'Sim')::int as n_vitimas,
       round((count(*) FILTER (WHERE violencia_raca = 'Sim' OR violencia_orientacao_genero = 'Sim') * 100.0 / nullif(count(*), 0))::numeric, 1)::float as taxa_pct
     FROM public.respostas_pgs
-    ${whereSql}
+    ${whereComAnd(whereSql, `${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
     GROUP BY cor_raca, genero_grp
     ORDER BY cor_raca, genero_grp
   `;
@@ -686,14 +617,10 @@ export async function obterDadosAmbienteViolencias(filtros?: FiltrosGlobaisState
   const sqlDesencorajamento = `
     SELECT
       desencorajado_participacao,
-      CASE
-        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
-        ELSE 'Não-binária / Outras'
-      END as genero_grp,
+      ${SQL_GENERO_NORMALIZADO} as genero_grp,
       count(*)::int as n
     FROM public.respostas_pgs
-    ${whereComAnd(whereSql, "vinculo ILIKE '%Discente%' AND desencorajado_participacao IS NOT NULL")}
+    ${whereComAnd(whereSql, `vinculo ILIKE '%Discente%' AND desencorajado_participacao IS NOT NULL AND ${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
     GROUP BY desencorajado_participacao, genero_grp
     ORDER BY desencorajado_participacao
   `;
@@ -844,22 +771,18 @@ export async function obterDadosCuidado(filtros?: FiltrosGlobaisState) {
   const pool = getDbPool();
   const { whereSql, params } = montarWhereFiltrosGlobais(filtros);
 
-  // 1. Q9 Responsabilidade de cuidado por gênero agrupado e vínculo
+  // 1. Q9 Responsabilidade de cuidado por gênero normalizado e vínculo
   const sqlQ9 = `
     SELECT
       responsabilidade_cuidado,
-      CASE
-        WHEN genero ILIKE '%mulher%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' THEN 'Homem'
-        ELSE 'Não-binária / Outras'
-      END as genero_grp,
+      ${SQL_GENERO_NORMALIZADO} as genero_grp,
       CASE
         WHEN vinculo ILIKE '%Discente%' THEN 'Discente'
         ELSE 'Servidor(a)'
       END as vinculo_grp,
       count(*)::int as n
     FROM public.respostas_pgs
-    ${whereComAnd(whereSql, 'responsabilidade_cuidado IS NOT NULL')}
+    ${whereComAnd(whereSql, `responsabilidade_cuidado IS NOT NULL AND ${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
     GROUP BY responsabilidade_cuidado, genero_grp, vinculo_grp
   `;
 
@@ -874,15 +797,11 @@ export async function obterDadosCuidado(filtros?: FiltrosGlobaisState) {
     GROUP BY politica_apoio_cuidado, campus
   `;
 
-  // 3. Licenças Q31, Q32 e apoio a pais estudantes Q33 (com recorte por gênero e segmento)
+  // 3. Licenças Q31, Q32 e apoio a pais estudantes Q33 (com recorte por gênero normalizado e segmento)
   const sqlLicencaSegmento = (coluna: string) => `
     SELECT
       ${coluna} as resposta,
-      CASE
-        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'mulheres'
-        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'homens'
-        ELSE 'outros'
-      END as genero_grp,
+      ${SQL_GENERO_NORMALIZADO} as genero_grp,
       CASE
         WHEN cargo ILIKE '%Docente%' THEN 'docentes'
         WHEN cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
@@ -890,7 +809,7 @@ export async function obterDadosCuidado(filtros?: FiltrosGlobaisState) {
       END as segmento,
       count(*)::int as n
     FROM public.respostas_pgs
-    ${whereComAnd(whereSql, `${coluna} IS NOT NULL`)}
+    ${whereComAnd(whereSql, `${coluna} IS NOT NULL AND ${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
     GROUP BY ${coluna}, genero_grp, segmento
     ORDER BY n DESC
   `;
@@ -905,14 +824,10 @@ export async function obterDadosCuidado(filtros?: FiltrosGlobaisState) {
   const sqlMaternidadeImpacto = `
     SELECT
       maternidade_impacto_carreira,
-      CASE
-        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
-        ELSE 'Não-binária / Outras'
-      END as genero_grp,
+      ${SQL_GENERO_NORMALIZADO} as genero_grp,
       count(*)::int as n
     FROM public.respostas_pgs
-    ${whereComAnd(whereSql, 'maternidade_impacto_carreira IS NOT NULL')}
+    ${whereComAnd(whereSql, `maternidade_impacto_carreira IS NOT NULL AND ${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
     GROUP BY maternidade_impacto_carreira, genero_grp
     ORDER BY n DESC
   `;
@@ -956,27 +871,35 @@ export async function obterDadosStem(filtros?: FiltrosGlobaisState) {
   const pool = getDbPool();
   const { whereSql, params } = montarWhereFiltrosGlobais(filtros);
 
-  // Buscar todos os registros de estudantes com area_conhecimento preenchida
+  // Buscar todos os registros de estudantes com area_conhecimento preenchida e gênero válido
   const sql = `
     SELECT
       area_conhecimento,
-      CASE
-        WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
-        WHEN genero ILIKE '%homem%' OR genero ILIKE '%masculin%' OR genero ILIKE '%cromossomo%xy%' THEN 'Homem'
-        ELSE 'Não-binária / Outras'
-      END as genero_grp,
+      ${SQL_GENERO_NORMALIZADO} as genero_grp,
       cor_raca,
       desencorajado_participacao,
       count(*)::int as n
     FROM public.respostas_pgs
-    ${whereComAnd(whereSql, "vinculo ILIKE '%Discente%' AND area_conhecimento IS NOT NULL")}
+    ${whereComAnd(whereSql, `vinculo ILIKE '%Discente%' AND area_conhecimento IS NOT NULL AND ${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
     GROUP BY area_conhecimento, genero_grp, cor_raca, desencorajado_participacao
   `;
 
   const res = await pool.query(sql, params);
 
   // Mapeamento e agregação determinística via areaMap.ts
-  const contagemPorGrandeArea: Record<string, { total: number; mulheres: number; homens: number; outras: number; negros: number }> = {};
+  const contagemPorGrandeArea: Record<
+    string,
+    {
+      total: number;
+      mulheres: number;
+      homens: number;
+      mulheres_trans: number;
+      homens_trans: number;
+      travestis: number;
+      nao_binarias: number;
+      negros: number;
+    }
+  > = {};
   const coberturaTextos: Record<string, { textoOriginal: string; grandeArea: string; n: number }> = {};
   const desencorajamentoPorArea: Record<string, { total: number; desencorajados: number }> = {
     STEM: { total: 0, desencorajados: 0 },
@@ -984,7 +907,16 @@ export async function obterDadosStem(filtros?: FiltrosGlobaisState) {
   };
 
   GRANDES_AREAS_CNPQ.forEach((ga) => {
-    contagemPorGrandeArea[ga] = { total: 0, mulheres: 0, homens: 0, outras: 0, negros: 0 };
+    contagemPorGrandeArea[ga] = {
+      total: 0,
+      mulheres: 0,
+      homens: 0,
+      mulheres_trans: 0,
+      homens_trans: 0,
+      travestis: 0,
+      nao_binarias: 0,
+      negros: 0,
+    };
   });
 
   for (const row of res.rows) {
@@ -993,13 +925,25 @@ export async function obterDadosStem(filtros?: FiltrosGlobaisState) {
     const n = Number(row.n || 0);
 
     if (!contagemPorGrandeArea[ga]) {
-      contagemPorGrandeArea[ga] = { total: 0, mulheres: 0, homens: 0, outras: 0, negros: 0 };
+      contagemPorGrandeArea[ga] = {
+        total: 0,
+        mulheres: 0,
+        homens: 0,
+        mulheres_trans: 0,
+        homens_trans: 0,
+        travestis: 0,
+        nao_binarias: 0,
+        negros: 0,
+      };
     }
 
     contagemPorGrandeArea[ga].total += n;
     if (row.genero_grp === 'Mulher') contagemPorGrandeArea[ga].mulheres += n;
     else if (row.genero_grp === 'Homem') contagemPorGrandeArea[ga].homens += n;
-    else contagemPorGrandeArea[ga].outras += n;
+    else if (row.genero_grp === 'Mulher Trans') contagemPorGrandeArea[ga].mulheres_trans += n;
+    else if (row.genero_grp === 'Homem Trans') contagemPorGrandeArea[ga].homens_trans += n;
+    else if (row.genero_grp === 'Travesti') contagemPorGrandeArea[ga].travestis += n;
+    else if (row.genero_grp === 'Não-binárias') contagemPorGrandeArea[ga].nao_binarias += n;
 
     if (row.cor_raca === 'Preta' || row.cor_raca === 'Parda') {
       contagemPorGrandeArea[ga].negros += n;
@@ -1027,7 +971,11 @@ export async function obterDadosStem(filtros?: FiltrosGlobaisState) {
       total: v.total,
       mulheres: v.mulheres,
       homens: v.homens,
-      outras: v.outras,
+      mulheres_trans: v.mulheres_trans,
+      homens_trans: v.homens_trans,
+      travestis: v.travestis,
+      nao_binarias: v.nao_binarias,
+      outras: v.mulheres_trans + v.homens_trans + v.travestis + v.nao_binarias,
       pct_mulheres: Number(((v.mulheres / v.total) * 100).toFixed(1)),
       pct_negros: Number(((v.negros / v.total) * 100).toFixed(1)),
     }))

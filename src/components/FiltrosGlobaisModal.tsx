@@ -220,7 +220,7 @@ export const FiltrosGlobaisModal: React.FC<FiltrosGlobaisModalProps> = ({
             {/* Campus */}
             <div>
               <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase">
-                Campus / Reitoria (19 unidades)
+                Campus / Reitoria (18 unidades)
               </label>
               <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto p-1.5 border border-[#22335a] rounded-lg bg-[#0e172e]">
                 {(opcoes.campus || []).map((camp: string) => {

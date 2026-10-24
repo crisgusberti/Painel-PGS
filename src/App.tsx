@@ -35,7 +35,7 @@ export default function App() {
 
   const [carregando, setCarregando] = useState<boolean>(false);
   const [erroCarregamento, setErroCarregamento] = useState<string | null>(null);
-  const [nFiltrado, setNFiltrado] = useState<number>(4878);
+  const [nFiltrado, setNFiltrado] = useState<number>(4857);
 
   // Carregar dados de acordo com a aba ativa e os filtros
   const carregarDadosAba = async (aba: string, filtrosAtuais: FiltrosGlobaisState) => {
