@@ -22,6 +22,7 @@ interface ChartCardProps {
   infoTitulo?: string;
   tabelaDados?: { cabecalhos: string[]; linhas: (string | number)[][] };
   notaRodape?: string;
+  classeExtra?: string;
 }
 
 export const ChartCard: React.FC<ChartCardProps> = ({
@@ -39,6 +40,7 @@ export const ChartCard: React.FC<ChartCardProps> = ({
   infoTitulo,
   tabelaDados,
   notaRodape,
+  classeExtra = '',
 }) => {
   const chartRef = useRef<any>(null);
   const [mostrarTabela, setMostrarTabela] = useState(false);
@@ -81,7 +83,7 @@ export const ChartCard: React.FC<ChartCardProps> = ({
   };
 
   return (
-    <div className="bg-[#131d36] rounded-xl border border-[#223154] shadow-sm p-5 flex flex-col justify-between">
+    <div className={`bg-[#131d36] rounded-xl border border-[#223154] shadow-sm p-5 flex flex-col justify-between ${classeExtra}`}>
       {/* Cabeçalho */}
       <div>
         <div className="flex items-start justify-between gap-3 mb-2">

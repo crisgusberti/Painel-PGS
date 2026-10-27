@@ -10,7 +10,7 @@ import app from './src/server/app';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 // Setup Vite Dev Middleware vs Static Files
 async function startServer() {

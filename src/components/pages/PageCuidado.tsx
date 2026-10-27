@@ -8,31 +8,8 @@ import { ChartCard } from '../ChartCard';
 import { PALETA_ACESSIVEL, CORES_LIKERT } from '../../lib/chartTheme';
 import { formatarNumero } from '../../lib/formatters';
 import { SlidersHorizontal, RotateCcw } from 'lucide-react';
-import { CATEGORIAS_GENERO_OFICIAIS, CategoriaGeneroOficial } from '../../lib/escalas';
-
-type SegmentoLicencas = 'geral' | CategoriaGeneroOficial;
-
-const SeletorSegmento: React.FC<{
-  valor: SegmentoLicencas;
-  aoMudar: (val: SegmentoLicencas) => void;
-}> = ({ valor, aoMudar }) => (
-  <div className="inline-flex items-center flex-wrap p-0.5 rounded-lg bg-[#0a1020] border border-[#223154] text-xs">
-    {(['geral', ...CATEGORIAS_GENERO_OFICIAIS] as const).map((g) => (
-      <button
-        key={g}
-        type="button"
-        onClick={() => aoMudar(g)}
-        className={`px-2 py-1 rounded-md text-xs font-semibold transition-all ${
-          valor === g
-            ? 'bg-teal-500 text-slate-950 shadow-xs'
-            : 'text-slate-400 hover:text-slate-200'
-        }`}
-      >
-        {g === 'geral' ? 'Geral' : g}
-      </button>
-    ))}
-  </div>
-);
+import { CATEGORIAS_GENERO_OFICIAIS } from '../../lib/escalas';
+import { SeletorGenero, OpcaoGeneroFiltro } from '../SeletorGenero';
 
 interface PageCuidadoProps {
   dados: any;
@@ -48,7 +25,7 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
   const estudantesCuidado = dados?.estudantes_cuidado || [];
 
   // Seletor de segmento de gênero para o gráfico de Licenças
-  const [segmentoLicencas, setSegmentoLicencas] = useState<SegmentoLicencas>('geral');
+  const [segmentoLicencas, setSegmentoLicencas] = useState<OpcaoGeneroFiltro>('todos');
 
   // Filtros internos para a tabela de Estudantes com Responsabilidade de Cuidado
   const [filtroCampus, setFiltroCampus] = useState<string>('todos');
@@ -97,7 +74,7 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
     })),
   };
 
-  // 2. Gráfico Licenças e Apoio aos Pais com filtro por recorte (Geral ou qualquer uma das 6 categorias oficiais)
+  // 2. Gráfico Licenças e Apoio aos Pais com filtro por recorte (Todos ou qualquer uma das 6 categorias oficiais)
   const obterTotalLicenca = (
     lista: any[],
     filtroResp: (r: string) => boolean
@@ -105,7 +82,7 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
     return lista
       .filter((item: any) => {
         const matchGen =
-          segmentoLicencas === 'geral'
+          segmentoLicencas === 'todos'
             ? true
             : item.genero_grp === segmentoLicencas;
         return matchGen && filtroResp(String(item.resposta || ''));
@@ -326,9 +303,9 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
         <ChartCard
           titulo="Suficiência das Licenças e Apoio a Estudantes com Filhos"
           subtitulo={`Percepção sobre adequação dos prazos de licença maternidade/paternidade e suporte institucional • Recorte: ${
-            segmentoLicencas === 'geral' ? 'Geral' : segmentoLicencas
+            segmentoLicencas === 'todos' ? 'Geral' : segmentoLicencas
           }`}
-          elementoCabecalho={<SeletorSegmento valor={segmentoLicencas} aoMudar={setSegmentoLicencas} />}
+          elementoCabecalho={<SeletorGenero valor={segmentoLicencas} aoMudar={setSegmentoLicencas} />}
           option={optionLicencas}
           altura={380}
           carregando={carregando}

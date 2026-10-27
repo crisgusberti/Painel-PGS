@@ -302,7 +302,7 @@ SELECT DISTINCT orientacao_sexual FROM public.respostas_pgs WHERE orientacao_sex
   8. **KPI Card "Responsabilidade de Cuidado":** Soma de `cuidado_principal` (`Sim` = `786`, `16,2%`) + `cuidado_dividido` (`Sim, divido igualmente` = `938`, `19,3%`) = **`1.724` (`35,5%`)**, exibindo explicitamente abaixo a divisão dessas quantidades.
 
 #### Consulta 0.2 — Distribuição por Campus e Vínculo Institucional (Separando Docentes e Técnicos TAEs)
-- **Componente Visual alimentado:** Gráfico de barras horizontais empilhadas **"Distribuição de Respondentes por Campus e Vínculo Institucional"** (excluindo `'Prefiro não responder'` no campo `campus` e separando `'Servidor Efetivo'` em `'Docente'` e `'Técnico TAE'`).
+- **Componente Visual alimentado:** Gráfico de barras horizontais empilhadas **"Distribuição de Respondentes por Campus e Vínculo Institucional"** (excluindo `'Prefiro não responder'` no campo `campus`, separando `'Servidor Efetivo'` em `'Docente'` e `'Técnico TAE'`, e incluindo `${SQL_GENERO_NORMALIZADO} as genero` para habilitar o Seletor de Gênero individual no cabeçalho do card: `Todos` ou as 6 categorias oficiais).
 ```sql
 SELECT
   campus,
@@ -314,10 +314,11 @@ SELECT
     WHEN vinculo ILIKE '%Efetivo%' THEN 'Servidor Efetivo (Sem cargo)'
     ELSE 'Não informado'
   END as vinculo_simplificado,
+  ${SQL_GENERO_NORMALIZADO} as genero,
   count(*)::int as total
 FROM public.respostas_pgs
 ${whereComAnd(whereSql, "campus IS NOT NULL AND campus <> 'Prefiro não responder'")}
-GROUP BY campus, vinculo_simplificado
+GROUP BY campus, vinculo_simplificado, ${SQL_GENERO_NORMALIZADO}
 ORDER BY campus ASC;
 ```
 
@@ -328,13 +329,13 @@ ORDER BY campus ASC;
 *Backend:* `obterDadosPerfil` em [`src/server/dashboardStats.ts`](file:///c:/Users/Cristian/GitHub/Painel-PGS/src/server/dashboardStats.ts)  
 *Frontend:* [`src/components/pages/PagePerfil.tsx`](file:///c:/Users/Cristian/GitHub/Painel-PGS/src/components/pages/PagePerfil.tsx)
 
-#### Consultas 1.1 a 1.5 — Distribuições Segmentadas por Categoria (`Geral | Docente | Técnico TAE | Discente`)
-Todos os gráficos da Aba 1 possuem seletor individual por segmento (`SQL_SEGMENTO_COMUNIDADE`) e consomem consultas agrupadas por `categoria, segmento`:
+#### Consultas 1.1 a 1.5 — Distribuições Segmentadas por Categoria e Gênero
+Todos os gráficos da Aba 1 consomem consultas agrupadas por `categoria, segmento, genero` (via `sqlDistribPorSegmento`), suportando filtros cruzados independentes de **Segmento** (`Geral | Docente | Técnico TAE | Discente`) e de **Gênero** (`Todos` ou uma das 6 categorias oficiais via `SeletorGenero`):
 1. **Identidade de Gênero Detalhada (`sqlGeneroNormalizado`):** Agrupado pelas **6 categorias oficiais** (`SQL_GENERO_NORMALIZADO`) e por `segmento`.
-2. **Cor ou Raça (`cor_raca`):** Agrupado por `cor_raca` e `segmento`.
-3. **Pirâmide / Distribuição Etária (`faixa_etaria`):** Agrupado por `faixa_etaria` e `segmento`.
-4. **Pessoas com Deficiência — PCD (`pcd`):** Agrupado por `pcd` e `segmento`.
-5. **Orientação Sexual (`sqlOrientacaoNormalizada`):** Agrupado por `${SQL_ORIENTACAO_NORMALIZADA}` (consolidando termos com grafia divergente como `Demisexual` + `Demissexual`) e por `segmento`.
+2. **Cor ou Raça (`cor_raca`):** Agrupado por `cor_raca`, `segmento` e `genero` (com seletores individuais de segmento e gênero).
+3. **Pirâmide / Distribuição Etária (`faixa_etaria`):** Agrupado por `faixa_etaria`, `segmento` e `genero` (com seletores individuais de segmento e gênero).
+4. **Pessoas com Deficiência — PCD (`pcd`):** Agrupado por `pcd`, `segmento` e `genero` (com seletores individuais de segmento e gênero).
+5. **Orientação Sexual (`sqlOrientacaoNormalizada`):** Agrupado por `${SQL_ORIENTACAO_NORMALIZADA}` (consolidando termos com grafia divergente como `Demisexual` + `Demissexual`), `segmento` e `genero` (com seletores individuais de segmento e gênero).
 
 ---
 

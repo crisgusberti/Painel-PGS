@@ -3,9 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { KpiCard } from '../KpiCard';
 import { ChartCard } from '../ChartCard';
+import { SeletorGenero, OpcaoGeneroFiltro } from '../SeletorGenero';
 import {
   Users,
   ShieldAlert,
@@ -31,6 +32,7 @@ export const PageVisaoGeral: React.FC<PageVisaoGeralProps> = ({
 }) => {
   const kpis = dados?.kpis || {};
   const campusDist = dados?.campus_distribuicao || [];
+  const [generoCampus, setGeneroCampus] = useState<OpcaoGeneroFiltro>('todos');
 
   // Preparar dados do gráfico por campus ordenado (separando Servidor Efetivo em Docentes e Técnicos TAEs, sem Terceirizados)
   const campusTotals: Record<
@@ -47,6 +49,7 @@ export const PageVisaoGeral: React.FC<PageVisaoGeralProps> = ({
   campusDist.forEach((r: any) => {
     const c = r.campus;
     if (!c || c === 'Prefiro não responder') return;
+    if (generoCampus !== 'todos' && r.genero !== generoCampus) return;
     if (!campusTotals[c]) {
       campusTotals[c] = { total: 0, discente: 0, docente: 0, tecnico_tae: 0, substituto: 0 };
     }
@@ -309,6 +312,10 @@ export const PageVisaoGeral: React.FC<PageVisaoGeralProps> = ({
       <ChartCard
         titulo="Distribuição de Respondentes por Campus e Vínculo Institucional"
         subtitulo="Quantidade de respondentes nas 18 unidades (17 Campi e Reitoria), separando servidores efetivos em Docentes e Técnicos TAEs"
+        n={campusOrdenados.reduce((acc, c) => acc + c.total, 0)}
+        elementoCabecalho={
+          <SeletorGenero valor={generoCampus} aoMudar={setGeneroCampus} />
+        }
         option={optionCampus}
         altura={500}
         carregando={carregando}

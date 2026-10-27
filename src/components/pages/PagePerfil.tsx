@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { ChartCard } from '../ChartCard';
+import { SeletorGenero, OpcaoGeneroFiltro } from '../SeletorGenero';
 import { formatarNumero, formatarPercentual } from '../../lib/formatters';
 import { PALETA_ACESSIVEL } from '../../lib/chartTheme';
 import { CATEGORIAS_GENERO_OFICIAIS } from '../../lib/escalas';
@@ -73,15 +74,26 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
   const [segFaixaEtaria, setSegFaixaEtaria] = useState<CategoriaComunidade>('geral');
   const [segPcd, setSegPcd] = useState<CategoriaComunidade>('geral');
 
-  // Função utilitária que filtra por segmento e soma quantidades por categoria
+  // Estados independentes de filtro de gênero ("Todos", "Mulher", "Homem", etc.) para os 4 gráficos sociodemográficos
+  const [genCorRaca, setGenCorRaca] = useState<OpcaoGeneroFiltro>('todos');
+  const [genOrientacao, setGenOrientacao] = useState<OpcaoGeneroFiltro>('todos');
+  const [genFaixaEtaria, setGenFaixaEtaria] = useState<OpcaoGeneroFiltro>('todos');
+  const [genPcd, setGenPcd] = useState<OpcaoGeneroFiltro>('todos');
+
+  // Função utilitária que filtra por segmento e gênero e soma quantidades por categoria
   const agregarPorCategoria = (
     rows: any[],
     segmentoSelecionado: CategoriaComunidade,
+    generoSelecionado: OpcaoGeneroFiltro = 'todos',
     categoriasFixas?: readonly string[]
   ): { itens: { categoria: string; n: number }[]; totalSegmento: number } => {
-    const filtrados = rows.filter((r: any) =>
-      segmentoSelecionado === 'geral' ? true : r.segmento === segmentoSelecionado
-    );
+    const filtrados = rows.filter((r: any) => {
+      const matchSegmento =
+        segmentoSelecionado === 'geral' ? true : r.segmento === segmentoSelecionado;
+      const matchGenero =
+        generoSelecionado === 'todos' ? true : r.genero === generoSelecionado;
+      return matchSegmento && matchGenero;
+    });
 
     const mapa: Record<string, number> = {};
     if (categoriasFixas) {
@@ -107,25 +119,29 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
   const { itens: generoItens, totalSegmento: totalGenero } = agregarPorCategoria(
     generoDetRaw,
     segGenero,
+    'todos',
     CATEGORIAS_GENERO_OFICIAIS
   );
 
   // 2. Cor / Raça
   const { itens: corRacaItens, totalSegmento: totalCorRaca } = agregarPorCategoria(
     corRacaRaw,
-    segCorRaca
+    segCorRaca,
+    genCorRaca
   );
 
   // 3. Orientação Sexual (termos normalizados e grafias unificadas)
   const { itens: orientacaoItens, totalSegmento: totalOrientacao } = agregarPorCategoria(
     orientacaoRaw,
-    segOrientacao
+    segOrientacao,
+    genOrientacao
   );
 
   // 4. Faixa Etária
   const { itens: faixaItensBrutos, totalSegmento: totalFaixa } = agregarPorCategoria(
     faixaEtariaRaw,
-    segFaixaEtaria
+    segFaixaEtaria,
+    genFaixaEtaria
   );
   const faixaItens = [...faixaItensBrutos].sort((a, b) => {
     const idxA = ORDEM_FAIXA_ETARIA.indexOf(a.categoria);
@@ -135,7 +151,11 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
   });
 
   // 5. PCD
-  const { itens: pcdItens, totalSegmento: totalPcd } = agregarPorCategoria(pcdRaw, segPcd);
+  const { itens: pcdItens, totalSegmento: totalPcd } = agregarPorCategoria(
+    pcdRaw,
+    segPcd,
+    genPcd
+  );
 
   // Função auxiliar para criar opção de barra horizontal
   const criarOpcaoBarra = (
@@ -264,12 +284,17 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
           titulo="Autodeclaração Étnico-Racial (Cor / Raça)"
           subtitulo="Categorias censitárias autodeclaradas (IBGE)"
           n={totalCorRaca}
-          elementoCabecalho={<SeletorCategoriaPerfil valor={segCorRaca} aoMudar={setSegCorRaca} />}
+          elementoCabecalho={
+            <div className="flex items-center justify-between gap-2.5 flex-wrap w-full">
+              <SeletorCategoriaPerfil valor={segCorRaca} aoMudar={setSegCorRaca} />
+              <SeletorGenero valor={genCorRaca} aoMudar={setGenCorRaca} />
+            </div>
+          }
           option={criarOpcaoBarra(corRacaItens, PALETA_ACESSIVEL[2], totalCorRaca)}
           altura={350}
           carregando={carregando}
           tabelaDados={{
-            cabecalhos: ['Cor/Raça', 'Respondentes', '% no Segmento'],
+            cabecalhos: ['Cor/Raça', 'Respondentes', '% no Segmento/Gênero'],
             linhas: [...corRacaItens]
               .sort((a, b) => b.n - a.n)
               .map((c) => [
@@ -284,13 +309,18 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
           titulo="Orientação Sexual"
           subtitulo="Diversidade de orientações sexuais declaradas (com termos equivalentes e variações de grafia consolidados)"
           n={totalOrientacao}
-          elementoCabecalho={<SeletorCategoriaPerfil valor={segOrientacao} aoMudar={setSegOrientacao} />}
+          elementoCabecalho={
+            <div className="flex items-center justify-between gap-2.5 flex-wrap w-full">
+              <SeletorCategoriaPerfil valor={segOrientacao} aoMudar={setSegOrientacao} />
+              <SeletorGenero valor={genOrientacao} aoMudar={setGenOrientacao} />
+            </div>
+          }
           option={criarOpcaoBarra(orientacaoItens, PALETA_ACESSIVEL[6], totalOrientacao)}
           altura={350}
           carregando={carregando}
           avisoCustomizado="Nota metodológica: grafias equivalentes (como 'Demissexual' e 'Demisexual', 'Heterossexual' e 'Hetero', 'Homossexual' e 'Gay') foram consolidadas. Respostas satíricas ou inválidas foram desconsideradas."
           tabelaDados={{
-            cabecalhos: ['Orientação Sexual', 'Respondentes', '% no Segmento'],
+            cabecalhos: ['Orientação Sexual', 'Respondentes', '% no Segmento/Gênero'],
             linhas: [...orientacaoItens]
               .sort((a, b) => b.n - a.n)
               .map((o) => [
@@ -304,17 +334,23 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
 
       {/* Gráficos 4 e 5: Faixa Etária e PCD */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 flex flex-col">
           <ChartCard
             titulo="Distribuição por Faixa Etária"
             subtitulo="Estrutura etária dos respondentes"
             n={totalFaixa}
-            elementoCabecalho={<SeletorCategoriaPerfil valor={segFaixaEtaria} aoMudar={setSegFaixaEtaria} />}
+            elementoCabecalho={
+              <div className="flex items-center justify-between gap-2.5 flex-wrap w-full">
+                <SeletorCategoriaPerfil valor={segFaixaEtaria} aoMudar={setSegFaixaEtaria} />
+                <SeletorGenero valor={genFaixaEtaria} aoMudar={setGenFaixaEtaria} />
+              </div>
+            }
             option={criarOpcaoBarra(faixaItens, PALETA_ACESSIVEL[4], totalFaixa, true)}
-            altura={340}
+            altura={420}
             carregando={carregando}
+            classeExtra="h-full"
             tabelaDados={{
-              cabecalhos: ['Faixa Etária', 'Respondentes', '% no Segmento'],
+              cabecalhos: ['Faixa Etária', 'Respondentes', '% no Segmento/Gênero'],
               linhas: faixaItens.map((f) => [
                 f.categoria,
                 f.n,
@@ -328,12 +364,18 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
           titulo="Pessoas com Deficiência (PCD)"
           subtitulo="Proporção de pessoas autodeclaradas com deficiência"
           n={totalPcd}
-          elementoCabecalho={<SeletorCategoriaPerfil valor={segPcd} aoMudar={setSegPcd} />}
+          elementoCabecalho={
+            <div className="flex items-center justify-between gap-2.5 flex-wrap w-full">
+              <SeletorCategoriaPerfil valor={segPcd} aoMudar={setSegPcd} />
+              <SeletorGenero valor={genPcd} aoMudar={setGenPcd} />
+            </div>
+          }
           option={optionRoscaPcd}
           altura={340}
           carregando={carregando}
+          classeExtra="h-full"
           tabelaDados={{
-            cabecalhos: ['Declaração PCD', 'Respondentes', '% no Segmento'],
+            cabecalhos: ['Declaração PCD', 'Respondentes', '% no Segmento/Gênero'],
             linhas: [...pcdItens]
               .sort((a, b) => b.n - a.n)
               .map((item) => [

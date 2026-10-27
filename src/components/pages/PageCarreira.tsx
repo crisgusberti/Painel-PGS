@@ -11,6 +11,7 @@ import { Briefcase, Award, TrendingUp, Info, Download, BarChart3, Table, Layers,
 import { formatarNumero, formatarPercentual, formatarNota } from '../../lib/formatters';
 import { PALETA_ACESSIVEL } from '../../lib/chartTheme';
 import { CATEGORIAS_GENERO_OFICIAIS, CategoriaGeneroOficial } from '../../lib/escalas';
+import { SeletorGenero } from '../SeletorGenero';
 
 type SegmentoCarreira = 'geral' | 'docentes' | 'tecnicos';
 
@@ -1394,25 +1395,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
               <span className="text-[11px] text-slate-400 font-medium">Segmento:</span>
               <SeletorSegmento valor={segmentoCuidado} aoMudar={setSegmentoCuidado} />
             </div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[11px] text-slate-400 font-medium">Gênero:</span>
-              <div className="inline-flex items-center p-0.5 rounded-lg bg-[#0a1020] border border-[#223154] text-xs flex-wrap">
-                {(['todos', ...CATEGORIAS_GENERO_OFICIAIS] as const).map((g) => (
-                  <button
-                    key={g}
-                    type="button"
-                    onClick={() => setGeneroCuidado(g)}
-                    className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
-                      generoCuidado === g
-                        ? 'bg-teal-500 text-slate-950 shadow-xs'
-                        : 'text-slate-400 hover:text-slate-200'
-                    }`}
-                  >
-                    {g === 'todos' ? 'Todos' : g}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <SeletorGenero valor={generoCuidado} aoMudar={setGeneroCuidado} />
           </div>
 
           <div className="mt-3 flex items-center gap-1.5 text-xs text-amber-300 bg-amber-950/40 border border-amber-800/60 px-2.5 py-1.5 rounded-lg">

@@ -170,10 +170,11 @@ export async function obterKpisVisaoGeral(filtros?: FiltrosGlobaisState) {
         WHEN vinculo ILIKE '%Substituto%' THEN 'Docente Substituto'
         ELSE 'Prefiro não responder'
       END as vinculo_simplificado,
+      ${SQL_GENERO_NORMALIZADO} as genero,
       count(*)::int as total
     FROM public.respostas_pgs
     ${whereComAnd(whereSql, "campus IS NOT NULL AND campus != 'Prefiro não responder'")}
-    GROUP BY campus, vinculo_simplificado
+    GROUP BY campus, vinculo_simplificado, ${SQL_GENERO_NORMALIZADO}
     ORDER BY campus ASC
   `;
 
@@ -286,10 +287,11 @@ export async function obterDadosPerfil(filtros?: FiltrosGlobaisState) {
     SELECT
       ${campoExpr} as categoria,
       ${SQL_SEGMENTO_COMUNIDADE} as segmento,
+      ${SQL_GENERO_NORMALIZADO} as genero,
       count(*)::int as n
     FROM public.respostas_pgs
     ${extraWhere ? whereComAnd(whereSql, extraWhere) : whereSql}
-    GROUP BY categoria, segmento
+    GROUP BY categoria, segmento, ${SQL_GENERO_NORMALIZADO}
     ORDER BY n DESC
   `;
 

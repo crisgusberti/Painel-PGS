@@ -9,6 +9,7 @@ import { RotateCcw, SlidersHorizontal } from 'lucide-react';
 import { formatarNumero } from '../../lib/formatters';
 import { PALETA_ACESSIVEL, CORES_LIKERT } from '../../lib/chartTheme';
 import { CATEGORIAS_GENERO_OFICIAIS, CategoriaGeneroOficial } from '../../lib/escalas';
+import { SeletorGenero, OpcaoGeneroFiltro } from '../SeletorGenero';
 
 interface PageAmbienteViolenciasProps {
   dados: any;
@@ -16,7 +17,7 @@ interface PageAmbienteViolenciasProps {
 }
 
 type SegmentoOpcao = 'geral' | 'docentes' | 'tecnicos';
-type GeneroOpcao = 'todos' | CategoriaGeneroOficial;
+type GeneroOpcao = OpcaoGeneroFiltro;
 
 // Componentes Reutilizáveis de Seleção por Gráfico
 const SeletorSegmento: React.FC<{
@@ -57,28 +58,6 @@ const SeletorSegmento: React.FC<{
     >
       Técnicos (TAE)
     </button>
-  </div>
-);
-
-const SeletorGenero: React.FC<{
-  valor: GeneroOpcao;
-  aoMudar: (val: GeneroOpcao) => void;
-}> = ({ valor, aoMudar }) => (
-  <div className="inline-flex items-center flex-wrap p-0.5 rounded-lg bg-[#0a1020] border border-[#223154] text-xs">
-    {(['todos', ...CATEGORIAS_GENERO_OFICIAIS] as const).map((g) => (
-      <button
-        key={g}
-        type="button"
-        onClick={() => aoMudar(g)}
-        className={`px-2 py-0.5 rounded-md text-xs font-semibold transition-all ${
-          valor === g
-            ? 'bg-teal-500 text-slate-950 shadow-xs'
-            : 'text-slate-400 hover:text-slate-200'
-        }`}
-      >
-        {g === 'todos' ? 'Todos' : g}
-      </button>
-    ))}
   </div>
 );
 
@@ -547,10 +526,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
               <span className="text-[11px] text-slate-400 font-medium">Segmento:</span>
               <SeletorSegmento valor={segmentoDivergente} aoMudar={setSegmentoDivergente} />
             </div>
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[11px] text-slate-400 font-medium">Gênero:</span>
-              <SeletorGenero valor={generoDivergente} aoMudar={setGeneroDivergente} />
-            </div>
+            <SeletorGenero valor={generoDivergente} aoMudar={setGeneroDivergente} />
           </div>
         }
         option={optionDivergenteQ24}
@@ -610,10 +586,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
                 <span className="text-[11px] text-slate-400 font-medium">Segmento:</span>
                 <SeletorSegmento valor={segmentoCor} aoMudar={setSegmentoCor} />
               </div>
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[11px] text-slate-400 font-medium">Gênero:</span>
-                <SeletorGenero valor={generoCor} aoMudar={setGeneroCor} />
-              </div>
+              <SeletorGenero valor={generoCor} aoMudar={setGeneroCor} />
             </div>
           }
           option={optionViolenciaCor}
@@ -637,10 +610,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
                 <span className="text-[11px] text-slate-400 font-medium">Segmento:</span>
                 <SeletorSegmento valor={segmentoGen} aoMudar={setSegmentoGen} />
               </div>
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[11px] text-slate-400 font-medium">Gênero:</span>
-                <SeletorGenero valor={generoGen} aoMudar={setGeneroGen} />
-              </div>
+              <SeletorGenero valor={generoGen} aoMudar={setGeneroGen} />
             </div>
           }
           option={optionViolenciaGenero}
