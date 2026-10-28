@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { KpiCard } from '../KpiCard';
 import { ChartCard } from '../ChartCard';
 import { SeletorGenero, OpcaoGeneroFiltro } from '../SeletorGenero';
+import { SeletorIdade, OpcaoIdadeFiltro, correspondeIdade } from '../SeletorIdade';
 import {
   Users,
   ShieldAlert,
@@ -33,6 +34,7 @@ export const PageVisaoGeral: React.FC<PageVisaoGeralProps> = ({
   const kpis = dados?.kpis || {};
   const campusDist = dados?.campus_distribuicao || [];
   const [generoCampus, setGeneroCampus] = useState<OpcaoGeneroFiltro>('todos');
+  const [idadeCampus, setIdadeCampus] = useState<OpcaoIdadeFiltro>('todos');
 
   // Preparar dados do gráfico por campus ordenado (separando Servidor Efetivo em Docentes e Técnicos TAEs, sem Terceirizados)
   const campusTotals: Record<
@@ -43,17 +45,24 @@ export const PageVisaoGeral: React.FC<PageVisaoGeralProps> = ({
       docente: number;
       tecnico_tae: number;
       substituto: number;
+      nao_informado: number;
     }
   > = {};
+  let semCampusInformado = 0;
 
   campusDist.forEach((r: any) => {
     const c = r.campus;
-    if (!c || c === 'Prefiro não responder') return;
+    if (!c) return;
     if (generoCampus !== 'todos' && r.genero !== generoCampus) return;
-    if (!campusTotals[c]) {
-      campusTotals[c] = { total: 0, discente: 0, docente: 0, tecnico_tae: 0, substituto: 0 };
-    }
+    if (!correspondeIdade(r.idade_grp, idadeCampus)) return;
     const cnt = Number(r.total || 0);
+    if (c === 'Prefiro não responder') {
+      semCampusInformado += cnt;
+      return;
+    }
+    if (!campusTotals[c]) {
+      campusTotals[c] = { total: 0, discente: 0, docente: 0, tecnico_tae: 0, substituto: 0, nao_informado: 0 };
+    }
     if (r.vinculo_simplificado === 'Discente') {
       campusTotals[c].discente += cnt;
       campusTotals[c].total += cnt;
@@ -66,12 +75,16 @@ export const PageVisaoGeral: React.FC<PageVisaoGeralProps> = ({
     } else if (r.vinculo_simplificado === 'Docente Substituto') {
       campusTotals[c].substituto += cnt;
       campusTotals[c].total += cnt;
+    } else {
+      campusTotals[c].nao_informado += cnt;
+      campusTotals[c].total += cnt;
     }
   });
 
   const campusOrdenados = Object.entries(campusTotals)
     .sort((a, b) => b[1].total - a[1].total)
     .map(([nome, v]) => ({ nome, ...v }));
+  const totalUnidadesCampus = campusOrdenados.reduce((acc, c) => acc + c.total, 0);
 
   const optionCampus = {
     tooltip: {
@@ -99,7 +112,7 @@ export const PageVisaoGeral: React.FC<PageVisaoGeralProps> = ({
       },
     },
     legend: {
-      data: ['Discentes', 'Docentes', 'Técnicos TAEs', 'Docentes Substitutos'],
+      data: ['Discentes', 'Docentes', 'Técnicos TAEs', 'Docentes Substitutos', 'Vínculo/Cargo não informado'],
       bottom: 0,
       textStyle: { fontSize: 11, color: '#cbd5e1' },
     },
@@ -148,6 +161,13 @@ export const PageVisaoGeral: React.FC<PageVisaoGeralProps> = ({
         stack: 'total',
         data: campusOrdenados.map((c) => c.substituto).reverse(),
         itemStyle: { color: PALETA_ACESSIVEL[2] },
+      },
+      {
+        name: 'Vínculo/Cargo não informado',
+        type: 'bar',
+        stack: 'total',
+        data: campusOrdenados.map((c) => c.nao_informado).reverse(),
+        itemStyle: { color: '#64748b' },
       },
     ],
   };
@@ -311,16 +331,32 @@ export const PageVisaoGeral: React.FC<PageVisaoGeralProps> = ({
       {/* Gráfico Principal: Respondentes por Campus e Vínculo Empilhado */}
       <ChartCard
         titulo="Distribuição de Respondentes por Campus e Vínculo Institucional"
-        subtitulo="Quantidade de respondentes nas 18 unidades (17 Campi e Reitoria), separando servidores efetivos em Docentes e Técnicos TAEs"
-        n={campusOrdenados.reduce((acc, c) => acc + c.total, 0)}
+        subtitulo="Quantidade de respondentes nas 18 unidades (17 Campi e Reitoria)"
+        n={totalUnidadesCampus + semCampusInformado}
+        baseDescricao={
+          semCampusInformado > 0
+            ? `${formatarNumero(totalUnidadesCampus)} nas 18 unidades + ${formatarNumero(semCampusInformado)} 'Prefiro não responder' em campus`
+            : undefined
+        }
         elementoCabecalho={
-          <SeletorGenero valor={generoCampus} aoMudar={setGeneroCampus} />
+          <div className="flex items-center justify-between gap-2.5 flex-wrap w-full">
+            <SeletorGenero valor={generoCampus} aoMudar={setGeneroCampus} />
+            <SeletorIdade valor={idadeCampus} aoMudar={setIdadeCampus} />
+          </div>
         }
         option={optionCampus}
         altura={500}
         carregando={carregando}
         tabelaDados={{
-          cabecalhos: ['Campus / Unidade', 'Total', 'Discentes', 'Docentes', 'Técnicos TAEs', 'Docentes Substitutos'],
+          cabecalhos: [
+            'Campus / Unidade',
+            'Total',
+            'Discentes',
+            'Docentes',
+            'Técnicos TAEs',
+            'Docentes Substitutos',
+            'Vínculo/Cargo não informado',
+          ],
           linhas: campusOrdenados.map((c) => [
             c.nome,
             c.total,
@@ -328,6 +364,7 @@ export const PageVisaoGeral: React.FC<PageVisaoGeralProps> = ({
             c.docente,
             c.tecnico_tae,
             c.substituto,
+            c.nao_informado,
           ]),
         }}
       />

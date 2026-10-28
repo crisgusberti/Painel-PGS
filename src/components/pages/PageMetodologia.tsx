@@ -232,7 +232,7 @@ export const PageMetodologia: React.FC = () => {
             • <strong>Normalização de Orientação Sexual (<code className="text-teal-300 font-mono">SQL_ORIENTACAO_NORMALIZADA</code>):</strong> Variantes com grafia divergente ou autodeclarações equivalentes são consolidadas automaticamente (ex.: <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Demisexual</code> + <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Demissexual</code> → <strong>Demissexual</strong>; <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Hétero</code> / <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Normal</code> → <strong>Heterossexual</strong>; <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Panssexual</code> / <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Panromantica</code> → <strong>Pansexual</strong>; <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Bissexual</code> / <code className="text-teal-200 bg-teal-950/60 px-1 py-0.5 rounded">Bi</code> → <strong>Bissexual</strong>).
           </p>
           <p>
-            • <strong>Classificação de Áreas STEM dos estudantes:</strong> Devido ao preenchimento textual livre do nome do curso pelo discente, um algoritmo determinístico de correspondência de termos agrupou as menções em Grandes Áreas do Conhecimento (Engenharias e Tecnologia, Ciências Exatas e da Terra, Ciências Agrárias, Ciências Biológicas, Ciências da Saúde, Ciências Humanas, Ciências Sociais Aplicadas, Linguística, Letras e Artes). Menções ambíguas foram categorizadas como "Não classificada".
+            • <strong>Classificação de Áreas STEM dos estudantes:</strong> Devido ao preenchimento textual livre do nome do curso pelo discente, um algoritmo determinístico de correspondência de termos agrupou as menções nas 8 Grandes Áreas do Conhecimento do CNPq (Engenharias e Tecnologia, Ciências Exatas e da Terra, Ciências Sociais Aplicadas, Ciências Agrárias, Ciências Humanas, Linguística, Letras e Artes, Ciências Biológicas e Ciências da Saúde). Após rigorosa auditoria metodológica e contextual (cruzando termos livres com Campus e Nível de Curso), apenas 8 respostas individuais (8 respondentes) permaneceram como "Não classificada" por informarem nível/modalidade de ensino ou respostas indeterminadas.
           </p>
         </div>
 
@@ -402,7 +402,13 @@ export const PageMetodologia: React.FC = () => {
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3 space-y-1">
             <span className="font-bold text-teal-300">Diversidade de Shannon e Categorias Oficiais</span>
             <p className="text-slate-300">
-              Shannon avalia o equilíbrio proporcional entre grupos. Na identidade de gênero, os gráficos exibem estritamente as 6 categorias oficiais padronizadas pela Regra de Ouro.
+              Shannon avalia o equilíbrio proporcional entre grupos. Na identidade de gênero, os gráficos exibem estritamente as 6 categorias oficiais padronizadas pela Regra de Ouro (Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binárias). Respostas inválidas e "Prefiro não responder" no campo de gênero são desconsideradas.
+            </p>
+          </div>
+          <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3 space-y-1">
+            <span className="font-bold text-teal-300">Seletores Padronizados Transversais</span>
+            <p className="text-slate-300">
+              O painel disponibiliza seletores reutilizáveis em múltiplos gráficos: <strong>Segmento</strong> (Geral, Docente, Técnico TAE, Discentes — com versão restrita a servidores na Página 2), <strong>Gênero</strong> (6 categorias oficiais), <strong>Cor / Raça</strong> (6 opções), <strong>PCD</strong> (Sim / Não) e <strong>Idade</strong> (Menor: &lt;18 anos; Maior: ≥18 anos, classificada estritamente com base na autodeclaração de faixa etária).
             </p>
           </div>
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3 space-y-1">
@@ -440,63 +446,63 @@ export const PageMetodologia: React.FC = () => {
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3.5 space-y-1.5">
             <h3 className="font-bold text-teal-300 text-sm">Página 0 — Visão Geral</h3>
             <p className="text-slate-300 leading-relaxed">
-              Painel executivo com os principais indicadores institucionais: Total de Respondentes (4.857 em 18 unidades: 17 campi + Reitoria, sem terceirizados), Composição da Amostra (Discentes vs. Servidores), Ocorrência de Assédios e Violências, Índice de Convivência e Clima Institucional (em %), Conhece Canais de Denúncia (com detalhamento explícito de "Sim, conheço" + "Conheço em parte" vs. "Não conheço" + "Não sei"), Efetividade dos Canais de Denúncia (com detalhamento de "Muito efetivos" + "Parcialmente efetivos" vs. "Pouco efetivos" + "Não são efetivos"), Desencorajamento na Participação Acadêmica por Gênero, Raça, Orientação Sexual ou Outras Características, e Responsabilidade de Cuidado (somando cuidadores principais e compartilhados com detalhamento explícito). Inclui gráfico de respondentes por unidade separando Discentes, Docentes Efetivos, Técnicos TAEs e Docentes Substitutos.
+              Painel executivo com os principais indicadores institucionais: Total de Respondentes (4.857 em 18 unidades: 17 campi + Reitoria, sem terceirizados), Composição da Amostra (Discentes vs. Servidores), Ocorrência de Assédios e Violências, Índice de Convivência e Clima Institucional (em %), Conhecimento dos Canais de Denúncia, Efetividade dos Canais de Denúncia, Desencorajamento na Participação Acadêmica por Marcadores Sociais e Responsabilidade de Cuidado. Inclui o gráfico "Distribuição de Respondentes por Campus e Vínculo Institucional" com empilhamento de Discentes, Docentes, Técnicos TAEs, Docentes Substitutos e Vínculo/Cargo não informado, além de seletores dedicados de Gênero e Idade.
             </p>
           </div>
 
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3.5 space-y-1.5">
             <h3 className="font-bold text-teal-300 text-sm">Página 1 — Perfil Demográfico e Representatividade</h3>
             <p className="text-slate-300 leading-relaxed">
-              Mapeamento sociodemográfico com seletores individuais por categoria (<strong>Geral, Docente, Técnico TAE e Discente</strong>) em todos os gráficos: Identidade de Gênero Detalhada (nas 6 categorias oficiais: Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binárias), Cor ou Raça (Autodeclaração IBGE), Pirâmide / Distribuição Etária, Pessoas com Deficiência (PCD) e Orientação Sexual (com termos normalizados). Inclui cartões de Diversidade de Shannon por campus/vínculo e mapa de calor Campus × Vínculo.
+              Mapeamento sociodemográfico com seletores padrão reutilizáveis de Segmento (Geral, Docente, Técnico TAE e Discente), Gênero (estritamente nas 6 categorias oficiais: Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binárias), Cor / Raça (6 opções IBGE), Deficiência (PCD) e Idade (Menor e Maior) em todos os gráficos: Autodeclaração Étnico-Racial, Faixa Etária (com alinhamento visual de altura), Pessoas com Deficiência (PCD), Orientação Sexual e cartões de Diversidade de Shannon por unidade e segmento.
             </p>
           </div>
 
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3.5 space-y-1.5">
             <h3 className="font-bold text-teal-300 text-sm">Página 2 — Carreira, Progressão e Equidade Institucional (Servidores)</h3>
             <p className="text-slate-300 leading-relaxed">
-              Foco exclusivo em servidores docentes e técnicos (TAEs). Apresenta KPIs de liderança feminina e negra, <strong>Composição de Servidores por Cargo e Gênero</strong> e <strong>Tipologia de Função de Gestão (CD, FG, FCC)</strong> estruturados pelas 6 categorias oficiais de gênero. Traz o comparativo dos 3 universos e detalhado pelas 6 categorias oficiais de gênero com termos aglutinados de concordância (Concordo totalmente + Concordo, Neutro, Discordo totalmente + Discordo) para <strong>Avaliação da Progressão por Mérito</strong> e para <strong>Equidade no Acesso a Oportunidades e Bolsas</strong>. Apresenta o bloco unificado de <strong>Cruzamento: Cuidado × Deixou de se Candidatar à Gestão</strong> (ordenado da maior para a menor barra, com o indicador dinâmico de <strong>Taxa de Renúncia com Cuidado</strong> e tabela detalhada sincrônica por segmento e gênero).
+              Foco exclusivo em servidores docentes e técnicos (TAEs), com o seletor de segmento restrito exclusivamente a servidores (Geral, Docente, Técnico TAE — sem Discentes). Apresenta KPIs de liderança feminina e negra, Composição de Servidores por Cargo e Gênero, Tipologia de Função de Gestão (CD, FG, FCC), avaliação da Progressão por Mérito e Equidade no Acesso a Oportunidades e Bolsas. Apresenta o bloco unificado de Cruzamento: Responsabilidade de Cuidado × Deixou de se Candidatar à Gestão com seletores dedicados por Raça e Deficiência, exibindo a Taxa de Renúncia com Cuidado e tabela sincrônica.
             </p>
           </div>
 
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3.5 space-y-1.5">
             <h3 className="font-bold text-teal-300 text-sm">Página 3 — Ambiente, Segurança e Violências</h3>
             <p className="text-slate-300 leading-relaxed">
-              Diagnóstico do clima institucional: diagrama divergente de concordância nos 6 itens de convivência (com destaque para o item invertido sobre maternidade), índice de clima por campus comparado à média geral, taxas específicas de violência e discriminação por gênero (nas 6 categorias oficiais), cor/raça e orientação sexual, tabela 2D de vitimização cruzada, desencorajamento de discentes por vulnerabilidade e funil de denúncia em 3 etapas consecutivas (conhecimento, efetividade e justiça das respostas).
+              Diagnóstico do clima institucional: Diagrama Divergente de Percepção do Clima Institucional (com tooltip acessível com mouse, códigos internos Q24a–f removidos e filtros por Segmento, Gênero, Raça e Idade), Índice de Convivência por campus, Percentual de Discriminação por Cor/Raça, Percentual de Discriminação por Gênero e Orientação (proporção que já sofreu LGBTfobia ou violência de gênero nas 6 categorias oficiais), Matriz Interseccional de Discriminação, Desencorajamento de Discentes por Vulnerabilidade e Funil de Conhecimento, Efetividade e Justiça dos Canais de Denúncia (com divisão de servidores em Docentes e Técnicos TAEs, filtros por Gênero e Raça e cálculo dinâmico da base de respondentes válidos).
             </p>
           </div>
 
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3.5 space-y-1.5">
             <h3 className="font-bold text-teal-300 text-sm">Página 4 — Núcleos, Assessorias e Políticas</h3>
             <p className="text-slate-300 leading-relaxed">
-              Avaliação de atuação dos núcleos de ação afirmativa e diversidade (NEPGS, NEABI, NAAF): gráfico divergente da qualidade percebida (com faixa destacada de desconhecimento), mapa de calor da média de avaliação campus × núcleo, ranking de desconhecimento dos núcleos por unidade e eficácia percebida das campanhas de sensibilização e capacitações institucionais.
+              Avaliação de desempenho dos núcleos de ações afirmativas (NAAFs, NEABIs, NEPGSs e Assessorias) e percepção de eficácia das campanhas e capacitações de diversidade. Apresenta o gráfico de Avaliação dos Núcleos e Assessorias Institucionais (com siglas e nomes oficiais: Assessoria de Ações Afirmativas, Inclusivas e Diversidade; Assessoria de Gênero e Sexualidade; Assessoria de Relações Étnico-raciais e filtro por Segmento), a Matriz Campus × Núcleo: Média de Qualidade (com sigla NEPGS corrigida e linha "Prefiro não responder" removida), Ranking de Desconhecimento dos Núcleos e Percepção sobre a Eficácia das Campanhas e Ações Formativas (com separação entre Docentes e Técnicos TAEs).
             </p>
           </div>
 
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3.5 space-y-1.5">
             <h3 className="font-bold text-teal-300 text-sm">Página 5 — Cuidado, Parentalidade e Permanência</h3>
             <p className="text-slate-300 leading-relaxed">
-              Investigação da sobrecarga reprodutiva e parental: distribuição de responsabilidades de cuidado (cuidado direto, dividido, sem cuidado) pelas 6 categorias oficiais de gênero, avaliação de políticas de apoio a pais e mães estudantes, percepção sobre licenças e flexibilização, divergente do impacto da maternidade na carreira acadêmica e contagem de estudantes com dependentes sob seus cuidados por campus e nível de formação.
+              Investigação da sobrecarga reprodutiva e permanência: gráfico de Responsabilidade Principal de Cuidado por Identidade de Gênero (com 4 opções de resposta padronizadas — unificando "Não" e "Não tenho responsabilidade" —, seletor de Segmento e tooltip ajustado à tela), Políticas de Apoio ao Cuidado, Percepção Acerca da Suficiência das Licenças Maternidade e Paternidade e do Apoio a Estudantes com Filhos/as (com filtro de Segmento), Percepção sobre o Impacto da Maternidade na Carreira (com seletores por Segmento e Raça, percentuais e tooltips aprofundados) e Estudantes com Responsabilidade de Cuidado por Campus, Nível de Curso e Idade (com comboboxes e filtros integrados).
             </p>
           </div>
 
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3.5 space-y-1.5">
             <h3 className="font-bold text-teal-300 text-sm">Página 6 — Áreas de Conhecimento e STEM</h3>
             <p className="text-slate-300 leading-relaxed">
-              Distribuição discente nas áreas de Ciência, Tecnologia, Engenharia e Matemática: proporção feminina por grande área do conhecimento, diversidade racial em cursos de tecnologia e engenharias, taxas de desencorajamento acadêmico comparando áreas STEM vs Não-STEM e tabela de cobertura do algoritmo de mapeamento de cursos.
+              Análise da representatividade discente em Ciências Exatas, Engenharias e Computação (STEM): KPIs comparativos de desencorajamento acadêmico em áreas STEM vs. Não-STEM, gráfico de Distribuição e Participação Discente por Grande Área do Conhecimento CNPq (com seletores de Gênero, Raça, Deficiência e Idade), novo gráfico dedicado de Desencorajamento na Participação Acadêmica em Cursos STEM (com frequência detalhada entre os 1.556 discentes da área e filtros demográficos) e Tabela de Auditoria e Cobertura da Normalização de Áreas com mapeamento de termos do formulário (reduzido metodologicamente para apenas 8 respondentes em 8 termos não classificados).
             </p>
           </div>
 
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3.5 space-y-1.5">
             <h3 className="font-bold text-teal-300 text-sm">Página 7 — Construtor Dinâmico de Gráficos</h3>
             <p className="text-slate-300 leading-relaxed">
-              Módulo de exploração aberta que permite cruzar até 2 variáveis categóricas no eixo principal, uma dimensão de série de cor e múltiplos filtros combinados (utilizando a Regra de Ouro nas dimensões de gênero). O motor calcula dinamicamente frequências, médias, concordâncias top 2 e proporções com exportação instantânea dos dados em formato CSV e dos gráficos em PNG.
+              Módulo de exploração aberta com validação metodológica de cruzamentos: seletores temáticos limpos de duplicidades, filtragem inteligente de compatibilidade entre o Eixo Principal e a Série de Cor (bloqueio de autocruzamentos, isolamento de universos de Discentes vs. Servidores e restrição de matrizes sem sentido entre perguntas avaliativas), 3 métricas robustas de tabulação cruzada (% no Grupo, % do Total Geral e Contagem Absoluta n), exclusão automática de registros nulos ("Sem resposta" espúrio) e visualizações em Barras Empilhadas 100%, Barras Agrupadas e Rosca, com exportação instantânea em CSV e persistência local de visões salvas.
             </p>
           </div>
 
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3.5 space-y-1.5">
             <h3 className="font-bold text-teal-300 text-sm">Página 8 — Metodologia, Dicionário e Governança</h3>
             <p className="text-slate-300 leading-relaxed">
-              Página de referência permanente com documentação epistemológica, Regra de Ouro de classificação de gênero, limites metodológicos, catálogo oficial de campos do banco de dados e fórmulas de cálculo de todos os índices compostos.
+              Documentação institucional permanente com objetivos, marco referencial Athena Swan, Regra de Ouro das 6 categorias oficiais de gênero, glossário de siglas (NEPGS, NEABI, NAAF, Assessorias), catálogo dinâmico de variáveis do banco de dados e fórmulas matemáticas de todos os índices sintéticos.
             </p>
           </div>
         </div>
@@ -648,7 +654,7 @@ export const PageMetodologia: React.FC = () => {
               </tr>
               <tr className="hover:bg-[#1a2647] transition-colors">
                 <td className="px-4 py-2.5 font-bold text-teal-300">NEPGS</td>
-                <td className="px-4 py-2.5 text-slate-300">Núcleo de Estudos e Pesquisas em Gênero e Diversidade dos campi do IFRS</td>
+                <td className="px-4 py-2.5 text-slate-300">Núcleo de Estudos e Pesquisas em Gênero e Sexualidade dos campi do IFRS</td>
               </tr>
               <tr className="hover:bg-[#1a2647] transition-colors">
                 <td className="px-4 py-2.5 font-bold text-teal-300">NEABI</td>
@@ -659,8 +665,8 @@ export const PageMetodologia: React.FC = () => {
                 <td className="px-4 py-2.5 text-slate-300">Núcleo de Apoio a Ações Afirmativas</td>
               </tr>
               <tr className="hover:bg-[#1a2647] transition-colors">
-                <td className="px-4 py-2.5 font-bold text-teal-300">Assessoria de Gênero e Diversidade</td>
-                <td className="px-4 py-2.5 text-slate-300">Órgão de assessoria executiva da Reitoria do IFRS responsável pelo diagnóstico institucional</td>
+                <td className="px-4 py-2.5 font-bold text-teal-300">Assessorias da Reitoria</td>
+                <td className="px-4 py-2.5 text-slate-300">Órgãos de assessoramento especializado da Reitoria do IFRS avaliados na pesquisa: Assessoria de Ações Afirmativas, Inclusivas e Diversidade; Assessoria de Gênero e Sexualidade; e Assessoria de Relações Étnico-raciais</td>
               </tr>
               <tr className="hover:bg-[#1a2647] transition-colors">
                 <td className="px-4 py-2.5 font-bold text-teal-300">TAE</td>

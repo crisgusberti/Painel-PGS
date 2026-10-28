@@ -27,6 +27,9 @@ export interface CampoCatalogo {
   tipo: TipoCampo;
   grupo: GrupoCampo;
   dinamico: boolean; // se pode ser usado no construtor dinâmico (campos de texto = false)
+  escopo?: 'geral' | 'discentes' | 'servidores';
+  papel?: 'perfil' | 'indicador';
+  permitirComoSerie?: boolean;
   ordem?: string[];
   escala?: Record<string, number>;
   categoriasSemPontuacao?: string[];

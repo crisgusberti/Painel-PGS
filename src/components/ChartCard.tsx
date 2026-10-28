@@ -113,7 +113,7 @@ export const ChartCard: React.FC<ChartCardProps> = ({
                   {/* Popover / Tooltip ao passar o cursor ou clicar */}
                   {mostrarInfo && (
                     <div
-                      className="absolute left-0 sm:left-auto sm:right-0 top-full mt-2 z-50 w-72 sm:w-96 md:w-[460px] max-w-[90vw] p-4 bg-[#0a1020]/95 backdrop-blur-md border border-teal-500/50 rounded-xl shadow-2xl text-xs text-slate-200 animate-in fade-in zoom-in-95 duration-150"
+                      className="absolute left-0 top-full mt-2 z-50 w-72 sm:w-96 md:w-[440px] max-w-[calc(100vw-2.5rem)] p-4 bg-[#0a1020]/95 backdrop-blur-md border border-teal-500/50 rounded-xl shadow-2xl text-xs text-slate-200 animate-in fade-in zoom-in-95 duration-150"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#1f2d4e]">
@@ -230,6 +230,13 @@ export const ChartCard: React.FC<ChartCardProps> = ({
                 animationDurationUpdate: 800,
                 animationEasingUpdate: 'cubicOut',
                 ...option,
+                tooltip: option?.tooltip
+                  ? {
+                      confine: true,
+                      extraCssText: 'max-width: 92vw; white-space: normal; word-break: break-word;',
+                      ...option.tooltip,
+                    }
+                  : undefined,
               }}
               style={{ height: `${altura}px`, width: '100%' }}
               opts={{ renderer: 'canvas' }}

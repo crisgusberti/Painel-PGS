@@ -8,58 +8,16 @@ import { ChartCard } from '../ChartCard';
 import { RotateCcw, SlidersHorizontal } from 'lucide-react';
 import { formatarNumero } from '../../lib/formatters';
 import { PALETA_ACESSIVEL, CORES_LIKERT } from '../../lib/chartTheme';
-import { CATEGORIAS_GENERO_OFICIAIS, CategoriaGeneroOficial } from '../../lib/escalas';
+import { CATEGORIAS_GENERO_OFICIAIS } from '../../lib/escalas';
 import { SeletorGenero, OpcaoGeneroFiltro } from '../SeletorGenero';
+import { SeletorSegmento, OpcaoSegmentoFiltro, correspondeSegmento } from '../SeletorSegmento';
+import { SeletorRaca, OpcaoRacaFiltro } from '../SeletorRaca';
+import { SeletorIdade, OpcaoIdadeFiltro, correspondeIdade } from '../SeletorIdade';
 
 interface PageAmbienteViolenciasProps {
   dados: any;
   carregando: boolean;
 }
-
-type SegmentoOpcao = 'geral' | 'docentes' | 'tecnicos';
-type GeneroOpcao = OpcaoGeneroFiltro;
-
-// Componentes Reutilizáveis de Seleção por Gráfico
-const SeletorSegmento: React.FC<{
-  valor: SegmentoOpcao;
-  aoMudar: (val: SegmentoOpcao) => void;
-}> = ({ valor, aoMudar }) => (
-  <div className="inline-flex items-center p-0.5 rounded-lg bg-[#0a1020] border border-[#223154] text-xs">
-    <button
-      type="button"
-      onClick={() => aoMudar('geral')}
-      className={`px-2 py-0.5 rounded-md text-xs font-semibold transition-all ${
-        valor === 'geral'
-          ? 'bg-teal-500 text-slate-950 shadow-xs'
-          : 'text-slate-400 hover:text-slate-200'
-      }`}
-    >
-      Geral
-    </button>
-    <button
-      type="button"
-      onClick={() => aoMudar('docentes')}
-      className={`px-2 py-0.5 rounded-md text-xs font-semibold transition-all ${
-        valor === 'docentes'
-          ? 'bg-teal-500 text-slate-950 shadow-xs'
-          : 'text-slate-400 hover:text-slate-200'
-      }`}
-    >
-      Docentes
-    </button>
-    <button
-      type="button"
-      onClick={() => aoMudar('tecnicos')}
-      className={`px-2 py-0.5 rounded-md text-xs font-semibold transition-all ${
-        valor === 'tecnicos'
-          ? 'bg-teal-500 text-slate-950 shadow-xs'
-          : 'text-slate-400 hover:text-slate-200'
-      }`}
-    >
-      Técnicos (TAE)
-    </button>
-  </div>
-);
 
 // Perguntas oficiais e completas do Diagnóstico (Q24a a Q24f)
 const PERGUNTAS_COMPLETAS_Q24 = [
@@ -113,6 +71,8 @@ const PERGUNTAS_COMPLETAS_Q24 = [
   },
 ];
 
+const ORDEM_VINCULOS_FUNIL = ['Discentes', 'Docentes', 'Técnicos TAEs', 'Docentes Substitutos'];
+
 export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ dados, carregando }) => {
   const q24Itens = dados?.q24_itens || [];
   const violenciaCor = dados?.violencia_por_cor || [];
@@ -123,15 +83,19 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
   // ==========================================
   // 1. SELETORES LOCAIS DO DIAGRAMA DIVERGENTE
   // ==========================================
-  const [segmentoDivergente, setSegmentoDivergente] = useState<SegmentoOpcao>('geral');
-  const [generoDivergente, setGeneroDivergente] = useState<GeneroOpcao>('todos');
+  const [segmentoDivergente, setSegmentoDivergente] = useState<OpcaoSegmentoFiltro>('geral');
+  const [generoDivergente, setGeneroDivergente] = useState<OpcaoGeneroFiltro>('todos');
+  const [racaDivergente, setRacaDivergente] = useState<OpcaoRacaFiltro>('todos');
+  const [idadeDivergente, setIdadeDivergente] = useState<OpcaoIdadeFiltro>('todos');
 
   const q24ItensFiltrados = q24Itens.map((item: any) => {
     const dist = item.distribuicao || [];
     const filtrada = dist.filter((d: any) => {
-      const matchSeg = segmentoDivergente === 'geral' ? true : d.segmento === segmentoDivergente;
+      const matchSeg = correspondeSegmento(d.segmento, segmentoDivergente);
       const matchGen = generoDivergente === 'todos' ? true : d.genero_grp === generoDivergente;
-      return matchSeg && matchGen;
+      const matchRaca = racaDivergente === 'todos' ? true : d.cor_raca === racaDivergente;
+      const matchIdade = correspondeIdade(d.idade_grp, idadeDivergente);
+      return matchSeg && matchGen && matchRaca && matchIdade;
     });
 
     const mapaResp: Record<string, number> = {};
@@ -149,16 +113,18 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
     q24ItensFiltrados[0]?.distribuicao?.reduce((acc: number, d: any) => acc + Number(d.n || 0), 0) || 0;
 
   // ==========================================
-  // 2. SELETORES LOCAIS DA TAXA POR COR/RAÇA
+  // 2. SELETORES LOCAIS DO PERCENTUAL POR COR/RAÇA
   // ==========================================
-  const [segmentoCor, setSegmentoCor] = useState<SegmentoOpcao>('geral');
-  const [generoCor, setGeneroCor] = useState<GeneroOpcao>('todos');
+  const [segmentoCor, setSegmentoCor] = useState<OpcaoSegmentoFiltro>('geral');
+  const [generoCor, setGeneroCor] = useState<OpcaoGeneroFiltro>('todos');
+  const [idadeCor, setIdadeCor] = useState<OpcaoIdadeFiltro>('todos');
 
   const violenciaCorFiltrada = (() => {
     const filtradas = violenciaCor.filter((r: any) => {
-      const matchSeg = segmentoCor === 'geral' ? true : r.segmento === segmentoCor;
+      const matchSeg = correspondeSegmento(r.segmento, segmentoCor);
       const matchGen = generoCor === 'todos' ? true : r.genero_grp === generoCor;
-      return matchSeg && matchGen;
+      const matchIdade = correspondeIdade(r.idade_grp, idadeCor);
+      return matchSeg && matchGen && matchIdade;
     });
 
     const agrupado: Record<string, { n_total: number; n_sim: number }> = {};
@@ -183,16 +149,18 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
   const nTotalCor = violenciaCorFiltrada.reduce((acc, r) => acc + r.n_total, 0);
 
   // ==========================================
-  // 3. SELETORES LOCAIS DA TAXA POR GÊNERO/ORIENTAÇÃO
+  // 3. SELETORES LOCAIS DO PERCENTUAL POR GÊNERO/ORIENTAÇÃO
   // ==========================================
-  const [segmentoGen, setSegmentoGen] = useState<SegmentoOpcao>('geral');
-  const [generoGen, setGeneroGen] = useState<GeneroOpcao>('todos');
+  const [segmentoGen, setSegmentoGen] = useState<OpcaoSegmentoFiltro>('geral');
+  const [generoGen, setGeneroGen] = useState<OpcaoGeneroFiltro>('todos');
+  const [idadeGen, setIdadeGen] = useState<OpcaoIdadeFiltro>('todos');
 
   const violenciaGeneroFiltrada = (() => {
     const filtradas = violenciaGenero.filter((r: any) => {
-      const matchSeg = segmentoGen === 'geral' ? true : r.segmento === segmentoGen;
+      const matchSeg = correspondeSegmento(r.segmento, segmentoGen);
       const matchGen = generoGen === 'todos' ? true : r.genero_grp === generoGen;
-      return matchSeg && matchGen;
+      const matchIdade = correspondeIdade(r.idade_grp, idadeGen);
+      return matchSeg && matchGen && matchIdade;
     });
 
     const agrupado: Record<string, { n_total: number; n_sim: number }> = {};
@@ -234,9 +202,46 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
   });
 
   const subtotalRespondentes = matrizFiltrada.reduce((acc: number, r: any) => acc + Number(r.n_total || 0), 0);
+  const subtotalRaca = matrizFiltrada.reduce((acc: number, r: any) => acc + Number(r.n_raca || 0), 0);
+  const subtotalGen = matrizFiltrada.reduce((acc: number, r: any) => acc + Number(r.n_gen || 0), 0);
   const subtotalVitimas = matrizFiltrada.reduce((acc: number, r: any) => acc + Number(r.n_vitimas || 0), 0);
   const taxaPonderadaRecorte =
     subtotalRespondentes > 0 ? ((subtotalVitimas * 100) / subtotalRespondentes).toFixed(1) : '0.0';
+
+  // ==========================================
+  // 5. SELETORES LOCAIS DO FUNIL DE DENÚNCIA
+  // ==========================================
+  const [generoFunil, setGeneroFunil] = useState<OpcaoGeneroFiltro>('todos');
+  const [racaFunil, setRacaFunil] = useState<OpcaoRacaFiltro>('todos');
+  const [idadeFunil, setIdadeFunil] = useState<OpcaoIdadeFiltro>('todos');
+
+  const funilFiltradoPorVinculo = ORDEM_VINCULOS_FUNIL.map((vinculo) => {
+    const linhas = funilDenuncia.filter((r: any) => {
+      const matchVinculo = r.vinculo_grp === vinculo;
+      const matchGen = generoFunil === 'todos' ? true : r.genero_grp === generoFunil;
+      const matchRaca = racaFunil === 'todos' ? true : r.cor_raca === racaFunil;
+      const matchIdade = correspondeIdade(r.idade_grp, idadeFunil);
+      return matchVinculo && matchGen && matchRaca && matchIdade;
+    });
+
+    const total = linhas.reduce((acc: number, r: any) => acc + Number(r.total_respondentes || r.base_total || 0), 0);
+    const conhece = linhas.reduce((acc: number, r: any) => acc + Number(r.etapa_1_conhece || 0), 0);
+    const efetivos = linhas.reduce((acc: number, r: any) => acc + Number(r.etapa_2_efetivos || 0), 0);
+    const justos = linhas.reduce((acc: number, r: any) => acc + Number(r.etapa_3_justos || 0), 0);
+
+    return {
+      vinculo_grp: vinculo,
+      total_respondentes: total,
+      etapa_1_conhece: conhece,
+      etapa_2_efetivos: efetivos,
+      etapa_3_justos: justos,
+      pct_conhece: total > 0 ? Number(((conhece * 100) / total).toFixed(1)) : 0,
+      pct_efetivos: total > 0 ? Number(((efetivos * 100) / total).toFixed(1)) : 0,
+      pct_justos: total > 0 ? Number(((justos * 100) / total).toFixed(1)) : 0,
+    };
+  });
+
+  const nTotalFunil = funilFiltradoPorVinculo.reduce((acc, r) => acc + r.total_respondentes, 0);
 
   // Categorias Likert Q24
   const categoriasLikert = [
@@ -254,9 +259,9 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
       confine: true,
-      enterable: false,
+      enterable: true,
       extraCssText:
-        'max-width: 340px; white-space: normal; word-break: break-word; overflow-wrap: break-word; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6); z-index: 60;',
+        'max-width: 380px; white-space: normal; word-break: break-word; overflow-wrap: break-word; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6); z-index: 60;',
       backgroundColor: '#0e162b',
       borderColor: '#223154',
       textStyle: { color: '#f1f5f9' },
@@ -272,11 +277,10 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
           );
         });
 
-        let html = `<div style="max-width: 310px; white-space: normal; word-break: break-word; overflow-wrap: break-word;" class="mb-2">`;
+        let html = `<div style="max-width: 350px; white-space: normal; word-break: break-word; overflow-wrap: break-word;" class="mb-2">`;
         if (pergunta) {
           html += `
             <div class="flex items-center gap-1.5 text-xs font-bold text-teal-300">
-              <span class="bg-teal-950/80 border border-teal-700/60 px-1.5 py-0.2 rounded font-mono text-[10px] text-teal-200">${pergunta.codigo}</span>
               <span>${pergunta.rotuloCurto}</span>
               ${pergunta.invertido ? '<span class="ml-auto text-[10px] px-1 py-0.2 rounded bg-amber-900/60 border border-amber-700 text-amber-300 font-semibold">*Item invertido</span>' : ''}
             </div>
@@ -382,7 +386,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
     ],
   };
 
-  // Configuração ECharts: Taxas de Discriminação Racial (Barras horizontais)
+  // Configuração ECharts: Percentual de Discriminação Racial (Barras horizontais)
   const optionViolenciaCor = {
     tooltip: {
       trigger: 'axis',
@@ -419,7 +423,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
     ],
   };
 
-  // Configuração ECharts: Taxas de Discriminação de Gênero/Orientação
+  // Configuração ECharts: Percentual de Discriminação de Gênero/Orientação
   const optionViolenciaGenero = {
     tooltip: {
       trigger: 'axis',
@@ -456,7 +460,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
     ],
   };
 
-  // Opção ECharts: Funil de Denúncia (3 Etapas)
+  // Opção ECharts: Funil de Denúncia (3 Etapas sem numeração, Docentes e Técnicos TAEs separados)
   const optionFunil = {
     tooltip: {
       trigger: 'axis',
@@ -464,16 +468,33 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
       backgroundColor: '#0e162b',
       borderColor: '#223154',
       textStyle: { color: '#f1f5f9' },
+      formatter: (params: any[]) => {
+        const vinc = params[0]?.axisValueLabel || '';
+        const item = funilFiltradoPorVinculo.find((r) => r.vinculo_grp === vinc);
+        let html = `<div class="font-bold text-slate-100 mb-1">${vinc}</div>`;
+        if (item) {
+          html += `<div class="text-[11px] text-slate-400 mb-2">Total no vínculo: <strong>${formatarNumero(item.total_respondentes)}</strong></div>`;
+        }
+        params.forEach((p) => {
+          const val = Number(p.value || 0);
+          const pct = item && item.total_respondentes > 0 ? ((val * 100) / item.total_respondentes).toFixed(1) : '0.0';
+          html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
+            <span>${p.marker} ${p.seriesName}</span>
+            <span class="font-bold text-slate-100">${formatarNumero(val)} <span class="text-slate-400 font-normal">(${pct}%)</span></span>
+          </div>`;
+        });
+        return html;
+      },
     },
     legend: {
-      data: ['1. Conhece Canais', '2. Considera Efetivos', '3. Resultados Justos'],
+      data: ['Conhece Canais', 'Considera Efetivos', 'Considera os Resultados Justos'],
       bottom: 0,
       textStyle: { fontSize: 11, color: '#cbd5e1' },
     },
     grid: { left: '3%', right: '4%', top: '4%', bottom: '12%', containLabel: true },
     xAxis: {
       type: 'category',
-      data: funilDenuncia.map((r: any) => r.vinculo_grp),
+      data: funilFiltradoPorVinculo.map((r) => r.vinculo_grp),
       axisLabel: { color: '#cbd5e1', fontSize: 11 },
     },
     yAxis: {
@@ -483,22 +504,22 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
     },
     series: [
       {
-        name: '1. Conhece Canais',
+        name: 'Conhece Canais',
         type: 'bar',
         itemStyle: { color: PALETA_ACESSIVEL[0] },
-        data: funilDenuncia.map((r: any) => r.etapa_1_conhece),
+        data: funilFiltradoPorVinculo.map((r) => r.etapa_1_conhece),
       },
       {
-        name: '2. Considera Efetivos',
+        name: 'Considera Efetivos',
         type: 'bar',
         itemStyle: { color: PALETA_ACESSIVEL[1] },
-        data: funilDenuncia.map((r: any) => r.etapa_2_efetivos),
+        data: funilFiltradoPorVinculo.map((r) => r.etapa_2_efetivos),
       },
       {
-        name: '3. Resultados Justos',
+        name: 'Considera os Resultados Justos',
         type: 'bar',
         itemStyle: { color: PALETA_ACESSIVEL[2] },
-        data: funilDenuncia.map((r: any) => r.etapa_3_justos),
+        data: funilFiltradoPorVinculo.map((r) => r.etapa_3_justos),
       },
     ],
   };
@@ -516,15 +537,16 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
 
       {/* 1. Diagrama Divergente com Seletores Internos no Cabeçalho do Card */}
       <ChartCard
-        key={`divergente_${segmentoDivergente}_${generoDivergente}`}
+        key={`divergente_${segmentoDivergente}_${generoDivergente}_${racaDivergente}_${idadeDivergente}`}
         titulo="Diagrama Divergente de Percepção do Clima Institucional"
-        subtitulo="Distribuição de concordância (azul) vs discordância (vermelho). O item de maternidade é invertido."
-        n={nTotalDivergente > 0 ? nTotalDivergente : undefined}
+        subtitulo="Distribuição de concordância (azul) vs discordância (vermelho)."
+        n={nTotalDivergente}
         elementoCabecalho={
-          <div className="flex items-center justify-between gap-3 flex-wrap w-full">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[11px] text-slate-400 font-medium">Segmento:</span>
+          <div className="flex items-center justify-between gap-2.5 flex-wrap w-full">
+            <div className="flex items-center gap-2.5 flex-wrap">
               <SeletorSegmento valor={segmentoDivergente} aoMudar={setSegmentoDivergente} />
+              <SeletorRaca valor={racaDivergente} aoMudar={setRacaDivergente} />
+              <SeletorIdade valor={idadeDivergente} aoMudar={setIdadeDivergente} />
             </div>
             <SeletorGenero valor={generoDivergente} aoMudar={setGeneroDivergente} />
           </div>
@@ -550,8 +572,8 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <span className="font-bold text-teal-300 font-mono text-[11px]">
-                      {item.codigo} • {item.rotuloCurto}
+                    <span className="font-bold text-teal-300 text-[11px]">
+                      {item.rotuloCurto}
                     </span>
                     {item.invertido && (
                       <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-900/60 border border-amber-700/80 text-amber-300">
@@ -574,17 +596,17 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
 
       {/* 2. Gráficos de Discriminação Lado a Lado (Grid 2 colunas com seletores internos) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Taxa de Discriminação por Cor/Raça */}
+        {/* Percentual de Discriminação por Cor/Raça */}
         <ChartCard
-          key={`violencia_cor_${segmentoCor}_${generoCor}`}
-          titulo="Taxa Direta de Discriminação por Cor/Raça (% Sim)"
-          subtitulo="Proporção que já sofreu violência ou discriminação racial no IFRS (pergunta direta)"
-          n={nTotalCor > 0 ? nTotalCor : undefined}
+          key={`violencia_cor_${segmentoCor}_${generoCor}_${idadeCor}`}
+          titulo="Percentual de Discriminação por Cor/Raça"
+          subtitulo="Proporção que já sofreu violência ou discriminação racial no IFRS"
+          n={nTotalCor}
           elementoCabecalho={
             <div className="flex items-center justify-between gap-2.5 flex-wrap w-full">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[11px] text-slate-400 font-medium">Segmento:</span>
+              <div className="flex items-center gap-2 flex-wrap">
                 <SeletorSegmento valor={segmentoCor} aoMudar={setSegmentoCor} />
+                <SeletorIdade valor={idadeCor} aoMudar={setIdadeCor} />
               </div>
               <SeletorGenero valor={generoCor} aoMudar={setGeneroCor} />
             </div>
@@ -593,22 +615,22 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
           altura={320}
           carregando={carregando}
           tabelaDados={{
-            cabecalhos: ['Cor / Raça', 'Respondentes (n)', 'Relatos Sim (n)', 'Taxa (%)'],
+            cabecalhos: ['Cor / Raça', 'Respondentes (n)', 'Relatos Sim (n)', 'Percentual (%)'],
             linhas: [...violenciaCorFiltrada].reverse().map((r) => [r.cor_raca, r.n_total, r.n_sim, `${r.taxa_pct}%`]),
           }}
         />
 
-        {/* Taxa de Discriminação por Gênero e Orientação */}
+        {/* Percentual de Discriminação por Gênero e Orientação */}
         <ChartCard
-          key={`violencia_gen_${segmentoGen}_${generoGen}`}
-          titulo="Taxa de Discriminação por Gênero e Orientação (% Sim)"
-          subtitulo="Proporção que já sofreu LGBTfobia ou violência de gênero nas 6 categorias oficiais"
-          n={nTotalGen > 0 ? nTotalGen : undefined}
+          key={`violencia_gen_${segmentoGen}_${generoGen}_${idadeGen}`}
+          titulo="Percentual de Discriminação por Gênero e Orientação"
+          subtitulo="Proporção que já sofreu LGBTfobia ou violência de gênero nas 6 categorias oficiais de gênero"
+          n={nTotalGen}
           elementoCabecalho={
             <div className="flex items-center justify-between gap-2.5 flex-wrap w-full">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[11px] text-slate-400 font-medium">Segmento:</span>
+              <div className="flex items-center gap-2 flex-wrap">
                 <SeletorSegmento valor={segmentoGen} aoMudar={setSegmentoGen} />
+                <SeletorIdade valor={idadeGen} aoMudar={setIdadeGen} />
               </div>
               <SeletorGenero valor={generoGen} aoMudar={setGeneroGen} />
             </div>
@@ -617,7 +639,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
           altura={320}
           carregando={carregando}
           tabelaDados={{
-            cabecalhos: ['Identidade de Gênero', 'Respondentes (n)', 'Relatos Sim (n)', 'Taxa (%)'],
+            cabecalhos: ['Identidade de Gênero', 'Respondentes (n)', 'Relatos Sim (n)', 'Percentual (%)'],
             linhas: [...violenciaGeneroFiltrada].reverse().map((r) => [r.grupo_genero, r.n_total, r.n_sim, `${r.taxa_pct}%`]),
           }}
         />
@@ -632,15 +654,15 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
               Matriz Interseccional de Relatos de Discriminação (Cor / Raça × Gênero)
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
-              Proporção que relatou situação de violência ou preconceito (raça ou gênero/orientação).
-              Células com n &lt; 10 recebem nota informativa de amostra pequena.
+              Proporção que relatou situação de violência ou preconceito (raça ou gênero/orientação). O total de vítimas
+              contabiliza a união sem dupla contagem de quem relatou ambos os tipos de violência.
             </p>
           </div>
 
           {/* Resumo do Recorte Ativo */}
           <div className="flex items-center gap-2 shrink-0">
             <span className="text-[11px] bg-[#0e162b] border border-[#223154] text-slate-300 px-2.5 py-1 rounded-lg">
-              {matrizFiltrada.length} de {vitimizacaoIntersec.length} grupos • {formatarNumero(subtotalRespondentes)} respondentes
+              {matrizFiltrada.length} de {vitimizacaoIntersec.length} grupos • n = {formatarNumero(subtotalRespondentes)} respondentes
             </span>
           </div>
         </div>
@@ -718,15 +740,17 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
                 <th className="px-4 py-3">Cor / Raça</th>
                 <th className="px-4 py-3">Identidade de Gênero</th>
                 <th className="px-4 py-3">Respondentes (n)</th>
-                <th className="px-4 py-3">Relatos Registrados</th>
-                <th className="px-4 py-3">Taxa de Ocorrência</th>
+                <th className="px-4 py-3">Discrim. Racial (n)</th>
+                <th className="px-4 py-3">Discrim. Gênero/Orient. (n)</th>
+                <th className="px-4 py-3">Total Vítimas (União)</th>
+                <th className="px-4 py-3">Percentual (%)</th>
                 <th className="px-4 py-3">Status Amostral</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1f2d4e]">
               {matrizFiltrada.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
+                  <td colSpan={8} className="px-4 py-8 text-center text-slate-400">
                     Nenhum registro encontrado para a combinação selecionada ({filtroCorRaca} × {filtroGenero}).
                   </td>
                 </tr>
@@ -737,7 +761,9 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
                     <tr key={idx} className="hover:bg-[#1a2647] transition-colors">
                       <td className="px-4 py-2.5 font-medium text-slate-200">{row.cor_raca}</td>
                       <td className="px-4 py-2.5 text-slate-300">{row.genero_grp}</td>
-                      <td className="px-4 py-2.5 text-slate-400">{formatarNumero(row.n_total)}</td>
+                      <td className="px-4 py-2.5 text-slate-300 font-medium">{formatarNumero(row.n_total)}</td>
+                      <td className="px-4 py-2.5 text-amber-300">{formatarNumero(row.n_raca || 0)}</td>
+                      <td className="px-4 py-2.5 text-sky-300">{formatarNumero(row.n_gen || 0)}</td>
                       <td className="px-4 py-2.5 text-rose-400 font-bold">{formatarNumero(row.n_vitimas)}</td>
                       <td className="px-4 py-2.5 font-bold text-slate-100">{row.taxa_pct}%</td>
                       <td className="px-4 py-2.5">
@@ -763,6 +789,8 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
                     Total do Recorte ({matrizFiltrada.length} combinações)
                   </td>
                   <td className="px-4 py-3 text-slate-100">{formatarNumero(subtotalRespondentes)}</td>
+                  <td className="px-4 py-3 text-amber-300">{formatarNumero(subtotalRaca)}</td>
+                  <td className="px-4 py-3 text-sky-300">{formatarNumero(subtotalGen)}</td>
                   <td className="px-4 py-3 text-rose-400 font-bold">{formatarNumero(subtotalVitimas)}</td>
                   <td className="px-4 py-3 font-bold text-teal-300">{taxaPonderadaRecorte}%</td>
                   <td className="px-4 py-3 text-[11px] text-slate-400 font-normal">
@@ -777,11 +805,38 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
 
       {/* 4. Funil de Denúncia e Confiança */}
       <ChartCard
+        key={`funil_denuncia_${generoFunil}_${racaFunil}_${idadeFunil}`}
         titulo="Funil de Conhecimento, Efetividade e Justiça dos Canais de Denúncia"
-        subtitulo="Comparação sequencial das 3 etapas institucionais por vínculo"
+        subtitulo="Número de pessoas que conhecem os canais formais de denúncia do IFRS, confiam em sua efetividade de apuração e avaliam seus resultados e encaminhamentos como justos, por vínculo institucional"
+        n={nTotalFunil}
+        elementoCabecalho={
+          <div className="flex items-center justify-between gap-2.5 flex-wrap w-full">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <SeletorRaca valor={racaFunil} aoMudar={setRacaFunil} />
+              <SeletorIdade valor={idadeFunil} aoMudar={setIdadeFunil} />
+            </div>
+            <SeletorGenero valor={generoFunil} aoMudar={setGeneroFunil} />
+          </div>
+        }
         option={optionFunil}
         altura={360}
         carregando={carregando}
+        tabelaDados={{
+          cabecalhos: [
+            'Vínculo Institucional',
+            'Respondentes (n)',
+            'Conhece Canais (n / %)',
+            'Considera Efetivos (n / %)',
+            'Considera os Resultados Justos (n / %)',
+          ],
+          linhas: funilFiltradoPorVinculo.map((r) => [
+            r.vinculo_grp,
+            r.total_respondentes,
+            `${formatarNumero(r.etapa_1_conhece)} (${r.pct_conhece}%)`,
+            `${formatarNumero(r.etapa_2_efetivos)} (${r.pct_efetivos}%)`,
+            `${formatarNumero(r.etapa_3_justos)} (${r.pct_justos}%)`,
+          ]),
+        }}
       />
     </div>
   );

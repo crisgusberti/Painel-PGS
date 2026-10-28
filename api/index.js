@@ -83,6 +83,13 @@ var SQL_SEGMENTO_COMUNIDADE = `(
     ELSE 'outro'
   END
 )`;
+var SQL_IDADE_AGRUPADA = `(
+  CASE
+    WHEN faixa_etaria = 'Menor de 18 anos' THEN 'menor'
+    WHEN faixa_etaria IN ('18 a 29 anos', '30 a 39 anos', '40 a 49 anos', '50 a 59 anos', '60 anos ou mais') THEN 'maior'
+    ELSE NULL
+  END
+)`;
 var ESCALA_CONCORDANCIA_Q24 = {
   "Concordo Totalmente": 5,
   "Concordo": 4,
@@ -131,42 +138,59 @@ var CATALOGO_CAMPOS = {
   // === Eixo 1: Perfil e Representatividade ===
   campus: {
     key: "campus",
-    label: "Campus",
+    label: "Campus / Unidade",
     tipo: "nominal",
     grupo: "perfil",
     dinamico: true,
-    descricao: "Unidade ou Reitoria do IFRS de lota\xE7\xE3o ou estudo."
+    escopo: "geral",
+    papel: "perfil",
+    permitirComoSerie: false,
+    // 18 unidades torna ilegível como série de cor/legenda; ideal apenas no Eixo Principal
+    descricao: "Unidade ou Reitoria do IFRS de lota\xE7\xE3o ou estudo (18 unidades)."
   },
   vinculo: {
     key: "vinculo",
-    label: "V\xEDnculo Institucional",
+    label: "Segmento / V\xEDnculo Institucional",
     tipo: "nominal",
     grupo: "perfil",
     dinamico: true,
-    descricao: "V\xEDnculo do respondente com o IFRS (discente, servidor efetivo, docente substituto). Trabalhadores terceirizados n\xE3o integram as an\xE1lises."
+    escopo: "geral",
+    papel: "perfil",
+    permitirComoSerie: true,
+    descricao: "Segmento institucional no IFRS (Discentes, Docentes, T\xE9cnicos TAEs, Docentes Substitutos)."
   },
   genero: {
     key: "genero",
     label: "Identidade de G\xEAnero (Detalhada)",
     tipo: "nominal",
     grupo: "diversidade",
-    dinamico: true,
-    descricao: "Identidade de g\xEAnero completa declarada pelo respondente."
+    dinamico: false,
+    // Desativado no construtor por ser duplicado em relação a genero_agrupado
+    escopo: "geral",
+    papel: "perfil",
+    permitirComoSerie: false,
+    descricao: "Identidade de g\xEAnero declarada pelo respondente."
   },
   genero_agrupado: {
     key: "genero_agrupado",
-    label: "G\xEAnero (Agrupado)",
+    label: "Identidade de G\xEAnero",
     tipo: "nominal",
     grupo: "diversidade",
     dinamico: true,
-    descricao: "Classifica\xE7\xE3o oficial normalizada em 6 categorias: Mulher, Homem, Mulher Trans, Homem Trans, Travesti e N\xE3o-bin\xE1rias."
+    escopo: "geral",
+    papel: "perfil",
+    permitirComoSerie: true,
+    descricao: "Classifica\xE7\xE3o oficial normalizada nas 6 categorias de g\xEAnero: Mulher, Homem, Mulher Trans, Homem Trans, Travesti e N\xE3o-bin\xE1rias."
   },
   cor_raca: {
     key: "cor_raca",
-    label: "Cor / Ra\xE7a",
+    label: "Autodeclara\xE7\xE3o \xC9tnico-Racial (Cor / Ra\xE7a)",
     tipo: "nominal",
     grupo: "diversidade",
     dinamico: true,
+    escopo: "geral",
+    papel: "perfil",
+    permitirComoSerie: true,
     descricao: "Autodeclara\xE7\xE3o \xE9tnico-racial (Branca, Parda, Preta, Ind\xEDgena, Amarela, Prefiro n\xE3o responder)."
   },
   faixa_etaria: {
@@ -175,7 +199,10 @@ var CATALOGO_CAMPOS = {
     tipo: "ordinal_faixa",
     grupo: "perfil",
     dinamico: true,
-    ordem: ["At\xE9 17 anos", "18 a 24 anos", "25 a 34 anos", "35 a 44 anos", "45 a 54 anos", "55 a 64 anos", "65 anos ou mais", "Prefiro n\xE3o responder"],
+    escopo: "geral",
+    papel: "perfil",
+    permitirComoSerie: true,
+    ordem: ["Menor de 18 anos", "De 18 a 24 anos", "De 25 a 34 anos", "De 35 a 44 anos", "De 45 a 54 anos", "De 55 a 64 anos", "65 anos ou mais", "Prefiro n\xE3o responder"],
     descricao: "Faixa de idade do respondente."
   },
   pcd: {
@@ -184,6 +211,9 @@ var CATALOGO_CAMPOS = {
     tipo: "binario_sim_nao",
     grupo: "diversidade",
     dinamico: true,
+    escopo: "geral",
+    papel: "perfil",
+    permitirComoSerie: true,
     descricao: "Declara\xE7\xE3o de condi\xE7\xE3o de pessoa com defici\xEAncia."
   },
   nome_social: {
@@ -191,7 +221,11 @@ var CATALOGO_CAMPOS = {
     label: "Uso de Nome Social",
     tipo: "binario_sim_nao",
     grupo: "diversidade",
-    dinamico: true,
+    dinamico: false,
+    // Removido do construtor dinâmico por não compor os eixos analíticos do relatório
+    escopo: "geral",
+    papel: "indicador",
+    permitirComoSerie: false,
     descricao: "Utiliza\xE7\xE3o de nome social no ambiente institucional."
   },
   orientacao_sexual: {
@@ -200,66 +234,87 @@ var CATALOGO_CAMPOS = {
     tipo: "nominal",
     grupo: "diversidade",
     dinamico: true,
-    descricao: "Orienta\xE7\xE3o sexual declarada (Heterossexual, Bissexual, Homossexual, Assexual, Pansexual etc.)."
+    escopo: "geral",
+    papel: "perfil",
+    permitirComoSerie: true,
+    descricao: "Orienta\xE7\xE3o sexual declarada (Heterossexual, Bissexual, Homossexual, Pansexual, Assexual, Demissexual)."
   },
-  // === Eixo 2: Ambiente, Segurança e Clima (Q24a–f) ===
+  // === Eixo 2: Ambiente, Segurança e Clima ===
   seguranca_expressao_opiniao: {
     key: "seguranca_expressao_opiniao",
-    label: "Seguran\xE7a para Expressar Opini\xF5es (Q24a)",
+    label: "Seguran\xE7a para Expressar Opini\xF5es",
     tipo: "likert",
     grupo: "ambiente",
     dinamico: true,
+    escopo: "geral",
+    papel: "indicador",
+    permitirComoSerie: true,
     escala: ESCALA_CONCORDANCIA_Q24,
     categoriasSemPontuacao: SEM_PONTUACAO_CONCORDANCIA_Q24,
     descricao: "Sinto-me seguro/a para expressar minhas opini\xF5es no IFRS sem medo de retalia\xE7\xE3o."
   },
   ambiente_seguro_respeitoso: {
     key: "ambiente_seguro_respeitoso",
-    label: "Ambiente Seguro e Respeitoso (Q24b)",
+    label: "Ambiente Seguro e Respeitoso",
     tipo: "likert",
     grupo: "ambiente",
     dinamico: true,
+    escopo: "geral",
+    papel: "indicador",
+    permitirComoSerie: true,
     escala: ESCALA_CONCORDANCIA_Q24,
     categoriasSemPontuacao: SEM_PONTUACAO_CONCORDANCIA_Q24,
     descricao: "Considero o IFRS um ambiente seguro e respeitoso para todas as pessoas."
   },
   inclusao_pessoas_trans: {
     key: "inclusao_pessoas_trans",
-    label: "Inclus\xE3o de Pessoas Trans (Q24c)",
+    label: "Inclus\xE3o de Pessoas Trans e Travestis",
     tipo: "likert",
     grupo: "ambiente",
     dinamico: true,
+    escopo: "geral",
+    papel: "indicador",
+    permitirComoSerie: true,
     escala: ESCALA_CONCORDANCIA_Q24,
     categoriasSemPontuacao: SEM_PONTUACAO_CONCORDANCIA_Q24,
     descricao: "O IFRS \xE9 acolhedor e inclusivo para pessoas trans e travestis."
   },
   maternidade_impacto_carreira: {
     key: "maternidade_impacto_carreira",
-    label: "Maternidade Impacta Negativamente Carreira (Q24d - invertido)",
+    label: "Impacto da Maternidade na Carreira",
     tipo: "likert",
     grupo: "ambiente",
     dinamico: true,
+    escopo: "geral",
+    papel: "indicador",
+    permitirComoSerie: true,
     invertido: true,
     escala: ESCALA_CONCORDANCIA_Q24,
     categoriasSemPontuacao: SEM_PONTUACAO_CONCORDANCIA_Q24,
-    descricao: "Item invertido: a maternidade impacta negativamente o desenvolvimento profissional/acad\xEAmico."
+    descricao: "Percep\xE7\xE3o sobre se a maternidade impacta negativamente o desenvolvimento profissional/acad\xEAmico."
   },
   iniciativas_celebrar_diversidade: {
     key: "iniciativas_celebrar_diversidade",
-    label: "Iniciativas de Celebra\xE7\xE3o da Diversidade (Q24e)",
+    label: "Iniciativas de Celebra\xE7\xE3o da Diversidade",
     tipo: "likert",
     grupo: "ambiente",
     dinamico: true,
+    escopo: "geral",
+    papel: "indicador",
+    permitirComoSerie: true,
     escala: ESCALA_CONCORDANCIA_Q24,
     categoriasSemPontuacao: SEM_PONTUACAO_CONCORDANCIA_Q24,
     descricao: "O IFRS promove a\xE7\xF5es e eventos que valorizam a diversidade."
   },
   curriculos_principios_igualdade: {
     key: "curriculos_principios_igualdade",
-    label: "Curr\xEDculos com Princ\xEDpios de Igualdade (Q24f)",
+    label: "Curr\xEDculos com Princ\xEDpios de Igualdade",
     tipo: "likert",
     grupo: "ambiente",
     dinamico: true,
+    escopo: "geral",
+    papel: "indicador",
+    permitirComoSerie: true,
     escala: ESCALA_CONCORDANCIA_Q24,
     categoriasSemPontuacao: SEM_PONTUACAO_CONCORDANCIA_Q24,
     descricao: "Os curr\xEDculos e pr\xE1ticas pedag\xF3gicas incorporam igualdade de g\xEAnero e diversidade."
@@ -267,126 +322,165 @@ var CATALOGO_CAMPOS = {
   // === Eixo 3: Violências e Discriminações ===
   violencia_raca: {
     key: "violencia_raca",
-    label: "J\xE1 Sofreu Viol\xEAncia por Ra\xE7a/Cor",
+    label: "Sofreu Discrimina\xE7\xE3o por Cor / Ra\xE7a",
     tipo: "binario_sim_nao",
     grupo: "violencia",
     dinamico: true,
+    escopo: "geral",
+    papel: "indicador",
+    permitirComoSerie: true,
     descricao: "Relato de j\xE1 ter vivenciado discrimina\xE7\xE3o ou viol\xEAncia por motivo de cor/ra\xE7a no IFRS."
   },
   violencia_orientacao_genero: {
     key: "violencia_orientacao_genero",
-    label: "J\xE1 Sofreu Viol\xEAncia por Orienta\xE7\xE3o ou G\xEAnero",
+    label: "Sofreu Discrimina\xE7\xE3o por G\xEAnero ou Orienta\xE7\xE3o",
     tipo: "binario_sim_nao",
     grupo: "violencia",
     dinamico: true,
+    escopo: "geral",
+    papel: "indicador",
+    permitirComoSerie: true,
     descricao: "Relato de discrimina\xE7\xE3o ou viol\xEAncia por orienta\xE7\xE3o sexual ou identidade de g\xEAnero no IFRS."
   },
   desencorajado_participacao: {
     key: "desencorajado_participacao",
-    label: "Desencorajamento de Participa\xE7\xE3o (Estudantes - Q15)",
+    label: "Desencorajamento de Participa\xE7\xE3o Acad\xEAmica (Discentes)",
     tipo: "ordinal_faixa",
     grupo: "ambiente",
     dinamico: true,
+    escopo: "discentes",
+    papel: "indicador",
+    permitirComoSerie: true,
     ordem: ["Nunca", "Raramente", "Sim, algumas vezes", "Sim, frequentemente", "Prefiro n\xE3o responder"],
     descricao: "Frequ\xEAncia com que o estudante se sentiu desencorajado a participar de atividades acad\xEAmicas."
   },
-  // === Eixo 4: Mecanismos de Denúncia (Q25, Q26, Q27) ===
+  // === Eixo 4: Mecanismos de Denúncia ===
   conhece_mecanismos_denuncia: {
     key: "conhece_mecanismos_denuncia",
-    label: "Conhecimento dos Canais de Den\xFAncia (Q25)",
+    label: "Conhecimento dos Canais de Den\xFAncia",
     tipo: "nominal",
     grupo: "denuncia",
     dinamico: true,
-    descricao: "Conhecimento dos canais institucionais para encaminhamento de den\xFAncias (Sim, Em parte, N\xE3o...)."
+    escopo: "geral",
+    papel: "indicador",
+    permitirComoSerie: true,
+    descricao: "Conhecimento dos canais institucionais para encaminhamento de den\xFAncias (Sim, Em parte, N\xE3o)."
   },
   mecanismos_efetivos: {
     key: "mecanismos_efetivos",
-    label: "Efetividade dos Mecanismos de Den\xFAncia (Q26)",
+    label: "Efetividade dos Mecanismos de Den\xFAncia",
     tipo: "likert",
     grupo: "denuncia",
     dinamico: true,
+    escopo: "geral",
+    papel: "indicador",
+    permitirComoSerie: true,
     escala: ESCALA_EFETIVIDADE_Q26,
     categoriasSemPontuacao: SEM_PONTUACAO_EFETIVIDADE_Q26,
     descricao: "Percep\xE7\xE3o sobre a efetividade dos canais e procedimentos de den\xFAncia do IFRS."
   },
   mecanismos_resultados_justos: {
     key: "mecanismos_resultados_justos",
-    label: "Gera\xE7\xE3o de Resultados Justos nas Den\xFAncias (Q27)",
+    label: "Gera\xE7\xE3o de Resultados Justos nas Den\xFAncias",
     tipo: "likert",
     grupo: "denuncia",
     dinamico: true,
+    escopo: "geral",
+    papel: "indicador",
+    permitirComoSerie: true,
     escala: ESCALA_RESULTADOS_JUSTOS_Q27,
     categoriasSemPontuacao: SEM_PONTUACAO_RESULTADOS_JUSTOS_Q27,
     descricao: "Percep\xE7\xE3o sobre se as den\xFAncias apuradas resultam em desfechos justos e adequados."
   },
   eficacia_capacitacoes: {
     key: "eficacia_capacitacoes",
-    label: "Efic\xE1cia de Campanhas e Capacita\xE7\xF5es (Q28)",
+    label: "Efic\xE1cia de Campanhas e A\xE7\xF5es Formativas",
     tipo: "nominal",
     grupo: "politicas",
     dinamico: true,
+    escopo: "geral",
+    papel: "indicador",
+    permitirComoSerie: true,
     descricao: "Avalia\xE7\xE3o do impacto formativo das campanhas e capacita\xE7\xF5es de diversidade."
   },
-  // === Eixo 5: Avaliação dos Núcleos e Assessorias (Q29a–f) ===
+  // === Eixo 5: Avaliação dos Núcleos e Assessorias ===
   avaliacao_naaf: {
     key: "avaliacao_naaf",
-    label: "Avalia\xE7\xE3o do NAAF (Q29a)",
+    label: "Avalia\xE7\xE3o do NAAF",
     tipo: "likert",
     grupo: "politicas",
     dinamico: true,
+    escopo: "geral",
+    papel: "indicador",
+    permitirComoSerie: true,
     escala: ESCALA_QUALIDADE_Q29,
     categoriasSemPontuacao: SEM_PONTUACAO_QUALIDADE_Q29,
     descricao: "Avalia\xE7\xE3o da atua\xE7\xE3o do N\xFAcleo de A\xE7\xF5es Afirmativas."
   },
   avaliacao_neabi: {
     key: "avaliacao_neabi",
-    label: "Avalia\xE7\xE3o do NEABI (Q29b)",
+    label: "Avalia\xE7\xE3o do NEABI",
     tipo: "likert",
     grupo: "politicas",
     dinamico: true,
+    escopo: "geral",
+    papel: "indicador",
+    permitirComoSerie: true,
     escala: ESCALA_QUALIDADE_Q29,
     categoriasSemPontuacao: SEM_PONTUACAO_QUALIDADE_Q29,
     descricao: "Avalia\xE7\xE3o da atua\xE7\xE3o do N\xFAcleo de Estudos Afro-brasileiros e Ind\xEDgenas."
   },
   avaliacao_nepgs: {
     key: "avaliacao_nepgs",
-    label: "Avalia\xE7\xE3o do NEPG (Q29c)",
+    label: "Avalia\xE7\xE3o do NEPGS",
     tipo: "likert",
     grupo: "politicas",
     dinamico: true,
+    escopo: "geral",
+    papel: "indicador",
+    permitirComoSerie: true,
     escala: ESCALA_QUALIDADE_Q29,
     categoriasSemPontuacao: SEM_PONTUACAO_QUALIDADE_Q29,
-    descricao: "Avalia\xE7\xE3o da atua\xE7\xE3o do N\xFAcleo de Estudos e Pesquisas em G\xEAnero."
+    descricao: "Avalia\xE7\xE3o da atua\xE7\xE3o do N\xFAcleo de Estudos e Pesquisas em G\xEAnero e Sexualidade."
   },
   avaliacao_assessoria_afirmativas: {
     key: "avaliacao_assessoria_afirmativas",
-    label: "Assessoria de A\xE7\xF5es Afirmativas (Q29d)",
+    label: "Assessoria de A\xE7\xF5es Afirmativas, Inclusivas e Diversidade",
     tipo: "likert",
     grupo: "politicas",
     dinamico: true,
+    escopo: "geral",
+    papel: "indicador",
+    permitirComoSerie: true,
     escala: ESCALA_QUALIDADE_Q29,
     categoriasSemPontuacao: SEM_PONTUACAO_QUALIDADE_Q29,
-    descricao: "Avalia\xE7\xE3o da Assessoria de A\xE7\xF5es Afirmativas, Inclusivas e Comunit\xE1rias."
+    descricao: "Avalia\xE7\xE3o da Assessoria de A\xE7\xF5es Afirmativas, Inclusivas e Diversidade."
   },
   avaliacao_assessoria_genero: {
     key: "avaliacao_assessoria_genero",
-    label: "Assessoria de G\xEAnero (Q29e)",
+    label: "Assessoria de G\xEAnero e Sexualidade",
     tipo: "likert",
     grupo: "politicas",
     dinamico: true,
+    escopo: "geral",
+    papel: "indicador",
+    permitirComoSerie: true,
     escala: ESCALA_QUALIDADE_Q29,
     categoriasSemPontuacao: SEM_PONTUACAO_QUALIDADE_Q29,
-    descricao: "Avalia\xE7\xE3o da Assessoria de Rela\xE7\xF5es \xC9tnico-Raciais e de G\xEAnero."
+    descricao: "Avalia\xE7\xE3o da Assessoria de G\xEAnero e Sexualidade."
   },
   avaliacao_assessoria_etnico_raciais: {
     key: "avaliacao_assessoria_etnico_raciais",
-    label: "Assessoria de Rela\xE7\xF5es \xC9tnico-Raciais (Q29f)",
+    label: "Assessoria de Rela\xE7\xF5es \xC9tnico-raciais",
     tipo: "likert",
     grupo: "politicas",
     dinamico: true,
+    escopo: "geral",
+    papel: "indicador",
+    permitirComoSerie: true,
     escala: ESCALA_QUALIDADE_Q29,
     categoriasSemPontuacao: SEM_PONTUACAO_QUALIDADE_Q29,
-    descricao: "Avalia\xE7\xE3o da Assessoria de Rela\xE7\xF5es \xC9tnico-Raciais."
+    descricao: "Avalia\xE7\xE3o da Assessoria de Rela\xE7\xF5es \xC9tnico-raciais."
   },
   // === Eixo 6: Cuidado, Parentalidade e Permanência ===
   responsabilidade_cuidado: {
@@ -395,128 +489,173 @@ var CATALOGO_CAMPOS = {
     tipo: "nominal",
     grupo: "cuidado",
     dinamico: true,
-    descricao: "Exerc\xEDcio de cuidado com dependentes, crian\xE7as, idosos ou pessoas enfermas."
+    escopo: "geral",
+    papel: "perfil",
+    // Permite cruzar indicadores de carreira/clima/permanência por responsabilidade de cuidado
+    permitirComoSerie: true,
+    descricao: "Exerc\xEDcio de cuidado com dependentes, crian\xE7as, idosos ou pessoas com defici\xEAncia."
   },
   evitou_candidatura_cuidado: {
     key: "evitou_candidatura_cuidado",
-    label: "Evitou Candidatura a Gest\xE3o por Cuidado",
+    label: "Deixou de se Candidatar \xE0 Gest\xE3o por Cuidado (Servidores)",
     tipo: "nominal",
     grupo: "cuidado",
     dinamico: true,
+    escopo: "servidores",
+    papel: "indicador",
+    permitirComoSerie: true,
     descricao: "Se o servidor j\xE1 deixou de pleitear cargo/fun\xE7\xE3o devido a demandas de cuidado."
   },
   politica_apoio_cuidado: {
     key: "politica_apoio_cuidado",
-    label: "Pol\xEDticas de Apoio ao Cuidado no IFRS (Q30)",
+    label: "Pol\xEDticas de Apoio ao Cuidado no IFRS",
     tipo: "nominal",
     grupo: "cuidado",
     dinamico: true,
+    escopo: "geral",
+    papel: "indicador",
+    permitirComoSerie: true,
     descricao: "Avalia\xE7\xE3o da exist\xEAncia e sufici\xEAncia de pol\xEDticas de concilia\xE7\xE3o trabalho/estudo e cuidado."
   },
   licenca_maternidade_suficiente: {
     key: "licenca_maternidade_suficiente",
-    label: "Sufici\xEAncia da Licen\xE7a Maternidade (Q31)",
+    label: "Sufici\xEAncia da Licen\xE7a Maternidade",
     tipo: "nominal",
     grupo: "cuidado",
     dinamico: true,
+    escopo: "geral",
+    papel: "indicador",
+    permitirComoSerie: true,
     descricao: "Percep\xE7\xE3o sobre a adequa\xE7\xE3o dos prazos e condi\xE7\xF5es da licen\xE7a maternidade."
   },
   licenca_paternidade_suficiente: {
     key: "licenca_paternidade_suficiente",
-    label: "Sufici\xEAncia da Licen\xE7a Paternidade (Q32)",
+    label: "Sufici\xEAncia da Licen\xE7a Paternidade",
     tipo: "nominal",
     grupo: "cuidado",
     dinamico: true,
+    escopo: "geral",
+    papel: "indicador",
+    permitirComoSerie: true,
     descricao: "Percep\xE7\xE3o sobre a adequa\xE7\xE3o dos prazos e condi\xE7\xF5es da licen\xE7a paternidade."
   },
   apoio_pais_estudantes_suficiente: {
     key: "apoio_pais_estudantes_suficiente",
-    label: "Apoio a Pais/M\xE3es Estudantes (Q33)",
+    label: "Sufici\xEAncia do Apoio a Estudantes com Filhos/as",
     tipo: "nominal",
     grupo: "cuidado",
     dinamico: true,
+    escopo: "geral",
+    papel: "indicador",
+    permitirComoSerie: true,
     descricao: "Avalia\xE7\xE3o sobre infraestrutura e suporte para estudantes com filhos/dependentes."
   },
   // === Eixo 7: Carreira, Progressão e Gestão (Servidores) ===
   cargo: {
     key: "cargo",
-    label: "Cargo do Servidor",
+    label: "Cargo / Carreira do Servidor (Servidores)",
     tipo: "nominal",
     grupo: "carreira",
     dinamico: true,
-    descricao: "Carreira e n\xEDvel do servidor (Docente, TAE N\xEDveis C, D, E)."
+    escopo: "servidores",
+    papel: "perfil",
+    permitirComoSerie: true,
+    descricao: "Carreira e n\xEDvel do servidor efetivo (Docente, TAE N\xEDveis C, D, E)."
   },
   ocupa_cargo_gestao: {
     key: "ocupa_cargo_gestao",
-    label: "Ocupa Cargo de Gest\xE3o",
+    label: "Ocupa Cargo de Gest\xE3o (Servidores)",
     tipo: "binario_sim_nao",
     grupo: "carreira",
     dinamico: true,
-    descricao: "Declara\xE7\xE3o se atualmente ocupa cargo de dire\xE7\xE3o ou fun\xE7\xE3o comissionada."
+    escopo: "servidores",
+    papel: "perfil",
+    permitirComoSerie: true,
+    descricao: "Declara\xE7\xE3o se o servidor ocupa cargo de dire\xE7\xE3o ou fun\xE7\xE3o gratificada/comissionada."
   },
   funcao_gestao: {
     key: "funcao_gestao",
     label: "Fun\xE7\xE3o de Gest\xE3o (CD / FG / FCC)",
     tipo: "nominal",
     grupo: "carreira",
-    dinamico: true,
+    dinamico: false,
+    // Sub-pergunta restrita apenas a gestores (n=390), gerando células esparsas em cruzamentos
+    escopo: "servidores",
+    papel: "indicador",
+    permitirComoSerie: false,
     descricao: "Tipologia de fun\xE7\xE3o comissionada exercida (CD, FG, FCC/FUC)."
   },
   adesao_pgd: {
     key: "adesao_pgd",
-    label: "Ades\xE3o ao PGD (Teletrabalho)",
+    label: "Ades\xE3o ao PGD / Teletrabalho (Servidores)",
     tipo: "nominal",
     grupo: "carreira",
     dinamico: true,
+    escopo: "servidores",
+    papel: "indicador",
+    permitirComoSerie: true,
     descricao: "Participa\xE7\xE3o no Programa de Gest\xE3o e Desempenho."
   },
   progressao_merito_nota: {
     key: "progressao_merito_nota",
-    label: "Percep\xE7\xE3o de Justi\xE7a na Progress\xE3o (Q22)",
+    label: "Percep\xE7\xE3o de Justi\xE7a na Progress\xE3o (Servidores)",
     tipo: "numerico",
     grupo: "carreira",
     dinamico: true,
-    descricao: "Nota de 1 (Discordo totalmente) a 5 (Concordo totalmente) sobre equidade na progress\xE3o por m\xE9rito."
+    escopo: "servidores",
+    papel: "indicador",
+    permitirComoSerie: true,
+    descricao: "Avalia\xE7\xE3o de 1 (Discordo totalmente) a 5 (Concordo totalmente) sobre equidade na progress\xE3o por m\xE9rito."
   },
   acesso_oportunidades: {
     key: "acesso_oportunidades",
-    label: "Acesso Equitativo a Projetos e Bolsas (Q23)",
+    label: "Acesso Equitativo a Projetos e Bolsas (Servidores)",
     tipo: "likert",
     grupo: "carreira",
     dinamico: true,
+    escopo: "servidores",
+    papel: "indicador",
+    permitirComoSerie: true,
     escala: ESCALA_ACESSO_Q23,
     categoriasSemPontuacao: SEM_PONTUACAO_ACESSO_Q23,
-    descricao: "Percep\xE7\xE3o sobre equidade na distribui\xE7\xE3o de bolsas, projetos e editais."
+    descricao: "Percep\xE7\xE3o sobre equidade na distribui\xE7\xE3o de bolsas, projetos e editais entre servidores."
   },
   // === Eixo 8: Estudantes e STEM ===
   nivel_curso: {
     key: "nivel_curso",
-    label: "N\xEDvel do Curso (Estudantes)",
+    label: "N\xEDvel do Curso (Discentes)",
     tipo: "nominal",
     grupo: "perfil",
     dinamico: true,
-    descricao: "N\xEDvel acad\xEAmico: T\xE9cnico Integrado, Subsequente, Proeja, Superior, P\xF3s-gradua\xE7\xE3o."
+    escopo: "discentes",
+    papel: "perfil",
+    permitirComoSerie: true,
+    descricao: "N\xEDvel acad\xEAmico do estudante: T\xE9cnico Integrado, Subsequente, PROEJA, Gradua\xE7\xE3o, P\xF3s-gradua\xE7\xE3o."
   },
   politica_assistencia_estudantil: {
     key: "politica_assistencia_estudantil",
-    label: "Acesso a Assist\xEAncia Estudantil",
+    label: "Efetividade da Assist\xEAncia Estudantil (Discentes)",
     tipo: "nominal",
-    grupo: "perfil",
+    grupo: "politicas",
     dinamico: true,
-    descricao: "Participa\xE7\xE3o ou benef\xEDcio de programas da assist\xEAncia estudantil."
+    escopo: "discentes",
+    papel: "indicador",
+    permitirComoSerie: true,
+    descricao: "Avalia\xE7\xE3o discente sobre a efetividade das pol\xEDticas de assist\xEAncia estudantil."
   },
   area_conhecimento: {
     key: "area_conhecimento",
-    label: "Grande \xC1rea do Conhecimento (CNPq)",
+    label: "Grande \xC1rea do Conhecimento CNPq (Discentes)",
     tipo: "nominal",
     grupo: "perfil",
     dinamico: true,
-    descricao: "Grande \xE1rea do curso ap\xF3s normaliza\xE7\xE3o determin\xEDstica via areaMap."
+    escopo: "discentes",
+    papel: "perfil",
+    permitirComoSerie: true,
+    descricao: "Grande \xE1rea do curso discente segundo a classifica\xE7\xE3o do CNPq."
   }
 };
-var CAMPOS_PERMITIDOS_CONSULTA = Object.keys(CATALOGO_CAMPOS).filter(
-  (k) => CATALOGO_CAMPOS[k].dinamico
-);
+var CAMPOS_PERMITIDOS_CONSULTA = Object.keys(CATALOGO_CAMPOS);
 
 // src/server/consultaEngine.ts
 import { z } from "zod";
@@ -557,19 +696,51 @@ function expressaoCampoSql(campoKey) {
   if (campoKey === "orientacao_sexual") {
     return SQL_ORIENTACAO_NORMALIZADA;
   }
+  if (campoKey === "vinculo") {
+    return `(
+      CASE
+        WHEN vinculo ILIKE '%Discente%' THEN 'Discentes'
+        WHEN vinculo ILIKE '%Substituto%' THEN 'Docentes Substitutos'
+        WHEN vinculo ILIKE '%Efetivo%' AND cargo ILIKE '%Docente%' THEN 'Docentes'
+        WHEN vinculo ILIKE '%Efetivo%' AND (cargo ILIKE '%T\xE9cnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%') THEN 'T\xE9cnicos TAEs'
+        WHEN vinculo = 'Prefiro n\xE3o responder' THEN 'Prefiro n\xE3o responder'
+        ELSE NULL
+      END
+    )`;
+  }
+  if (campoKey === "responsabilidade_cuidado") {
+    return `(
+      CASE
+        WHEN responsabilidade_cuidado IN ('N\xE3o', 'N\xE3o tenho responsabilidade de cuidado sobre ningu\xE9m') THEN 'N\xE3o'
+        ELSE responsabilidade_cuidado
+      END
+    )`;
+  }
+  if (campoKey === "progressao_merito_nota") {
+    return `(
+      CASE
+        WHEN progressao_merito_nota = 5 THEN '5 - Concordo totalmente'
+        WHEN progressao_merito_nota = 4 THEN '4 - Concordo parcialmente'
+        WHEN progressao_merito_nota = 3 THEN '3 - Neutro'
+        WHEN progressao_merito_nota = 2 THEN '2 - Discordo parcialmente'
+        WHEN progressao_merito_nota = 1 THEN '1 - Discordo totalmente'
+        ELSE NULL
+      END
+    )`;
+  }
   if (campoKey === "area_conhecimento") {
     return `(
       CASE
-        WHEN area_conhecimento ILIKE '%engenharia%' OR area_conhecimento ILIKE '%computa%' OR area_conhecimento ILIKE '%inform%' OR area_conhecimento ILIKE '%ti%' OR area_conhecimento ILIKE '%ads%' OR area_conhecimento ILIKE '%eletro%' OR area_conhecimento ILIKE '%mec\xE2nica%' OR area_conhecimento ILIKE '%mecanica%' OR area_conhecimento ILIKE '%pol\xEDmero%' OR area_conhecimento ILIKE '%polimero%' OR area_conhecimento ILIKE '%pl\xE1stico%' THEN 'Engenharias e Tecnologia'
-        WHEN area_conhecimento ILIKE '%exata%' OR area_conhecimento ILIKE '%f\xEDsica%' OR area_conhecimento ILIKE '%fisica%' OR area_conhecimento ILIKE '%qu\xEDmica%' OR area_conhecimento ILIKE '%quimica%' OR area_conhecimento ILIKE '%matem\xE1t%' OR area_conhecimento ILIKE '%matemat%' OR area_conhecimento ILIKE '%ci\xEAncias da natureza%' OR area_conhecimento ILIKE '%ciencias da natureza%' THEN 'Ci\xEAncias Exatas e da Terra'
-        WHEN area_conhecimento ILIKE '%administra%' OR area_conhecimento ILIKE '%gest\xE3o%' OR area_conhecimento ILIKE '%gestao%' OR area_conhecimento ILIKE '%processos gerenciais%' OR area_conhecimento ILIKE '%com\xE9rcio%' OR area_conhecimento ILIKE '%comercio%' OR area_conhecimento ILIKE '%log\xEDstica%' OR area_conhecimento ILIKE '%logistica%' OR area_conhecimento ILIKE '%marketing%' OR area_conhecimento ILIKE '%secretariado%' OR area_conhecimento ILIKE '%ci\xEAncia da informa\xE7\xE3o%' OR area_conhecimento ILIKE '%biblioteconomia%' THEN 'Ci\xEAncias Sociais Aplicadas'
-        WHEN area_conhecimento ILIKE '%agr\xE1r%' OR area_conhecimento ILIKE '%agrar%' OR area_conhecimento ILIKE '%agro%' OR area_conhecimento ILIKE '%zootec%' OR area_conhecimento ILIKE '%viticult%' OR area_conhecimento ILIKE '%meio ambiente%' OR area_conhecimento ILIKE '%ambiental%' THEN 'Ci\xEAncias Agr\xE1rias'
-        WHEN area_conhecimento ILIKE '%human%' OR area_conhecimento ILIKE '%pedagog%' OR area_conhecimento ILIKE '%educa%' OR area_conhecimento ILIKE '%profept%' THEN 'Ci\xEAncias Humanas'
-        WHEN area_conhecimento ILIKE '%letras%' OR area_conhecimento ILIKE '%artes%' OR area_conhecimento ILIKE '%design%' OR area_conhecimento ILIKE '%moda%' OR area_conhecimento ILIKE '%cinema%' OR area_conhecimento ILIKE '%multim\xEDdia%' OR area_conhecimento ILIKE '%multimidia%' OR area_conhecimento ILIKE '%audiovisual%' THEN 'Lingu\xEDstica, Letras e Artes'
-        WHEN area_conhecimento ILIKE '%biolog%' OR area_conhecimento ILIKE '%biotec%' THEN 'Ci\xEAncias Biol\xF3gicas'
+        WHEN TRIM(LOWER(area_conhecimento)) IN ('todos', 'sei l\xE1', 'nenhuma \xE1rea ainda', 'ensino m\xE9dio', 'eja', 'mestrado', 'multidisciplinar', 'exatas e humanas') THEN NULL
+        WHEN area_conhecimento ILIKE '%engenharia%' OR area_conhecimento ILIKE '%computa%' OR area_conhecimento ILIKE '%inform%' OR area_conhecimento ILIKE '%ti%' OR area_conhecimento ILIKE '%ads%' OR area_conhecimento ILIKE '%eletro%' OR area_conhecimento ILIKE '%mec\xE2nica%' OR area_conhecimento ILIKE '%mecanica%' OR area_conhecimento ILIKE '%pol\xEDmero%' OR area_conhecimento ILIKE '%polimero%' OR area_conhecimento ILIKE '%pl\xE1stico%' OR area_conhecimento ILIKE '%seguran\xE7a do trabalho%' OR area_conhecimento ILIKE '%sistemas%' OR area_conhecimento ILIKE '%tecnolog%' OR area_conhecimento ILIKE '%inova\xE7\xE3o%' THEN 'Engenharias e Tecnologia'
+        WHEN area_conhecimento ILIKE '%exata%' OR area_conhecimento ILIKE '%f\xEDsica%' OR area_conhecimento ILIKE '%fisica%' OR area_conhecimento ILIKE '%qu\xEDmica%' OR area_conhecimento ILIKE '%quimica%' OR area_conhecimento ILIKE '%matem\xE1t%' OR area_conhecimento ILIKE '%matemat%' OR area_conhecimento ILIKE '%ci\xEAncias da natureza%' OR area_conhecimento ILIKE '%ciencias da natureza%' OR area_conhecimento ILIKE '%ci\xEAncias da natura%' OR area_conhecimento ILIKE '%ci\xEAncias naturais%' THEN 'Ci\xEAncias Exatas e da Terra'
+        WHEN area_conhecimento ILIKE '%agr\xE1r%' OR area_conhecimento ILIKE '%agrar%' OR area_conhecimento ILIKE '%agro%' OR area_conhecimento ILIKE '%zootec%' OR area_conhecimento ILIKE '%viticult%' OR area_conhecimento ILIKE '%meio ambiente%' OR area_conhecimento ILIKE '%meia ambiente%' OR area_conhecimento ILIKE '%ambiental%' OR area_conhecimento ILIKE '%panifica%' THEN 'Ci\xEAncias Agr\xE1rias'
+        WHEN area_conhecimento ILIKE '%administra%' OR area_conhecimento ILIKE '%adm%' OR area_conhecimento ILIKE '%gest\xE3o%' OR area_conhecimento ILIKE '%gestao%' OR area_conhecimento ILIKE '%processo%' OR area_conhecimento ILIKE '%com\xE9rcio%' OR area_conhecimento ILIKE '%comercio%' OR area_conhecimento ILIKE '%vendas%' OR area_conhecimento ILIKE '%log\xEDstica%' OR area_conhecimento ILIKE '%logistica%' OR area_conhecimento ILIKE '%marketing%' OR area_conhecimento ILIKE '%secretariado%' OR area_conhecimento ILIKE '%informa\xE7\xE3o%' OR area_conhecimento ILIKE '%biblioteconomia%' OR area_conhecimento ILIKE '%neg\xF3cio%' OR area_conhecimento ILIKE '%negocio%' OR TRIM(LOWER(area_conhecimento)) IN ('tpg', 'lazer') THEN 'Ci\xEAncias Sociais Aplicadas'
+        WHEN area_conhecimento ILIKE '%human%' OR area_conhecimento ILIKE '%pedagog%' OR area_conhecimento ILIKE '%educa%' OR area_conhecimento ILIKE '%profept%' OR area_conhecimento ILIKE '%ensino%' THEN 'Ci\xEAncias Humanas'
+        WHEN area_conhecimento ILIKE '%letras%' OR area_conhecimento ILIKE '%artes%' OR area_conhecimento ILIKE '%design%' OR area_conhecimento ILIKE '%moda%' OR area_conhecimento ILIKE '%modelagem%' OR area_conhecimento ILIKE '%cinema%' OR area_conhecimento ILIKE '%multim\xEDdia%' OR area_conhecimento ILIKE '%multimidia%' OR area_conhecimento ILIKE '%audiovisual%' THEN 'Lingu\xEDstica, Letras e Artes'
+        WHEN area_conhecimento ILIKE '%biolog%' OR area_conhecimento ILIKE '%biotec%' OR area_conhecimento ILIKE '%boitec%' THEN 'Ci\xEAncias Biol\xF3gicas'
         WHEN area_conhecimento ILIKE '%sa\xFAde%' OR area_conhecimento ILIKE '%saude%' OR area_conhecimento ILIKE '%enferm%' OR area_conhecimento ILIKE '%idoso%' THEN 'Ci\xEAncias da Sa\xFAde'
         WHEN area_conhecimento = 'Prefiro n\xE3o responder' THEN 'Prefiro n\xE3o responder'
-        WHEN area_conhecimento IS NOT NULL THEN 'N\xE3o classificada'
         ELSE NULL
       END
     )`;
@@ -629,14 +800,12 @@ async function executarConsulta(req) {
   const campoEixo2 = req.campos_eixo[1] || null;
   const campoCor = req.campos_cor?.[0] || null;
   const camposEnvolvidos = [campoEixo1, campoEixo2, campoCor].filter(Boolean);
-  if (camposEnvolvidos.some((c) => c === "genero" || c === "genero_agrupado")) {
-    whereClauses.push(`${SQL_GENERO_NORMALIZADO} IS NOT NULL`);
-  }
-  if (camposEnvolvidos.some((c) => c === "orientacao_sexual")) {
-    whereClauses.push(`${SQL_ORIENTACAO_NORMALIZADA} IS NOT NULL`);
+  for (const c of camposEnvolvidos) {
+    const colExpr = expressaoCampoSql(c);
+    whereClauses.push(`${colExpr} IS NOT NULL`);
   }
   if (req.medida.incluir_prefiro_nao_responder === false) {
-    for (const c of req.campos_eixo) {
+    for (const c of camposEnvolvidos) {
       const colExpr = expressaoCampoSql(c);
       whereClauses.push(`${colExpr} != 'Prefiro n\xE3o responder'`);
     }
@@ -818,6 +987,15 @@ var MAPA_TEXTOS_AREA = {
   "t\xE9cnico em administra\xE7\xE3o": "Ci\xEAncias Sociais Aplicadas",
   "tec em administra\xE7\xE3o": "Ci\xEAncias Sociais Aplicadas",
   "t\xE9cnico de administra\xE7\xE2o": "Ci\xEAncias Sociais Aplicadas",
+  "t\xE9cnico de administra\xE7\xE3o": "Ci\xEAncias Sociais Aplicadas",
+  "administra\xE7\xE3o.": "Ci\xEAncias Sociais Aplicadas",
+  "gest\xE3o": "Ci\xEAncias Sociais Aplicadas",
+  "gestao": "Ci\xEAncias Sociais Aplicadas",
+  "gest\xE3o de processos": "Ci\xEAncias Sociais Aplicadas",
+  "processos gerencias": "Ci\xEAncias Sociais Aplicadas",
+  "gest\xE3o e negocios": "Ci\xEAncias Sociais Aplicadas",
+  "tpg": "Ci\xEAncias Sociais Aplicadas",
+  "lazer": "Ci\xEAncias Sociais Aplicadas",
   "n\xE3o sei qual \xE9 para a administra\xE7\xE3o": "Ci\xEAncias Sociais Aplicadas",
   // Educação e Pedagogia -> Ciências Humanas
   "pedagogia": "Ci\xEAncias Humanas",
@@ -870,6 +1048,8 @@ var MAPA_TEXTOS_AREA = {
   // Artes e Comunicação -> Linguística, Letras e Artes
   "artes": "Lingu\xEDstica, Letras e Artes",
   "design": "Lingu\xEDstica, Letras e Artes",
+  "design gr\xE1fico": "Lingu\xEDstica, Letras e Artes",
+  "design grafico": "Lingu\xEDstica, Letras e Artes",
   "designer de moda": "Lingu\xEDstica, Letras e Artes",
   "design de moda": "Lingu\xEDstica, Letras e Artes",
   "moda": "Lingu\xEDstica, Letras e Artes",
@@ -902,6 +1082,9 @@ var MAPA_TEXTOS_AREA = {
   "meio ambiente e sustentabilidade": "Ci\xEAncias Agr\xE1rias",
   "ci\xEAncias ambientais": "Ci\xEAncias Agr\xE1rias",
   "ci\xEAncias ambientais (meio ambiente)": "Ci\xEAncias Agr\xE1rias",
+  "gest\xE3o ambiental, ambiente, sa\xFAde e sociedade, educa\xE7\xE3o ambiental etc": "Ci\xEAncias Agr\xE1rias",
+  "panifica\xE7\xE3o": "Ci\xEAncias Agr\xE1rias",
+  "panificacao": "Ci\xEAncias Agr\xE1rias",
   "biotecnologia": "Ci\xEAncias Biol\xF3gicas",
   "boitecnologia": "Ci\xEAncias Biol\xF3gicas",
   "licenciatura biologia e qu\xEDmica": "Ci\xEAncias Biol\xF3gicas",
@@ -1053,10 +1236,11 @@ async function obterKpisVisaoGeral(filtros) {
         ELSE 'Prefiro n\xE3o responder'
       END as vinculo_simplificado,
       ${SQL_GENERO_NORMALIZADO} as genero,
+      ${SQL_IDADE_AGRUPADA} as idade_grp,
       count(*)::int as total
     FROM public.respostas_pgs
-    ${whereComAnd(whereSql, "campus IS NOT NULL AND campus != 'Prefiro n\xE3o responder'")}
-    GROUP BY campus, vinculo_simplificado, ${SQL_GENERO_NORMALIZADO}
+    ${whereComAnd(whereSql, "campus IS NOT NULL")}
+    GROUP BY campus, vinculo_simplificado, ${SQL_GENERO_NORMALIZADO}, ${SQL_IDADE_AGRUPADA}
     ORDER BY campus ASC
   `;
   const [resKpi, resCampus] = await Promise.all([
@@ -1156,10 +1340,11 @@ async function obterDadosPerfil(filtros) {
       ${campoExpr} as categoria,
       ${SQL_SEGMENTO_COMUNIDADE} as segmento,
       ${SQL_GENERO_NORMALIZADO} as genero,
+      ${SQL_IDADE_AGRUPADA} as idade_grp,
       count(*)::int as n
     FROM public.respostas_pgs
     ${extraWhere ? whereComAnd(whereSql, extraWhere) : whereSql}
-    GROUP BY categoria, segmento, ${SQL_GENERO_NORMALIZADO}
+    GROUP BY categoria, segmento, ${SQL_GENERO_NORMALIZADO}, ${SQL_IDADE_AGRUPADA}
     ORDER BY n DESC
   `;
   const sqlTotaisSegmento = `
@@ -1303,10 +1488,12 @@ async function obterDadosCarreira(filtros) {
         ELSE 'outro'
       END as segmento,
       ${SQL_GENERO_NORMALIZADO} as genero_grp,
+      cor_raca,
+      pcd,
       count(*)::int as n
     FROM public.respostas_pgs
     ${whereComAnd(whereSql, `evitou_candidatura_cuidado IS NOT NULL AND ${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
-    GROUP BY responsabilidade_cuidado, evitou_candidatura_cuidado, segmento, genero_grp
+    GROUP BY responsabilidade_cuidado, evitou_candidatura_cuidado, segmento, genero_grp, cor_raca, pcd
   `;
   const sqlPgd = `
     SELECT
@@ -1364,17 +1551,14 @@ async function obterDadosAmbienteViolencias(filtros) {
     const qSql = `
       SELECT
         coalesce("${item.key}", 'Sem resposta') as resposta,
-        CASE
-          WHEN cargo ILIKE '%Docente%' THEN 'docentes'
-          WHEN cargo ILIKE '%T\xE9cnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
-          WHEN vinculo ILIKE '%Discente%' THEN 'discentes'
-          ELSE 'outros'
-        END as segmento,
+        ${SQL_SEGMENTO_COMUNIDADE} as segmento,
         ${SQL_GENERO_NORMALIZADO} as genero_grp,
+        cor_raca,
+        ${SQL_IDADE_AGRUPADA} as idade_grp,
         count(*)::int as n
       FROM public.respostas_pgs
-      ${whereComAnd(whereSql, `${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
-      GROUP BY resposta, segmento, genero_grp
+      ${whereSql}
+      GROUP BY resposta, segmento, genero_grp, cor_raca, idade_grp
       ORDER BY n DESC
     `;
     const res = await pool.query(qSql, params);
@@ -1388,35 +1572,27 @@ async function obterDadosAmbienteViolencias(filtros) {
   const sqlViolenciaRacaPorCor = `
     SELECT
       cor_raca,
-      CASE
-        WHEN cargo ILIKE '%Docente%' THEN 'docentes'
-        WHEN cargo ILIKE '%T\xE9cnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
-        WHEN vinculo ILIKE '%Discente%' THEN 'discentes'
-        ELSE 'outros'
-      END as segmento,
+      ${SQL_SEGMENTO_COMUNIDADE} as segmento,
       ${SQL_GENERO_NORMALIZADO} as genero_grp,
+      ${SQL_IDADE_AGRUPADA} as idade_grp,
       count(*)::int as n_total,
       count(*) FILTER (WHERE violencia_raca = 'Sim')::int as n_sim
     FROM public.respostas_pgs
-    ${whereComAnd(whereSql, `${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
-    GROUP BY cor_raca, segmento, genero_grp
+    ${whereComAnd(whereSql, "cor_raca IS NOT NULL")}
+    GROUP BY cor_raca, segmento, genero_grp, idade_grp
     ORDER BY cor_raca
   `;
   const sqlViolenciaOrientacaoPorGenero = `
     SELECT
       ${SQL_GENERO_NORMALIZADO} as grupo_genero,
-      CASE
-        WHEN cargo ILIKE '%Docente%' THEN 'docentes'
-        WHEN cargo ILIKE '%T\xE9cnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
-        WHEN vinculo ILIKE '%Discente%' THEN 'discentes'
-        ELSE 'outros'
-      END as segmento,
+      ${SQL_SEGMENTO_COMUNIDADE} as segmento,
       ${SQL_GENERO_NORMALIZADO} as genero_grp,
+      ${SQL_IDADE_AGRUPADA} as idade_grp,
       count(*)::int as n_total,
       count(*) FILTER (WHERE violencia_orientacao_genero = 'Sim')::int as n_sim
     FROM public.respostas_pgs
     ${whereComAnd(whereSql, `${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
-    GROUP BY grupo_genero, segmento, genero_grp
+    GROUP BY grupo_genero, segmento, genero_grp, idade_grp
     ORDER BY grupo_genero
   `;
   const sqlViolenciaPorOrientacao = `
@@ -1435,10 +1611,12 @@ async function obterDadosAmbienteViolencias(filtros) {
       cor_raca,
       ${SQL_GENERO_NORMALIZADO} as genero_grp,
       count(*)::int as n_total,
+      count(*) FILTER (WHERE violencia_raca = 'Sim')::int as n_raca,
+      count(*) FILTER (WHERE violencia_orientacao_genero = 'Sim')::int as n_gen,
       count(*) FILTER (WHERE violencia_raca = 'Sim' OR violencia_orientacao_genero = 'Sim')::int as n_vitimas,
       round((count(*) FILTER (WHERE violencia_raca = 'Sim' OR violencia_orientacao_genero = 'Sim') * 100.0 / nullif(count(*), 0))::numeric, 1)::float as taxa_pct
     FROM public.respostas_pgs
-    ${whereComAnd(whereSql, `${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
+    ${whereComAnd(whereSql, `cor_raca IS NOT NULL AND ${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
     GROUP BY cor_raca, genero_grp
     ORDER BY cor_raca, genero_grp
   `;
@@ -1455,18 +1633,23 @@ async function obterDadosAmbienteViolencias(filtros) {
   const sqlFunilDenuncia = `
     SELECT
       CASE
-        WHEN vinculo ILIKE '%Discente%' THEN 'Discente'
-        WHEN vinculo ILIKE '%Efetivo%' THEN 'Servidor Efetivo'
-        WHEN vinculo ILIKE '%Substituto%' THEN 'Docente Substituto'
+        WHEN vinculo ILIKE '%Discente%' THEN 'Discentes'
+        WHEN vinculo ILIKE '%Efetivo%' AND cargo ILIKE '%Docente%' THEN 'Docentes'
+        WHEN vinculo ILIKE '%Efetivo%' AND (cargo ILIKE '%T\xE9cnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%') THEN 'T\xE9cnicos TAEs'
+        WHEN vinculo ILIKE '%Substituto%' THEN 'Docentes Substitutos'
         ELSE 'Outro'
       END as vinculo_grp,
+      ${SQL_GENERO_NORMALIZADO} as genero_grp,
+      cor_raca,
+      ${SQL_IDADE_AGRUPADA} as idade_grp,
       count(*)::int as base_total,
+      count(*)::int as total_respondentes,
       count(*) FILTER (WHERE conhece_mecanismos_denuncia = 'Sim')::int as etapa_1_conhece,
       count(*) FILTER (WHERE mecanismos_efetivos IN ('Sim, s\xE3o muito efetivos', 'S\xE3o parcialmente efetivos'))::int as etapa_2_efetivos,
       count(*) FILTER (WHERE mecanismos_resultados_justos IN ('Sim, geram resultados justos', 'Sim, geram resultados parcialmente justos'))::int as etapa_3_justos
     FROM public.respostas_pgs
     ${whereSql}
-    GROUP BY vinculo_grp
+    GROUP BY vinculo_grp, genero_grp, cor_raca, idade_grp
   `;
   const [
     itensQ24Resultados,
@@ -1503,20 +1686,22 @@ async function obterDadosNucleos(filtros) {
   const nucleos = [
     { key: "avaliacao_naaf", nome: "NAAF (A\xE7\xF5es Afirmativas)" },
     { key: "avaliacao_neabi", nome: "NEABI (Afro-brasileiro e Ind\xEDgena)" },
-    { key: "avaliacao_nepgs", nome: "NEPG (G\xEAnero)" },
-    { key: "avaliacao_assessoria_afirmativas", nome: "Assessoria A\xE7\xF5es Afirmativas" },
-    { key: "avaliacao_assessoria_genero", nome: "Assessoria de G\xEAnero" },
-    { key: "avaliacao_assessoria_etnico_raciais", nome: "Assessoria \xC9tnico-Raciais" }
+    { key: "avaliacao_nepgs", nome: "NEPGS (G\xEAnero e Sexualidade)" },
+    { key: "avaliacao_assessoria_afirmativas", nome: "Assessoria de A\xE7\xF5es Afirmativas, Inclusivas e Diversidade" },
+    { key: "avaliacao_assessoria_genero", nome: "Assessoria de G\xEAnero e Sexualidade" },
+    { key: "avaliacao_assessoria_etnico_raciais", nome: "Assessoria de Rela\xE7\xF5es \xC9tnico-raciais" }
   ];
   const distNucleos = await Promise.all(
     nucleos.map(async (nuc) => {
       const q = `
         SELECT
           coalesce("${nuc.key}", 'Sem resposta') as avaliacao,
+          ${SQL_SEGMENTO_COMUNIDADE} as segmento,
+          ${SQL_IDADE_AGRUPADA} as idade_grp,
           count(*)::int as n
         FROM public.respostas_pgs
         ${whereSql}
-        GROUP BY avaliacao
+        GROUP BY avaliacao, segmento, idade_grp
       `;
       const res = await pool.query(q, params);
       return {
@@ -1543,7 +1728,7 @@ async function obterDadosNucleos(filtros) {
       count(*)::int as n_campus,
       ${heatmapQueries.join(",\n")}
     FROM public.respostas_pgs
-    ${whereSql}
+    ${whereComAnd(whereSql, "campus IS NOT NULL AND campus != 'Prefiro n\xE3o responder'")}
     GROUP BY campus
     ORDER BY campus
   `;
@@ -1551,15 +1736,17 @@ async function obterDadosNucleos(filtros) {
     SELECT
       coalesce(eficacia_capacitacoes, 'N\xE3o informado') as resposta,
       CASE
-        WHEN vinculo ILIKE '%Discente%' THEN 'Discente'
-        WHEN vinculo ILIKE '%Efetivo%' THEN 'Servidor Efetivo'
-        WHEN vinculo ILIKE '%Substituto%' THEN 'Docente Substituto'
+        WHEN vinculo ILIKE '%Discente%' THEN 'Discentes'
+        WHEN vinculo ILIKE '%Efetivo%' AND cargo ILIKE '%Docente%' THEN 'Docentes'
+        WHEN vinculo ILIKE '%Efetivo%' AND (cargo ILIKE '%T\xE9cnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%') THEN 'T\xE9cnicos TAEs'
+        WHEN vinculo ILIKE '%Substituto%' THEN 'Docentes Substitutos'
         ELSE 'Outro'
       END as vinculo_grp,
+      ${SQL_IDADE_AGRUPADA} as idade_grp,
       count(*)::int as n
     FROM public.respostas_pgs
     ${whereSql}
-    GROUP BY resposta, vinculo_grp
+    GROUP BY resposta, vinculo_grp, idade_grp
     ORDER BY n DESC
   `;
   const [resHeatmap, resCampanhas] = await Promise.all([
@@ -1579,14 +1766,12 @@ async function obterDadosCuidado(filtros) {
     SELECT
       responsabilidade_cuidado,
       ${SQL_GENERO_NORMALIZADO} as genero_grp,
-      CASE
-        WHEN vinculo ILIKE '%Discente%' THEN 'Discente'
-        ELSE 'Servidor(a)'
-      END as vinculo_grp,
+      ${SQL_SEGMENTO_COMUNIDADE} as segmento,
+      ${SQL_IDADE_AGRUPADA} as idade_grp,
       count(*)::int as n
     FROM public.respostas_pgs
     ${whereComAnd(whereSql, `responsabilidade_cuidado IS NOT NULL AND ${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
-    GROUP BY responsabilidade_cuidado, genero_grp, vinculo_grp
+    GROUP BY responsabilidade_cuidado, genero_grp, segmento, idade_grp
   `;
   const sqlQ30 = `
     SELECT
@@ -1601,15 +1786,12 @@ async function obterDadosCuidado(filtros) {
     SELECT
       ${coluna} as resposta,
       ${SQL_GENERO_NORMALIZADO} as genero_grp,
-      CASE
-        WHEN cargo ILIKE '%Docente%' THEN 'docentes'
-        WHEN cargo ILIKE '%T\xE9cnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%' THEN 'tecnicos'
-        ELSE 'outro'
-      END as segmento,
+      ${SQL_SEGMENTO_COMUNIDADE} as segmento,
+      ${SQL_IDADE_AGRUPADA} as idade_grp,
       count(*)::int as n
     FROM public.respostas_pgs
-    ${whereComAnd(whereSql, `${coluna} IS NOT NULL AND ${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
-    GROUP BY ${coluna}, genero_grp, segmento
+    ${whereComAnd(whereSql, `${coluna} IS NOT NULL`)}
+    GROUP BY ${coluna}, genero_grp, segmento, idade_grp
     ORDER BY n DESC
   `;
   const [resLicMaternidade, resLicPaternidade, resApoioPais] = await Promise.all([
@@ -1621,22 +1803,26 @@ async function obterDadosCuidado(filtros) {
     SELECT
       maternidade_impacto_carreira,
       ${SQL_GENERO_NORMALIZADO} as genero_grp,
+      ${SQL_SEGMENTO_COMUNIDADE} as segmento,
+      cor_raca,
+      ${SQL_IDADE_AGRUPADA} as idade_grp,
       count(*)::int as n
     FROM public.respostas_pgs
     ${whereComAnd(whereSql, `maternidade_impacto_carreira IS NOT NULL AND ${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
-    GROUP BY maternidade_impacto_carreira, genero_grp
+    GROUP BY maternidade_impacto_carreira, genero_grp, segmento, cor_raca, idade_grp
     ORDER BY n DESC
   `;
   const sqlEstudantesCuidado = `
     SELECT
       campus,
       nivel_curso,
+      ${SQL_IDADE_AGRUPADA} as idade_grp,
       count(*)::int as total_estudantes,
       count(*) FILTER (WHERE responsabilidade_cuidado = 'Sim')::int as com_cuidado_principal,
       count(*) FILTER (WHERE responsabilidade_cuidado = 'Divido a responsabilidade igualmente com outra(s) pessoa(s)')::int as divide_cuidado
     FROM public.respostas_pgs
     ${whereComAnd(whereSql, "vinculo ILIKE '%Discente%' AND nivel_curso IS NOT NULL")}
-    GROUP BY campus, nivel_curso
+    GROUP BY campus, nivel_curso, idade_grp
     ORDER BY total_estudantes DESC
   `;
   const [resQ9, resQ30, resMaternidadeImpacto, resEstudantesCuidado] = await Promise.all([
@@ -1663,11 +1849,13 @@ async function obterDadosStem(filtros) {
       area_conhecimento,
       ${SQL_GENERO_NORMALIZADO} as genero_grp,
       cor_raca,
+      pcd,
+      ${SQL_IDADE_AGRUPADA} as idade_grp,
       desencorajado_participacao,
       count(*)::int as n
     FROM public.respostas_pgs
     ${whereComAnd(whereSql, `vinculo ILIKE '%Discente%' AND area_conhecimento IS NOT NULL AND ${SQL_GENERO_NORMALIZADO} IS NOT NULL`)}
-    GROUP BY area_conhecimento, genero_grp, cor_raca, desencorajado_participacao
+    GROUP BY area_conhecimento, genero_grp, cor_raca, pcd, idade_grp, desencorajado_participacao
   `;
   const res = await pool.query(sql, params);
   const contagemPorGrandeArea = {};
@@ -1676,6 +1864,7 @@ async function obterDadosStem(filtros) {
     STEM: { total: 0, desencorajados: 0 },
     NaoSTEM: { total: 0, desencorajados: 0 }
   };
+  const registrosDetalhadosMap = {};
   GRANDES_AREAS_CNPQ.forEach((ga) => {
     contagemPorGrandeArea[ga] = {
       total: 0,
@@ -1724,6 +1913,20 @@ async function obterDadosStem(filtros) {
     if (row.desencorajado_participacao === "Sim, algumas vezes" || row.desencorajado_participacao === "Sim, frequentemente") {
       desencorajamentoPorArea[chaveStem].desencorajados += n;
     }
+    const detKey = `${ga}|||${row.genero_grp || ""}|||${row.cor_raca || ""}|||${row.pcd || ""}|||${row.idade_grp || ""}|||${row.desencorajado_participacao || ""}`;
+    if (!registrosDetalhadosMap[detKey]) {
+      registrosDetalhadosMap[detKey] = {
+        grande_area: ga,
+        is_stem: isStem,
+        genero_grp: row.genero_grp,
+        cor_raca: row.cor_raca,
+        pcd: row.pcd,
+        idade_grp: row.idade_grp,
+        desencorajado_participacao: row.desencorajado_participacao,
+        n: 0
+      };
+    }
+    registrosDetalhadosMap[detKey].n += n;
   }
   const areasOrdenadasPorMulheres = Object.entries(contagemPorGrandeArea).filter(([_, v]) => v.total > 0).map(([area, v]) => ({
     area,
@@ -1741,11 +1944,14 @@ async function obterDadosStem(filtros) {
   const coberturaLista = Object.values(coberturaTextos).sort((a, b) => b.n - a.n);
   return {
     areas_ranking_mulheres: areasOrdenadasPorMulheres,
+    registros_detalhados: Object.values(registrosDetalhadosMap),
     desencorajamento_stem: {
       stem_pct: desencorajamentoPorArea.STEM.total > 0 ? Number((desencorajamentoPorArea.STEM.desencorajados / desencorajamentoPorArea.STEM.total * 100).toFixed(1)) : 0,
       stem_n: desencorajamentoPorArea.STEM.total,
+      stem_desencorajados: desencorajamentoPorArea.STEM.desencorajados,
       nao_stem_pct: desencorajamentoPorArea.NaoSTEM.total > 0 ? Number((desencorajamentoPorArea.NaoSTEM.desencorajados / desencorajamentoPorArea.NaoSTEM.total * 100).toFixed(1)) : 0,
-      nao_stem_n: desencorajamentoPorArea.NaoSTEM.total
+      nao_stem_n: desencorajamentoPorArea.NaoSTEM.total,
+      nao_stem_desencorajados: desencorajamentoPorArea.NaoSTEM.desencorajados
     },
     cobertura: coberturaLista
   };

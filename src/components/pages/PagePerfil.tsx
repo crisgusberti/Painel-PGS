@@ -6,43 +6,11 @@
 import React, { useState } from 'react';
 import { ChartCard } from '../ChartCard';
 import { SeletorGenero, OpcaoGeneroFiltro } from '../SeletorGenero';
+import { SeletorSegmento, OpcaoSegmentoFiltro, correspondeSegmento } from '../SeletorSegmento';
+import { SeletorIdade, OpcaoIdadeFiltro, correspondeIdade } from '../SeletorIdade';
 import { formatarNumero, formatarPercentual } from '../../lib/formatters';
 import { PALETA_ACESSIVEL } from '../../lib/chartTheme';
 import { CATEGORIAS_GENERO_OFICIAIS } from '../../lib/escalas';
-
-type CategoriaComunidade = 'geral' | 'docente' | 'tecnico_tae' | 'discente';
-
-const OPCOES_SEGMENTO: { id: CategoriaComunidade; label: string }[] = [
-  { id: 'geral', label: 'Geral' },
-  { id: 'docente', label: 'Docente' },
-  { id: 'tecnico_tae', label: 'Técnico TAE' },
-  { id: 'discente', label: 'Discente' },
-];
-
-const SeletorCategoriaPerfil: React.FC<{
-  valor: CategoriaComunidade;
-  aoMudar: (val: CategoriaComunidade) => void;
-}> = ({ valor, aoMudar }) => (
-  <div className="flex items-center gap-1.5 flex-wrap">
-    <span className="text-[11px] text-slate-400 font-medium">Categoria:</span>
-    <div className="inline-flex items-center p-0.5 rounded-lg bg-[#0a1020] border border-[#223154] text-xs flex-wrap">
-      {OPCOES_SEGMENTO.map((op) => (
-        <button
-          key={op.id}
-          type="button"
-          onClick={() => aoMudar(op.id)}
-          className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
-            valor === op.id
-              ? 'bg-teal-500 text-slate-950 shadow-xs'
-              : 'text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          {op.label}
-        </button>
-      ))}
-    </div>
-  </div>
-);
 
 interface PagePerfilProps {
   dados: any;
@@ -50,13 +18,12 @@ interface PagePerfilProps {
 }
 
 const ORDEM_FAIXA_ETARIA = [
-  'Até 17 anos',
-  '18 a 24 anos',
-  '25 a 34 anos',
-  '35 a 44 anos',
-  '45 a 54 anos',
-  '55 a 64 anos',
-  '65 anos ou mais',
+  'Menor de 18 anos',
+  '18 a 29 anos',
+  '30 a 39 anos',
+  '40 a 49 anos',
+  '50 a 59 anos',
+  '60 anos ou mais',
   'Prefiro não responder',
 ];
 
@@ -67,12 +34,12 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
   const faixaEtariaRaw = dados?.faixa_etaria || [];
   const pcdRaw = dados?.pcd || [];
 
-  // Estados independentes de filtro de categoria ("Geral", "Docente", "Técnico TAE", "Discente") para cada gráfico
-  const [segGenero, setSegGenero] = useState<CategoriaComunidade>('geral');
-  const [segCorRaca, setSegCorRaca] = useState<CategoriaComunidade>('geral');
-  const [segOrientacao, setSegOrientacao] = useState<CategoriaComunidade>('geral');
-  const [segFaixaEtaria, setSegFaixaEtaria] = useState<CategoriaComunidade>('geral');
-  const [segPcd, setSegPcd] = useState<CategoriaComunidade>('geral');
+  // Estados independentes de filtro de segmento ("Geral", "Docente", "Técnico TAE", "Discentes") para cada gráfico
+  const [segGenero, setSegGenero] = useState<OpcaoSegmentoFiltro>('geral');
+  const [segCorRaca, setSegCorRaca] = useState<OpcaoSegmentoFiltro>('geral');
+  const [segOrientacao, setSegOrientacao] = useState<OpcaoSegmentoFiltro>('geral');
+  const [segFaixaEtaria, setSegFaixaEtaria] = useState<OpcaoSegmentoFiltro>('geral');
+  const [segPcd, setSegPcd] = useState<OpcaoSegmentoFiltro>('geral');
 
   // Estados independentes de filtro de gênero ("Todos", "Mulher", "Homem", etc.) para os 4 gráficos sociodemográficos
   const [genCorRaca, setGenCorRaca] = useState<OpcaoGeneroFiltro>('todos');
@@ -80,19 +47,27 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
   const [genFaixaEtaria, setGenFaixaEtaria] = useState<OpcaoGeneroFiltro>('todos');
   const [genPcd, setGenPcd] = useState<OpcaoGeneroFiltro>('todos');
 
-  // Função utilitária que filtra por segmento e gênero e soma quantidades por categoria
+  // Estados independentes de filtro de idade ("Todos", "Menor", "Maior") para cada gráfico
+  const [idadeGenero, setIdadeGenero] = useState<OpcaoIdadeFiltro>('todos');
+  const [idadeCorRaca, setIdadeCorRaca] = useState<OpcaoIdadeFiltro>('todos');
+  const [idadeOrientacao, setIdadeOrientacao] = useState<OpcaoIdadeFiltro>('todos');
+  const [idadeFaixaEtaria, setIdadeFaixaEtaria] = useState<OpcaoIdadeFiltro>('todos');
+  const [idadePcd, setIdadePcd] = useState<OpcaoIdadeFiltro>('todos');
+
+  // Função utilitária que filtra por segmento, gênero e idade e soma quantidades por categoria
   const agregarPorCategoria = (
     rows: any[],
-    segmentoSelecionado: CategoriaComunidade,
+    segmentoSelecionado: OpcaoSegmentoFiltro,
     generoSelecionado: OpcaoGeneroFiltro = 'todos',
+    idadeSelecionada: OpcaoIdadeFiltro = 'todos',
     categoriasFixas?: readonly string[]
   ): { itens: { categoria: string; n: number }[]; totalSegmento: number } => {
     const filtrados = rows.filter((r: any) => {
-      const matchSegmento =
-        segmentoSelecionado === 'geral' ? true : r.segmento === segmentoSelecionado;
+      const matchSegmento = correspondeSegmento(r.segmento, segmentoSelecionado);
       const matchGenero =
         generoSelecionado === 'todos' ? true : r.genero === generoSelecionado;
-      return matchSegmento && matchGenero;
+      const matchIdade = correspondeIdade(r.idade_grp, idadeSelecionada);
+      return matchSegmento && matchGenero && matchIdade;
     });
 
     const mapa: Record<string, number> = {};
@@ -120,6 +95,7 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
     generoDetRaw,
     segGenero,
     'todos',
+    idadeGenero,
     CATEGORIAS_GENERO_OFICIAIS
   );
 
@@ -127,21 +103,24 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
   const { itens: corRacaItens, totalSegmento: totalCorRaca } = agregarPorCategoria(
     corRacaRaw,
     segCorRaca,
-    genCorRaca
+    genCorRaca,
+    idadeCorRaca
   );
 
   // 3. Orientação Sexual (termos normalizados e grafias unificadas)
   const { itens: orientacaoItens, totalSegmento: totalOrientacao } = agregarPorCategoria(
     orientacaoRaw,
     segOrientacao,
-    genOrientacao
+    genOrientacao,
+    idadeOrientacao
   );
 
   // 4. Faixa Etária
   const { itens: faixaItensBrutos, totalSegmento: totalFaixa } = agregarPorCategoria(
     faixaEtariaRaw,
     segFaixaEtaria,
-    genFaixaEtaria
+    genFaixaEtaria,
+    idadeFaixaEtaria
   );
   const faixaItens = [...faixaItensBrutos].sort((a, b) => {
     const idxA = ORDEM_FAIXA_ETARIA.indexOf(a.categoria);
@@ -154,7 +133,8 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
   const { itens: pcdItens, totalSegmento: totalPcd } = agregarPorCategoria(
     pcdRaw,
     segPcd,
-    genPcd
+    genPcd,
+    idadePcd
   );
 
   // Função auxiliar para criar opção de barra horizontal
@@ -261,7 +241,12 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
         titulo="Identidade de Gênero Detalhada"
         subtitulo="Classificação padronizada nas 6 categorias oficiais: Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binárias"
         n={totalGenero}
-        elementoCabecalho={<SeletorCategoriaPerfil valor={segGenero} aoMudar={setSegGenero} />}
+        elementoCabecalho={
+          <div className="flex items-center justify-between gap-2.5 flex-wrap w-full">
+            <SeletorSegmento valor={segGenero} aoMudar={setSegGenero} />
+            <SeletorIdade valor={idadeGenero} aoMudar={setIdadeGenero} />
+          </div>
+        }
         option={criarOpcaoBarra(generoItens, PALETA_ACESSIVEL[3], totalGenero)}
         altura={340}
         carregando={carregando}
@@ -286,8 +271,9 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
           n={totalCorRaca}
           elementoCabecalho={
             <div className="flex items-center justify-between gap-2.5 flex-wrap w-full">
-              <SeletorCategoriaPerfil valor={segCorRaca} aoMudar={setSegCorRaca} />
+              <SeletorSegmento valor={segCorRaca} aoMudar={setSegCorRaca} />
               <SeletorGenero valor={genCorRaca} aoMudar={setGenCorRaca} />
+              <SeletorIdade valor={idadeCorRaca} aoMudar={setIdadeCorRaca} />
             </div>
           }
           option={criarOpcaoBarra(corRacaItens, PALETA_ACESSIVEL[2], totalCorRaca)}
@@ -311,8 +297,9 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
           n={totalOrientacao}
           elementoCabecalho={
             <div className="flex items-center justify-between gap-2.5 flex-wrap w-full">
-              <SeletorCategoriaPerfil valor={segOrientacao} aoMudar={setSegOrientacao} />
+              <SeletorSegmento valor={segOrientacao} aoMudar={setSegOrientacao} />
               <SeletorGenero valor={genOrientacao} aoMudar={setGenOrientacao} />
+              <SeletorIdade valor={idadeOrientacao} aoMudar={setIdadeOrientacao} />
             </div>
           }
           option={criarOpcaoBarra(orientacaoItens, PALETA_ACESSIVEL[6], totalOrientacao)}
@@ -341,8 +328,9 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
             n={totalFaixa}
             elementoCabecalho={
               <div className="flex items-center justify-between gap-2.5 flex-wrap w-full">
-                <SeletorCategoriaPerfil valor={segFaixaEtaria} aoMudar={setSegFaixaEtaria} />
+                <SeletorSegmento valor={segFaixaEtaria} aoMudar={setSegFaixaEtaria} />
                 <SeletorGenero valor={genFaixaEtaria} aoMudar={setGenFaixaEtaria} />
+                <SeletorIdade valor={idadeFaixaEtaria} aoMudar={setIdadeFaixaEtaria} />
               </div>
             }
             option={criarOpcaoBarra(faixaItens, PALETA_ACESSIVEL[4], totalFaixa, true)}
@@ -366,8 +354,9 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
           n={totalPcd}
           elementoCabecalho={
             <div className="flex items-center justify-between gap-2.5 flex-wrap w-full">
-              <SeletorCategoriaPerfil valor={segPcd} aoMudar={setSegPcd} />
+              <SeletorSegmento valor={segPcd} aoMudar={setSegPcd} />
               <SeletorGenero valor={genPcd} aoMudar={setGenPcd} />
+              <SeletorIdade valor={idadePcd} aoMudar={setIdadePcd} />
             </div>
           }
           option={optionRoscaPcd}

@@ -12,49 +12,9 @@ import { formatarNumero, formatarPercentual, formatarNota } from '../../lib/form
 import { PALETA_ACESSIVEL } from '../../lib/chartTheme';
 import { CATEGORIAS_GENERO_OFICIAIS, CategoriaGeneroOficial } from '../../lib/escalas';
 import { SeletorGenero } from '../SeletorGenero';
-
-type SegmentoCarreira = 'geral' | 'docentes' | 'tecnicos';
-
-const SeletorSegmento: React.FC<{
-  valor: SegmentoCarreira;
-  aoMudar: (val: SegmentoCarreira) => void;
-}> = ({ valor, aoMudar }) => (
-  <div className="inline-flex items-center p-0.5 rounded-lg bg-[#0a1020] border border-[#223154] text-xs">
-    <button
-      type="button"
-      onClick={() => aoMudar('geral')}
-      className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
-        valor === 'geral'
-          ? 'bg-teal-500 text-slate-950 shadow-xs'
-          : 'text-slate-400 hover:text-slate-200'
-      }`}
-    >
-      Geral
-    </button>
-    <button
-      type="button"
-      onClick={() => aoMudar('docentes')}
-      className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
-        valor === 'docentes'
-          ? 'bg-teal-500 text-slate-950 shadow-xs'
-          : 'text-slate-400 hover:text-slate-200'
-      }`}
-    >
-      Docentes
-    </button>
-    <button
-      type="button"
-      onClick={() => aoMudar('tecnicos')}
-      className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
-        valor === 'tecnicos'
-          ? 'bg-teal-500 text-slate-950 shadow-xs'
-          : 'text-slate-400 hover:text-slate-200'
-      }`}
-    >
-      Técnicos (TAE)
-    </button>
-  </div>
-);
+import { SeletorSegmento, OpcaoSegmentoFiltro, correspondeSegmento, obterRotuloSegmento } from '../SeletorSegmento';
+import { SeletorRaca, OpcaoRacaFiltro } from '../SeletorRaca';
+import { SeletorDeficiencia, OpcaoDeficienciaFiltro } from '../SeletorDeficiencia';
 
 interface PageCarreiraProps {
   dados: any;
@@ -71,18 +31,20 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
   const evitouCuidado = dados?.evitou_candidatura_cuidado || [];
   const adesaoPgd = dados?.adesao_pgd || [];
 
-  // Estados dos seletores de segmento (Geral | Docentes | Técnicos) para os 4 gráficos solicitados
-  const [segmentoProgressao, setSegmentoProgressao] = useState<SegmentoCarreira>('geral');
-  const [segmentoAcesso, setSegmentoAcesso] = useState<SegmentoCarreira>('geral');
-  const [segmentoFuncoes, setSegmentoFuncoes] = useState<SegmentoCarreira>('geral');
-  const [segmentoCuidado, setSegmentoCuidado] = useState<SegmentoCarreira>('geral');
+  // Estados dos seletores de segmento (Geral | Docente | Técnico TAE | Discentes) para os 4 gráficos solicitados
+  const [segmentoProgressao, setSegmentoProgressao] = useState<OpcaoSegmentoFiltro>('geral');
+  const [segmentoAcesso, setSegmentoAcesso] = useState<OpcaoSegmentoFiltro>('geral');
+  const [segmentoFuncoes, setSegmentoFuncoes] = useState<OpcaoSegmentoFiltro>('geral');
+  const [segmentoCuidado, setSegmentoCuidado] = useState<OpcaoSegmentoFiltro>('geral');
 
   // Estados de modo de visualização (comparativo aglutinado dos 3 universos vs detalhado por gênero)
   const [modoProgressao, setModoProgressao] = useState<'comparativo' | 'detalhado'>('comparativo');
   const [modoAcesso, setModoAcesso] = useState<'comparativo' | 'detalhado'>('comparativo');
 
-  // Seletor independente de gênero e modo de visão para o bloco integrado de Responsabilidade de Cuidado
+  // Seletores independentes de gênero, raça, deficiência e modo de visão para o bloco integrado de Responsabilidade de Cuidado
   const [generoCuidado, setGeneroCuidado] = useState<'todos' | CategoriaGeneroOficial>('todos');
+  const [racaCuidado, setRacaCuidado] = useState<OpcaoRacaFiltro>('todos');
+  const [pcdCuidado, setPcdCuidado] = useState<OpcaoDeficienciaFiltro>('todos');
   const [visaoCuidado, setVisaoCuidado] = useState<'integrada' | 'grafico' | 'tabela'>('integrada');
   const chartCuidadoRef = useRef<any>(null);
 
@@ -95,7 +57,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
         backgroundColor: '#131d36',
       });
       const link = document.createElement('a');
-      link.download = `cruzamento_cuidado_gestao_${segmentoCuidado}_${generoCuidado}.png`;
+      link.download = `cruzamento_cuidado_gestao_${segmentoCuidado}_${generoCuidado}_${racaCuidado}_${pcdCuidado}.png`;
       link.href = base64;
       link.click();
     }
@@ -103,21 +65,23 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
 
   // Filtros aplicados por segmento
   const funcoesFiltradas = funcoesGestao.filter((r: any) =>
-    segmentoFuncoes === 'geral' ? true : r.segmento === segmentoFuncoes
+    correspondeSegmento(r.segmento, segmentoFuncoes)
   );
   const progressaoFiltrada = progressaoDist.filter((r: any) =>
-    segmentoProgressao === 'geral' ? true : r.segmento === segmentoProgressao
+    correspondeSegmento(r.segmento, segmentoProgressao)
   );
   const mediasFiltradas = progressaoMedias.filter((r: any) =>
-    segmentoProgressao === 'geral' ? true : r.segmento === segmentoProgressao
+    correspondeSegmento(r.segmento, segmentoProgressao)
   );
   const acessoFiltrado = acessoOportunidades.filter((r: any) =>
-    segmentoAcesso === 'geral' ? true : r.segmento === segmentoAcesso
+    correspondeSegmento(r.segmento, segmentoAcesso)
   );
   const evitouCuidadoFiltrado = evitouCuidado.filter((r: any) => {
-    const matchSegmento = segmentoCuidado === 'geral' ? true : r.segmento === segmentoCuidado;
+    const matchSegmento = correspondeSegmento(r.segmento, segmentoCuidado);
     const matchGenero = generoCuidado === 'todos' ? true : r.genero_grp === generoCuidado;
-    return matchSegmento && matchGenero;
+    const matchRaca = racaCuidado === 'todos' ? true : r.cor_raca === racaCuidado;
+    const matchPcd = pcdCuidado === 'todos' ? true : r.pcd === pcdCuidado;
+    return matchSegmento && matchGenero && matchRaca && matchPcd;
   });
 
   // ========================================================
@@ -395,8 +359,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           mediasFiltradas.reduce((acc: number, r: any) => acc + Number(r.n), 0)
         ).toFixed(2)
       : '—';
-  const rotuloSegProgressao =
-    segmentoProgressao === 'geral' ? 'Geral' : segmentoProgressao === 'docentes' ? 'Docentes' : 'Técnicos (TAE)';
+  const rotuloSegProgressao = obterRotuloSegmento(segmentoProgressao);
   const notaRodapeProgressao =
     mediaMulher && mediaHomem
       ? `Médias (${rotuloSegProgressao}): Geral (${mediaGeralSeg.replace('.', ',')}) | Mulher (${String(mediaMulher).replace('.', ',')}) | Homem (${String(mediaHomem).replace('.', ',')})`
@@ -550,10 +513,8 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
   };
 
   // Rótulos descritivos dos segmentos
-  const rotuloSegAcesso =
-    segmentoAcesso === 'geral' ? 'Geral' : segmentoAcesso === 'docentes' ? 'Docentes' : 'Técnicos (TAE)';
-  const rotuloSegCuidado =
-    segmentoCuidado === 'geral' ? 'Geral' : segmentoCuidado === 'docentes' ? 'Docentes' : 'Técnicos (TAE)';
+  const rotuloSegAcesso = obterRotuloSegmento(segmentoAcesso);
+  const rotuloSegCuidado = obterRotuloSegmento(segmentoCuidado);
 
   // ========================================================
   // DETALHADO POR GÊNERO: PROGRESSÃO POR MÉRITO (BARRAS HORIZONTAIS 100% EMPILHADAS)
@@ -1106,7 +1067,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           altura={360}
           carregando={carregando}
           elementoCabecalho={
-            <SeletorSegmento valor={segmentoFuncoes} aoMudar={setSegmentoFuncoes} />
+            <SeletorSegmento valor={segmentoFuncoes} aoMudar={setSegmentoFuncoes} apenasServidores={true} />
           }
           tabelaDados={{
             cabecalhos: ['Função', 'Gênero', 'Quantidade', '% na Função'],
@@ -1173,10 +1134,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
                 </div>
               </div>
               {modoProgressao === 'detalhado' && (
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[11px] text-slate-400 font-medium">Segmento:</span>
-                  <SeletorSegmento valor={segmentoProgressao} aoMudar={setSegmentoProgressao} />
-                </div>
+                <SeletorSegmento valor={segmentoProgressao} aoMudar={setSegmentoProgressao} apenasServidores={true} />
               )}
             </div>
           }
@@ -1266,10 +1224,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
                 </div>
               </div>
               {modoAcesso === 'detalhado' && (
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[11px] text-slate-400 font-medium">Segmento:</span>
-                  <SeletorSegmento valor={segmentoAcesso} aoMudar={setSegmentoAcesso} />
-                </div>
+                <SeletorSegmento valor={segmentoAcesso} aoMudar={setSegmentoAcesso} apenasServidores={true} />
               )}
             </div>
           }
@@ -1389,11 +1344,12 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
             </div>
           </div>
 
-          {/* Seletores Compartilhados de Segmento e Gênero */}
+          {/* Seletores Compartilhados de Segmento, Gênero, Raça e Deficiência */}
           <div className="mt-3 pt-2.5 border-t border-[#1f2d4e]/70 flex items-center justify-between gap-3 flex-wrap w-full">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[11px] text-slate-400 font-medium">Segmento:</span>
-              <SeletorSegmento valor={segmentoCuidado} aoMudar={setSegmentoCuidado} />
+            <div className="flex items-center gap-3 flex-wrap">
+              <SeletorSegmento valor={segmentoCuidado} aoMudar={setSegmentoCuidado} apenasServidores={true} />
+              <SeletorRaca valor={racaCuidado} aoMudar={setRacaCuidado} />
+              <SeletorDeficiencia valor={pcdCuidado} aoMudar={setPcdCuidado} />
             </div>
             <SeletorGenero valor={generoCuidado} aoMudar={setGeneroCuidado} />
           </div>

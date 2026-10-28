@@ -3,27 +3,39 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
-import { CATALOGO_CAMPOS } from '../../lib/catalogo';
-import { CampoCatalogo, TipoMedida, RequisicaoConsulta, RespostaConsulta } from '../../lib/types';
+import React, { useState, useEffect, useMemo } from 'react';
+import { CATALOGO_CAMPOS, obterOpcoesSerieCompativeis } from '../../lib/catalogo';
+import { TipoMedida, RequisicaoConsulta, RespostaConsulta } from '../../lib/types';
 import { ChartCard } from '../ChartCard';
 import {
   Wand2,
-  Plus,
   Trash2,
   Save,
   Download,
-  RotateCcw,
-  Sparkles,
   BarChart,
   PieChart,
   Layers,
-  Grid,
-  CheckCircle2,
-  FolderOpen,
+  Info,
 } from 'lucide-react';
-import { PALETA_ACESSIVEL, CORES_LIKERT } from '../../lib/chartTheme';
-import { formatarNumero, formatarPercentual } from '../../lib/formatters';
+import { PALETA_ACESSIVEL } from '../../lib/chartTheme';
+import { formatarNumero } from '../../lib/formatters';
+
+const GRUPOS_CATALOGO = [
+  { id: 'perfil', nome: 'Perfil Institucional e Demográfico' },
+  { id: 'diversidade', nome: 'Identidade e Diversidade' },
+  { id: 'ambiente', nome: 'Clima Institucional e Ensino' },
+  { id: 'violencia', nome: 'Violências e Discriminação' },
+  { id: 'denuncia', nome: 'Canais de Denúncia' },
+  { id: 'politicas', nome: 'Núcleos e Ações Afirmativas' },
+  { id: 'cuidado', nome: 'Cuidado e Parentalidade' },
+  { id: 'carreira', nome: 'Carreira e Gestão (Servidores)' },
+] as const;
+
+const METRICAS_VALIDAS: Array<{ id: TipoMedida; label: string }> = [
+  { id: 'percentual_no_grupo', label: '% no Grupo (Eixo Principal soma 100%)' },
+  { id: 'percentual_do_total', label: '% do Total Geral de Respondentes' },
+  { id: 'contagem', label: 'Contagem Absoluta (n)' },
+];
 
 export const PageConstrutor: React.FC = () => {
   // Estado do Construtor
@@ -56,28 +68,52 @@ export const PageConstrutor: React.FC = () => {
     }
   }, []);
 
-  // Campos elegíveis do catálogo (dinamico: true)
-  const camposCatalogo = Object.values(CATALOGO_CAMPOS).filter((c) => c.dinamico);
-  const grupos = [
-    { id: 'perfil', nome: 'Perfil Demográfico' },
-    { id: 'diversidade', nome: 'Identidade e Diversidade' },
-    { id: 'ambiente', nome: 'Clima Institucional' },
-    { id: 'violencia', nome: 'Violências e Discriminação' },
-    { id: 'denuncia', nome: 'Canais de Denúncia' },
-    { id: 'politicas', nome: 'Núcleos e Políticas' },
-    { id: 'cuidado', nome: 'Cuidado e Família' },
-    { id: 'carreira', nome: 'Carreira e Gestão' },
-  ];
+  // Campos elegíveis para o Eixo Principal
+  const camposEixoPrincipal = useMemo(
+    () => Object.values(CATALOGO_CAMPOS).filter((c) => c.dinamico),
+    []
+  );
+
+  // Opções de Série / Cor compatíveis com o Eixo Principal selecionado
+  const opcoesSerieCompativeis = useMemo(
+    () => obterOpcoesSerieCompativeis(eixo1),
+    [eixo1]
+  );
+
+  // Ajustar automaticamente Série / Cor caso o usuário mude o Eixo Principal para uma combinação incompatível
+  useEffect(() => {
+    if (!campoCor) return;
+    const aindaValido = opcoesSerieCompativeis.some((c) => c.key === campoCor);
+    if (!aindaValido) {
+      const substitutoPadrao =
+        opcoesSerieCompativeis.find((c) => c.key === 'genero_agrupado') ||
+        opcoesSerieCompativeis.find((c) => c.key === 'cor_raca') ||
+        opcoesSerieCompativeis[0];
+      setCampoCor(substitutoPadrao ? substitutoPadrao.key : '');
+    }
+  }, [eixo1, opcoesSerieCompativeis, campoCor]);
+
+  // Se o usuário remover a Série / Cor e estiver em "barra_empilhada", mudar para "barra"
+  useEffect(() => {
+    if (!campoCor && tipoVisualizacao === 'barra_empilhada') {
+      setTipoVisualizacao('barra');
+    }
+  }, [campoCor, tipoVisualizacao]);
 
   // Executar a consulta dinâmica
   const executarBusca = async () => {
     if (!eixo1) return;
+    const serieEfetiva =
+      campoCor && opcoesSerieCompativeis.some((c) => c.key === campoCor)
+        ? campoCor
+        : '';
+
     setCarregando(true);
     setErro(null);
 
     const payload: RequisicaoConsulta = {
       campos_eixo: eixo2 ? [eixo1, eixo2] : [eixo1],
-      campos_cor: campoCor ? [campoCor] : undefined,
+      campos_cor: serieEfetiva ? [serieEfetiva] : undefined,
       medida: {
         tipo: tipoMedida,
         incluir_prefiro_nao_responder: incluirPrefiroNao,
@@ -99,17 +135,6 @@ export const PageConstrutor: React.FC = () => {
 
       const data: RespostaConsulta = await res.json();
       setResultado(data);
-
-      // Sugestão inteligente de gráfico baseado nos dados e parâmetros
-      if (eixo2) {
-        setTipoVisualizacao('heatmap');
-      } else if (tipoVisualizacao !== 'rosca') {
-        if (campoCor) {
-          setTipoVisualizacao('barra_empilhada');
-        } else {
-          setTipoVisualizacao('barra');
-        }
-      }
     } catch (err: any) {
       setErro(err.message || String(err));
     } finally {
@@ -144,12 +169,16 @@ export const PageConstrutor: React.FC = () => {
   };
 
   const carregarPainel = (config: any) => {
-    setEixo1(config.eixo1 || 'campus');
+    const eixoSalvo = CATALOGO_CAMPOS[config.eixo1]?.dinamico ? config.eixo1 : 'campus';
+    setEixo1(eixoSalvo);
     setEixo2(config.eixo2 || '');
     setCampoCor(config.campoCor || '');
-    setTipoMedida(config.tipoMedida || 'percentual_no_grupo');
+    const medSalva = METRICAS_VALIDAS.some((m) => m.id === config.tipoMedida)
+      ? config.tipoMedida
+      : 'percentual_no_grupo';
+    setTipoMedida(medSalva);
     setIncluirPrefiroNao(config.incluirPrefiroNao ?? true);
-    setTipoVisualizacao(config.tipoVisualizacao || 'barra');
+    setTipoVisualizacao(config.tipoVisualizacao || 'barra_empilhada');
     setFiltrosConstrutor(config.filtrosConstrutor || []);
   };
 
@@ -162,11 +191,10 @@ export const PageConstrutor: React.FC = () => {
   // Exportar dados atuais em CSV
   const exportarCSV = () => {
     if (!resultado || !resultado.linhas) return;
-    const cabecalhos = ['Eixo 1', 'Eixo 2', 'Cor/Série', 'Valor', 'Respondentes (n)', 'Base Grupo'];
+    const cabecalhos = ['Eixo Principal', 'Série / Cor', 'Valor', 'Respondentes (n)', 'Base Grupo'];
     const linhasCsv = resultado.linhas.map((l) => [
       `"${l.eixo_1 || ''}"`,
-      `"${l.eixo_2 || ''}"`,
-      `"${l.cor || ''}"`,
+      `"${l.cor || 'Total'}"`,
       l.valor,
       l.n,
       l.n_grupo || '',
@@ -179,68 +207,97 @@ export const PageConstrutor: React.FC = () => {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `consulta_genero_${Date.now()}.csv`);
+    link.setAttribute('download', `consulta_pgs_${Date.now()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
+  const labelEixo1 = CATALOGO_CAMPOS[eixo1]?.label || eixo1;
+  const labelCor = campoCor ? CATALOGO_CAMPOS[campoCor]?.label : null;
+  const campoEixoObj = CATALOGO_CAMPOS[eixo1];
+
   // Montar Opções do Apache ECharts dinamicamente
   const montarOpcaoEchart = () => {
     if (!resultado || !resultado.linhas || resultado.linhas.length === 0) {
       return {
-        title: { text: 'Nenhum registro encontrado', left: 'center', top: 'center' },
+        title: {
+          text: 'Nenhum registro encontrado para esta combinação',
+          left: 'center',
+          top: 'center',
+          textStyle: { color: '#94a3b8', fontSize: 14 },
+        },
       };
     }
 
     const linhas = resultado.linhas;
     const categoriasEixo1 = Array.from(new Set(linhas.map((l) => l.eixo_1 || 'Sem resposta')));
     const seriesCores = Array.from(new Set(linhas.map((l) => l.cor || 'Total')));
+    const sufixoUnidade = tipoMedida.includes('percentual') ? '%' : '';
 
-    if (tipoVisualizacao === 'barra_empilhada' && campoCor) {
+    // 1. Visualização em Barras (Empilhadas ou Agrupadas) com Série / Cor ativa
+    if ((tipoVisualizacao === 'barra_empilhada' || tipoVisualizacao === 'barra') && campoCor && seriesCores.length > 0) {
+      const ehEmpilhada = tipoVisualizacao === 'barra_empilhada';
       return {
         tooltip: {
           trigger: 'axis',
           axisPointer: { type: 'shadow' },
+          backgroundColor: '#0e162b',
+          borderColor: '#223154',
+          textStyle: { color: '#f1f5f9' },
           formatter: (params: any[]) => {
-            let html = `<div class="font-bold mb-1">${params[0]?.name}</div>`;
+            const catName = params[0]?.name || '';
+            let html = `<div class="font-bold text-slate-100 mb-1.5 border-b border-slate-700 pb-1">${catName}</div>`;
             params.forEach((p) => {
-              html += `<div class="flex items-center justify-between gap-4 text-xs">
+              const match = linhas.find((l) => l.eixo_1 === catName && (l.cor || 'Total') === p.seriesName);
+              const nTxt = match ? ` <span class="text-slate-400">(n=${formatarNumero(match.n)})</span>` : '';
+              html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
                 <span>${p.marker} ${p.seriesName}</span>
-                <span class="font-bold">${p.value}${tipoMedida.includes('percentual') ? '%' : ''}</span>
+                <span class="font-bold text-teal-300">${p.value}${sufixoUnidade}${nTxt}</span>
               </div>`;
             });
             return html;
           },
         },
-        legend: { bottom: 0, textStyle: { fontSize: 11 } },
-        grid: { left: '3%', right: '4%', top: '4%', bottom: '15%', containLabel: true },
+        legend: {
+          bottom: 0,
+          type: 'scroll',
+          textStyle: { fontSize: 11, color: '#cbd5e1' },
+          pageTextStyle: { color: '#cbd5e1' },
+        },
+        grid: { left: '3%', right: '5%', top: '4%', bottom: '14%', containLabel: true },
         xAxis: {
           type: 'value',
+          max: ehEmpilhada && tipoMedida === 'percentual_no_grupo' ? 100 : undefined,
           axisLabel: {
-            formatter: tipoMedida.includes('percentual') ? '{value}%' : '{value}',
+            color: '#94a3b8',
+            formatter: `{value}${sufixoUnidade}`,
           },
+          splitLine: { lineStyle: { color: '#1f2d4e' } },
         },
         yAxis: {
           type: 'category',
           data: categoriasEixo1.slice(0, 30).reverse(),
-          axisLabel: { fontSize: 11, width: 140, overflow: 'truncate' },
+          axisLabel: { fontSize: 11, width: 155, overflow: 'truncate', color: '#cbd5e1' },
         },
         series: seriesCores.map((corName, idx) => ({
           name: corName,
           type: 'bar',
-          stack: 'total',
+          stack: ehEmpilhada ? 'total' : undefined,
           itemStyle: { color: PALETA_ACESSIVEL[idx % PALETA_ACESSIVEL.length] },
-          data: categoriasEixo1.slice(0, 30).map((cat) => {
-            const match = linhas.find((l) => l.eixo_1 === cat && (l.cor || 'Total') === corName);
-            return match ? match.valor : 0;
-          }).reverse(),
+          data: categoriasEixo1
+            .slice(0, 30)
+            .map((cat) => {
+              const match = linhas.find((l) => l.eixo_1 === cat && (l.cor || 'Total') === corName);
+              return match ? match.valor : 0;
+            })
+            .reverse(),
         })),
       };
     }
 
+    // 2. Visualização em Rosca
     if (tipoVisualizacao === 'rosca') {
-      // Determinar dados para a rosca
       let dadosRosca: Array<{ name: string; value: number; n?: number }> = [];
 
       if (campoCor && seriesCores.length > 1) {
@@ -251,13 +308,13 @@ export const PageConstrutor: React.FC = () => {
             n: Number(l.n) || 0,
           }));
         } else {
-          // Agregar por série de cor
           dadosRosca = seriesCores.map((corName) => {
             const linhasCor = linhas.filter((l) => (l.cor || 'Total') === corName);
             const somaN = linhasCor.reduce((acc, l) => acc + (Number(l.n) || 0), 0);
-            const somaValor = tipoMedida === 'percentual_no_grupo'
-              ? somaN
-              : linhasCor.reduce((acc, l) => acc + (Number(l.valor) || 0), 0);
+            const somaValor =
+              tipoMedida === 'percentual_no_grupo'
+                ? somaN
+                : linhasCor.reduce((acc, l) => acc + (Number(l.valor) || 0), 0);
             return {
               name: corName,
               value: Number(somaValor.toFixed(1)),
@@ -266,13 +323,13 @@ export const PageConstrutor: React.FC = () => {
           });
         }
       } else {
-        // Agrupar pelas categorias do Eixo 1
         dadosRosca = categoriasEixo1.map((cat) => {
           const linhasCat = linhas.filter((l) => (l.eixo_1 || 'Sem resposta') === cat);
           const somaN = linhasCat.reduce((acc, l) => acc + (Number(l.n) || 0), 0);
-          const somaValor = tipoMedida === 'percentual_no_grupo'
-            ? somaN
-            : linhasCat.reduce((acc, l) => acc + (Number(l.valor) || 0), 0);
+          const somaValor =
+            tipoMedida === 'percentual_no_grupo'
+              ? somaN
+              : linhasCat.reduce((acc, l) => acc + (Number(l.valor) || 0), 0);
           return {
             name: cat,
             value: Number(somaValor.toFixed(1)),
@@ -281,10 +338,8 @@ export const PageConstrutor: React.FC = () => {
         });
       }
 
-      // Ordenar por valor decrescente
       dadosRosca.sort((a, b) => b.value - a.value);
 
-      // Se houver mais de 10 categorias, agrupar as menores em "Outros" para legibilidade
       let dadosFinais = dadosRosca;
       if (dadosRosca.length > 10) {
         const top9 = dadosRosca.slice(0, 9);
@@ -313,8 +368,7 @@ export const PageConstrutor: React.FC = () => {
             const nInfo = item?.n ? ` <span style="color:#94a3b8;">(n = ${formatarNumero(item.n)})</span>` : '';
             return `<div style="font-weight:600;color:#f1f5f9;">${p.name}</div>
               <div style="font-size:12px;margin-top:4px;color:#cbd5e1;">
-                Valor: <strong style="color:#2dd4bf;">${p.value}${tipoMedida.includes('percentual') && tipoMedida !== 'percentual_no_grupo' ? '%' : ''}</strong>
-                <span style="color:#38bdf8;font-weight:600;margin-left:6px;">(${p.percent}%)</span>${nInfo}
+                Proporção: <strong style="color:#2dd4bf;">${p.percent}%</strong>${nInfo}
               </div>`;
           },
         },
@@ -358,32 +412,37 @@ export const PageConstrutor: React.FC = () => {
       };
     }
 
-    // Padrão: Barra horizontal ordenada
+    // 3. Padrão (Série Única): Barra horizontal ordenada
     const linhasOrdenadas = [...linhas].sort((a, b) => b.valor - a.valor).slice(0, 30);
     return {
       tooltip: {
         trigger: 'axis',
+        backgroundColor: '#0e162b',
+        borderColor: '#223154',
+        textStyle: { color: '#f1f5f9' },
         formatter: (params: any[]) => {
           const p = params[0];
           const match = linhas.find((l) => l.eixo_1 === p.name);
-          return `<div class="font-bold">${p.name}</div>
-            <div class="text-xs mt-1">
-              Valor: <strong>${p.value}${tipoMedida.includes('percentual') ? '%' : ''}</strong>
-              ${match ? ` (n = ${formatarNumero(match.n)})` : ''}
+          return `<div class="font-bold text-slate-100">${p.name}</div>
+            <div class="text-xs mt-1 text-teal-300">
+              Valor: <strong>${p.value}${sufixoUnidade}</strong>
+              ${match ? ` <span class="text-slate-400">(n = ${formatarNumero(match.n)})</span>` : ''}
             </div>`;
         },
       },
-      grid: { left: '3%', right: '8%', top: '4%', bottom: '5%', containLabel: true },
+      grid: { left: '3%', right: '10%', top: '4%', bottom: '5%', containLabel: true },
       xAxis: {
         type: 'value',
         axisLabel: {
-          formatter: tipoMedida.includes('percentual') ? '{value}%' : '{value}',
+          color: '#94a3b8',
+          formatter: `{value}${sufixoUnidade}`,
         },
+        splitLine: { lineStyle: { color: '#1f2d4e' } },
       },
       yAxis: {
         type: 'category',
         data: linhasOrdenadas.map((l) => l.eixo_1 || 'Sem resposta').reverse(),
-        axisLabel: { fontSize: 11, width: 150, overflow: 'truncate' },
+        axisLabel: { fontSize: 11, width: 165, overflow: 'truncate', color: '#cbd5e1' },
       },
       series: [
         {
@@ -393,16 +452,14 @@ export const PageConstrutor: React.FC = () => {
           label: {
             show: true,
             position: 'right',
-            formatter: (p: any) => `${p.value}${tipoMedida.includes('percentual') ? '%' : ''}`,
-            fontSize: 10,
+            color: '#e2e8f0',
+            formatter: (p: any) => `${p.value}${sufixoUnidade}`,
+            fontSize: 11,
           },
         },
       ],
     };
   };
-
-  const labelEixo1 = CATALOGO_CAMPOS[eixo1]?.label || eixo1;
-  const labelCor = campoCor ? CATALOGO_CAMPOS[campoCor]?.label : null;
 
   return (
     <div className="space-y-6">
@@ -414,8 +471,7 @@ export const PageConstrutor: React.FC = () => {
             <h2 className="text-xl font-bold text-slate-100">7. Construtor Dinâmico de Gráficos</h2>
           </div>
           <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
-            Configure dimensões, séries e métricas em tempo real. O sistema consulta diretamente o banco de
-            dados e retorna os resultados.
+            Cruze dimensões demográficas e indicadores do diagnóstico em tempo real com filtragem inteligente de combinações compatíveis.
           </p>
         </div>
 
@@ -442,45 +498,73 @@ export const PageConstrutor: React.FC = () => {
                 Parâmetros do Gráfico
               </span>
               <span className="text-[10px] bg-teal-950/70 border border-teal-700/60 text-teal-300 font-bold px-2 py-0.5 rounded-full">
-                Dinâmico
+                Cruzamento Validado
               </span>
             </div>
 
-            {/* Seletor Eixo X / Linhas */}
+            {/* Seletor Eixo X / Linhas agrupado por tema */}
             <div>
               <label className="block text-xs font-bold text-slate-300 mb-1">
-                Eixo Principal (Eixo X / Linhas) *
+                Eixo Principal (Eixo X / Categorias) *
               </label>
               <select
                 value={eixo1}
                 onChange={(e) => setEixo1(e.target.value)}
                 className="w-full text-xs rounded-lg border border-[#25355a] bg-[#0e162b] px-3 py-2 text-slate-100 focus:outline-teal-500 font-medium"
               >
-                {camposCatalogo.map((c) => (
-                  <option key={c.key} value={c.key}>
-                    {c.label} ({c.tipo})
-                  </option>
-                ))}
+                {GRUPOS_CATALOGO.map((grp) => {
+                  const itens = camposEixoPrincipal.filter((c) => c.grupo === grp.id);
+                  if (itens.length === 0) return null;
+                  return (
+                    <optgroup key={grp.id} label={grp.nome}>
+                      {itens.map((c) => (
+                        <option key={c.key} value={c.key}>
+                          {c.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                  );
+                })}
               </select>
             </div>
 
-            {/* Seletor Cor / Série */}
+            {/* Seletor Cor / Série filtrado dinamicamente pela compatibilidade com o Eixo Principal */}
             <div>
               <label className="block text-xs font-bold text-slate-300 mb-1">
-                Série / Cor (Opcional)
+                Série / Cor (Cruzamento Opcional)
               </label>
               <select
                 value={campoCor}
                 onChange={(e) => setCampoCor(e.target.value)}
                 className="w-full text-xs rounded-lg border border-[#25355a] bg-[#0e162b] px-3 py-2 text-slate-100 focus:outline-teal-500 font-medium"
               >
-                <option value="">(Nenhuma série - série única)</option>
-                {camposCatalogo.map((c) => (
-                  <option key={c.key} value={c.key}>
-                    {c.label}
-                  </option>
-                ))}
+                <option value="">(Nenhuma série - exibir distribuição simples)</option>
+                {GRUPOS_CATALOGO.map((grp) => {
+                  const itens = opcoesSerieCompativeis.filter((c) => c.grupo === grp.id);
+                  if (itens.length === 0) return null;
+                  return (
+                    <optgroup key={grp.id} label={grp.nome}>
+                      {itens.map((c) => (
+                        <option key={c.key} value={c.key}>
+                          {c.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                  );
+                })}
               </select>
+              <p className="text-[11px] text-slate-400 mt-1.5 flex items-start gap-1.5 leading-relaxed">
+                <Info className="w-3.5 h-3.5 text-teal-400 shrink-0 mt-0.5" />
+                <span>
+                  {campoEixoObj?.papel === 'indicador'
+                    ? 'Para indicadores temáticos no Eixo Principal, as séries exibem apenas recortes demográficos e funcionais compatíveis.'
+                    : campoEixoObj?.escopo === 'discentes'
+                    ? 'Exibindo apenas séries aplicáveis ao universo discente.'
+                    : campoEixoObj?.escopo === 'servidores'
+                    ? 'Exibindo apenas séries aplicáveis ao universo de servidores.'
+                    : 'Opções incompatíveis ou com excesso de categorias são ocultadas automaticamente.'}
+                </span>
+              </p>
             </div>
 
             {/* Seletor de Medida */}
@@ -493,13 +577,11 @@ export const PageConstrutor: React.FC = () => {
                 onChange={(e) => setTipoMedida(e.target.value as TipoMedida)}
                 className="w-full text-xs rounded-lg border border-[#25355a] bg-[#0e162b] px-3 py-2 text-slate-100 focus:outline-teal-500 font-medium"
               >
-                <option value="percentual_no_grupo">% no Grupo (Eixo X)</option>
-                <option value="percentual_do_total">% do Total Filtrado</option>
-                <option value="contagem">Contagem Absoluta (n)</option>
-                <option value="media">Média (Itens Likert / Escala 1 a 5)</option>
-                <option value="mediana">Mediana (Itens Numéricos)</option>
-                <option value="taxa_sim">Taxa de "Sim" (%)</option>
-                <option value="percentual_concordancia">% Concordância</option>
+                {METRICAS_VALIDAS.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.label}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -508,18 +590,36 @@ export const PageConstrutor: React.FC = () => {
               <label className="block text-xs font-bold text-slate-300 mb-1">
                 Tipo de Visualização
               </label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 {[
-                  { id: 'barra_empilhada', rotulo: 'Empilhada 100%', icone: <Layers className="w-3.5 h-3.5" /> },
-                  { id: 'barra', rotulo: 'Barras', icone: <BarChart className="w-3.5 h-3.5" /> },
-                  { id: 'rosca', rotulo: 'Rosca', icone: <PieChart className="w-3.5 h-3.5" /> },
+                  {
+                    id: 'barra_empilhada',
+                    rotulo: 'Empilhada',
+                    icone: <Layers className="w-3.5 h-3.5" />,
+                    desabilitado: !campoCor,
+                  },
+                  {
+                    id: 'barra',
+                    rotulo: 'Barras',
+                    icone: <BarChart className="w-3.5 h-3.5" />,
+                    desabilitado: false,
+                  },
+                  {
+                    id: 'rosca',
+                    rotulo: 'Rosca',
+                    icone: <PieChart className="w-3.5 h-3.5" />,
+                    desabilitado: false,
+                  },
                 ].map((t) => (
                   <button
                     key={t.id}
                     type="button"
+                    disabled={t.desabilitado}
                     onClick={() => setTipoVisualizacao(t.id as any)}
-                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
-                      tipoVisualizacao === t.id
+                    className={`flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                      t.desabilitado
+                        ? 'bg-[#0a1020] border-[#1a2642] text-slate-600 cursor-not-allowed'
+                        : tipoVisualizacao === t.id
                         ? 'bg-teal-600 border-teal-500 text-white shadow-xs'
                         : 'bg-[#0e162b] border-[#25355a] text-slate-300 hover:bg-[#162342]'
                     }`}
@@ -605,10 +705,13 @@ export const PageConstrutor: React.FC = () => {
           )}
 
           <ChartCard
-            titulo={`${labelEixo1}${labelCor ? ` por ${labelCor}` : ''}`}
-            subtitulo={`Métrica: ${tipoMedida.replace(/_/g, ' ')}`}
+            titulo={`${labelEixo1}${labelCor ? ` × ${labelCor}` : ''}`}
+            subtitulo={
+              METRICAS_VALIDAS.find((m) => m.id === tipoMedida)?.label ||
+              `Métrica: ${tipoMedida}`
+            }
             n={resultado?.n_filtrado}
-            baseDescricao="respondentes válidos"
+            baseDescricao="respondentes válidos no recorte"
             option={montarOpcaoEchart()}
             altura={480}
             carregando={carregando}
@@ -616,11 +719,17 @@ export const PageConstrutor: React.FC = () => {
             tabelaDados={
               resultado && resultado.linhas
                 ? {
-                    cabecalhos: ['Eixo Principal', 'Série / Cor', 'Valor Calculado', 'Amostra (n)', 'Base Grupo'],
+                    cabecalhos: [
+                      labelEixo1,
+                      labelCor || 'Série',
+                      tipoMedida.includes('percentual') ? 'Proporção (%)' : 'Contagem (n)',
+                      'Amostra (n)',
+                      'Base do Grupo (n)',
+                    ],
                     linhas: resultado.linhas.map((l) => [
                       l.eixo_1 || 'Sem resposta',
                       l.cor || 'Total',
-                      l.valor,
+                      tipoMedida.includes('percentual') ? `${l.valor}%` : l.valor,
                       l.n,
                       l.n_grupo || resultado.n_filtrado,
                     ]),

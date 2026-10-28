@@ -73,6 +73,38 @@ export const SQL_SEGMENTO_COMUNIDADE = `(
   END
 )`;
 
+/**
+ * Categorias oficiais de Cor / Raça (IBGE + Prefiro não responder)
+ */
+export const CATEGORIAS_COR_RACA_OFICIAIS = [
+  'Branca',
+  'Parda',
+  'Preta',
+  'Amarela',
+  'Indígena',
+  'Prefiro não responder',
+] as const;
+
+export type CategoriaCorRacaOficial = (typeof CATEGORIAS_COR_RACA_OFICIAIS)[number];
+
+/**
+ * Categorias de Pessoa com Deficiência (PCD) para filtro rápido
+ */
+export const CATEGORIAS_DEFICIENCIA_OFICIAIS = ['Sim', 'Não'] as const;
+
+export type CategoriaDeficienciaOficial = (typeof CATEGORIAS_DEFICIENCIA_OFICIAIS)[number];
+
+/**
+ * Agrupamento de Idade: Menor (< 18 anos) vs Maior (18+ anos)
+ */
+export const SQL_IDADE_AGRUPADA = `(
+  CASE
+    WHEN faixa_etaria = 'Menor de 18 anos' THEN 'menor'
+    WHEN faixa_etaria IN ('18 a 29 anos', '30 a 39 anos', '40 a 49 anos', '50 a 59 anos', '60 anos ou mais') THEN 'maior'
+    ELSE NULL
+  END
+)`;
+
 export const ESCALA_CONCORDANCIA_Q24: Record<string, number> = {
   'Concordo Totalmente': 5,
   'Concordo': 4,

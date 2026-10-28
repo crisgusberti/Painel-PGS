@@ -6,19 +6,50 @@
 import React, { useState, useMemo } from 'react';
 import { ChartCard } from '../ChartCard';
 import { KpiCard } from '../KpiCard';
-import { Cpu, Users, GraduationCap, AlertCircle, Search, Filter } from 'lucide-react';
+import { GraduationCap, AlertCircle, Search, Filter } from 'lucide-react';
 import { PALETA_ACESSIVEL } from '../../lib/chartTheme';
-import { formatarNumero, formatarPercentual } from '../../lib/formatters';
+import { formatarNumero } from '../../lib/formatters';
+import { SeletorGenero, OpcaoGeneroFiltro } from '../SeletorGenero';
+import { SeletorRaca, OpcaoRacaFiltro } from '../SeletorRaca';
+import { SeletorDeficiencia, OpcaoDeficienciaFiltro } from '../SeletorDeficiencia';
+import { SeletorIdade, OpcaoIdadeFiltro, correspondeIdade } from '../SeletorIdade';
 
 interface PageStemProps {
   dados: any;
   carregando: boolean;
 }
 
+const GRANDES_AREAS_VALIDAS = [
+  'Ciências Agrárias',
+  'Ciências Biológicas',
+  'Ciências da Saúde',
+  'Ciências Exatas e da Terra',
+  'Ciências Humanas',
+  'Ciências Sociais Aplicadas',
+  'Engenharias e Tecnologia',
+  'Linguística, Letras e Artes',
+];
+
 export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
-  const ranking = dados?.areas_ranking_mulheres || [];
   const desencorajamento = dados?.desencorajamento_stem || {};
   const cobertura = dados?.cobertura || [];
+  const registrosDetalhados = dados?.registros_detalhados || [];
+
+  // =========================================================================
+  // 1. Seletores do Gráfico: Participação Discente por Grande Área (CNPq)
+  // =========================================================================
+  const [generoArea, setGeneroArea] = useState<OpcaoGeneroFiltro>('todos');
+  const [racaArea, setRacaArea] = useState<OpcaoRacaFiltro>('todos');
+  const [idadeArea, setIdadeArea] = useState<OpcaoIdadeFiltro>('todos');
+  const [pcdArea, setPcdArea] = useState<OpcaoDeficienciaFiltro>('todos');
+
+  // =========================================================================
+  // 2. Seletores do Novo Gráfico: Desencorajamento em STEM (1.556 discentes)
+  // =========================================================================
+  const [generoStem, setGeneroStem] = useState<OpcaoGeneroFiltro>('todos');
+  const [racaStem, setRacaStem] = useState<OpcaoRacaFiltro>('todos');
+  const [pcdStem, setPcdStem] = useState<OpcaoDeficienciaFiltro>('todos');
+  const [idadeStem, setIdadeStem] = useState<OpcaoIdadeFiltro>('todos');
 
   // Filtros internos da tabela de auditoria
   const [filtroStatus, setFiltroStatus] = useState<'todos' | 'nao_classificada' | 'padronizada'>('todos');
@@ -52,8 +83,63 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
       .reduce((acc, r) => acc + Number(r.n || 0), 0);
   }, [cobertura]);
 
-  // Opção ECharts: Participação Feminina por Grande Área Ordenada
-  const optionRankingMulheres = {
+  const totalTermosNaoClassificados = useMemo(() => {
+    return (cobertura as any[]).filter((r) => r.grandeArea === 'Não classificada').length;
+  }, [cobertura]);
+
+  // =========================================================================
+  // Cálculo do Gráfico 1: Grande Área do Conhecimento (CNPq) sem "Não classificada"
+  // =========================================================================
+  const temFiltroAtivoArea =
+    generoArea !== 'todos' || racaArea !== 'todos' || idadeArea !== 'todos' || pcdArea !== 'todos';
+
+  const registrosClassificados = useMemo(() => {
+    return (registrosDetalhados as any[]).filter((r) => {
+      const ga = r.grande_area || r.grandeArea;
+      return ga && ga !== 'Não classificada' && ga !== 'Prefiro não responder' && GRANDES_AREAS_VALIDAS.includes(ga);
+    });
+  }, [registrosDetalhados]);
+
+  const dadosGrandesAreas = useMemo(() => {
+    const totalGeralClassificados = registrosClassificados.reduce((acc, r) => acc + Number(r.n || 0), 0);
+
+    return GRANDES_AREAS_VALIDAS.map((area) => {
+      const todosDaArea = registrosClassificados.filter((r) => (r.grande_area || r.grandeArea) === area);
+      const totalArea = todosDaArea.reduce((acc, r) => acc + Number(r.n || 0), 0);
+
+      const filtradosDaArea = todosDaArea.filter((r) => {
+        const matchGen = generoArea === 'todos' ? true : r.genero_grp === generoArea;
+        const matchRaca = racaArea === 'todos' ? true : r.cor_raca === racaArea;
+        const matchIdade = correspondeIdade(r.idade_grp, idadeArea);
+        const matchPcd = pcdArea === 'todos' ? true : r.pcd === pcdArea;
+        return matchGen && matchRaca && matchIdade && matchPcd;
+      });
+
+      const nRecorte = filtradosDaArea.reduce((acc, r) => acc + Number(r.n || 0), 0);
+      // Se há filtro ativo, mostra o % de participação do perfil dentro daquela Grande Área;
+      // se todos estão em "Todos", mostra a participação (%) da Grande Área no total classificado.
+      const pct = temFiltroAtivoArea
+        ? totalArea > 0
+          ? Number(((nRecorte * 100) / totalArea).toFixed(1))
+          : 0
+        : totalGeralClassificados > 0
+        ? Number(((nRecorte * 100) / totalGeralClassificados).toFixed(1))
+        : 0;
+
+      return {
+        area,
+        nRecorte,
+        totalArea,
+        pct,
+      };
+    }).sort((a, b) => b.pct - a.pct || b.nRecorte - a.nRecorte);
+  }, [registrosClassificados, generoArea, racaArea, idadeArea, pcdArea, temFiltroAtivoArea]);
+
+  const nTotalGrandesAreas = useMemo(() => {
+    return dadosGrandesAreas.reduce((acc, r) => acc + r.nRecorte, 0);
+  }, [dadosGrandesAreas]);
+
+  const optionGrandesAreas = {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
@@ -62,65 +148,176 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
       textStyle: { color: '#f1f5f9' },
       formatter: (p: any[]) => {
         const item = p[0];
-        const areaData = ranking.find((r: any) => r.area === item.name);
-        return `<div class="font-bold text-slate-100">${item.name}</div>
-          <div class="text-xs mt-1 text-teal-300">Participação Feminina: <strong>${item.value}%</strong></div>
-          <div class="text-xs text-slate-400">Total respondentes: ${formatarNumero(areaData?.total)} (${formatarNumero(areaData?.mulheres)} mulheres)</div>`;
+        const areaData = dadosGrandesAreas.find((r) => r.area === item.name);
+        if (!areaData) return '';
+        return `<div class="font-bold text-slate-100 mb-1">${areaData.area}</div>
+          <div class="text-xs text-teal-300">Discentes no recorte: <strong>${formatarNumero(areaData.nRecorte)}</strong> (${areaData.pct}%)</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">Total da Grande Área: <strong>${formatarNumero(areaData.totalArea)}</strong> discentes</div>`;
       },
     },
-    grid: { left: '3%', right: '8%', top: '4%', bottom: '5%', containLabel: true },
+    grid: { left: '3%', right: '10%', top: '4%', bottom: '5%', containLabel: true },
     xAxis: {
       type: 'value',
       min: 0,
-      max: 100,
+      max: Math.max(40, ...dadosGrandesAreas.map((r) => Math.ceil(r.pct + 5))),
       axisLabel: { formatter: '{value}%', color: '#94a3b8' },
       splitLine: { lineStyle: { stroke: '#1f2d4e' } },
     },
     yAxis: {
       type: 'category',
-      data: ranking.map((r: any) => r.area).reverse(),
+      data: dadosGrandesAreas.map((r) => r.area).reverse(),
       axisLabel: { fontSize: 11, color: '#cbd5e1' },
     },
     series: [
       {
         type: 'bar',
-        data: ranking.map((r: any) => r.pct_mulheres).reverse(),
+        data: dadosGrandesAreas.map((r) => r.pct).reverse(),
         itemStyle: { color: PALETA_ACESSIVEL[0] },
-        label: { show: true, position: 'right', formatter: '{c}%', fontSize: 11, color: '#38bdf8' },
+        label: {
+          show: true,
+          position: 'right',
+          formatter: (params: any) => {
+            const areaObj = [...dadosGrandesAreas].reverse()[params.dataIndex];
+            return areaObj ? `${params.value}% (n=${formatarNumero(areaObj.nRecorte)})` : `${params.value}%`;
+          },
+          fontSize: 11,
+          color: '#38bdf8',
+          fontWeight: 600,
+        },
       },
     ],
   };
 
-  // Opção ECharts: Comparativo de Desencorajamento STEM vs Não-STEM
-  const optionDesencorajamento = {
+  // =========================================================================
+  // Cálculo do Novo Gráfico 2: Desencorajamento entre os 1.556 discentes em STEM
+  // =========================================================================
+  const registrosStemBase = useMemo(() => {
+    return (registrosDetalhados as any[]).filter((r) => r.is_stem === true || r.ehStem === true);
+  }, [registrosDetalhados]);
+
+  const nTotalStemBase = useMemo(() => {
+    return registrosStemBase.reduce((acc, r) => acc + Number(r.n || 0), 0);
+  }, [registrosStemBase]);
+
+  const registrosStemFiltrados = useMemo(() => {
+    return registrosStemBase.filter((r) => {
+      const matchGen = generoStem === 'todos' ? true : r.genero_grp === generoStem;
+      const matchRaca = racaStem === 'todos' ? true : r.cor_raca === racaStem;
+      const matchPcd = pcdStem === 'todos' ? true : r.pcd === pcdStem;
+      const matchIdade = correspondeIdade(r.idade_grp, idadeStem);
+      return matchGen && matchRaca && matchPcd && matchIdade;
+    });
+  }, [registrosStemBase, generoStem, racaStem, pcdStem, idadeStem]);
+
+  const nTotalStemFiltrado = useMemo(() => {
+    return registrosStemFiltrados.reduce((acc, r) => acc + Number(r.n || 0), 0);
+  }, [registrosStemFiltrados]);
+
+  const ehDesencorajado = (r: any) => {
+    const val = r.desencorajado_participacao || r.resposta_desencorajamento;
+    return r.desencorajado === true || val === 'Sim, frequentemente' || val === 'Sim, algumas vezes';
+  };
+
+  const nDesencorajadosStemFiltrado = useMemo(() => {
+    return registrosStemFiltrados
+      .filter(ehDesencorajado)
+      .reduce((acc, r) => acc + Number(r.n || 0), 0);
+  }, [registrosStemFiltrados]);
+
+  const pctDesencorajadosStemFiltrado =
+    nTotalStemFiltrado > 0 ? Number(((nDesencorajadosStemFiltrado * 100) / nTotalStemFiltrado).toFixed(1)) : 0;
+
+  const categoriasDesencorajamentoStem = [
+    {
+      rotulo: 'Enfrentaram Desencorajamento (Total Sim)',
+      cor: '#f43f5e',
+      filtro: ehDesencorajado,
+    },
+    {
+      rotulo: 'Sim, frequentemente',
+      cor: '#e11d48',
+      filtro: (r: any) => (r.desencorajado_participacao || r.resposta_desencorajamento) === 'Sim, frequentemente',
+    },
+    {
+      rotulo: 'Sim, algumas vezes',
+      cor: '#f59e0b',
+      filtro: (r: any) => (r.desencorajado_participacao || r.resposta_desencorajamento) === 'Sim, algumas vezes',
+    },
+    {
+      rotulo: 'Raramente',
+      cor: '#38bdf8',
+      filtro: (r: any) => (r.desencorajado_participacao || r.resposta_desencorajamento) === 'Raramente',
+    },
+    {
+      rotulo: 'Nunca',
+      cor: '#10b981',
+      filtro: (r: any) => (r.desencorajado_participacao || r.resposta_desencorajamento) === 'Nunca',
+    },
+    {
+      rotulo: 'Prefiro não responder',
+      cor: '#64748b',
+      filtro: (r: any) => (r.desencorajado_participacao || r.resposta_desencorajamento) === 'Prefiro não responder',
+    },
+  ];
+
+  const dadosGraficoDesencStem = categoriasDesencorajamentoStem.map((cat) => {
+    const n = registrosStemFiltrados
+      .filter(cat.filtro)
+      .reduce((acc, r) => acc + Number(r.n || 0), 0);
+    const pct = nTotalStemFiltrado > 0 ? Number(((n * 100) / nTotalStemFiltrado).toFixed(1)) : 0;
+    return {
+      rotulo: cat.rotulo,
+      cor: cat.cor,
+      n,
+      pct,
+    };
+  });
+
+  const optionDesencorajamentoStemDetalhado = {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
       backgroundColor: '#0e162b',
       borderColor: '#223154',
       textStyle: { color: '#f1f5f9' },
+      formatter: (p: any[]) => {
+        const item = p[0];
+        const obj = dadosGraficoDesencStem.find((d) => d.rotulo === item.name);
+        if (!obj) return '';
+        return `<div class="font-bold text-slate-100 mb-1">${obj.rotulo}</div>
+          <div class="text-xs text-amber-300">Discentes: <strong>${formatarNumero(obj.n)}</strong> (${obj.pct}%)</div>
+          <div class="text-[11px] text-slate-400 mt-0.5">Base STEM filtrada: <strong>${formatarNumero(nTotalStemFiltrado)}</strong> de ${formatarNumero(nTotalStemBase)} discentes</div>`;
+      },
     },
-    grid: { left: '3%', right: '8%', top: '4%', bottom: '5%', containLabel: true },
+    grid: { left: '3%', right: '14%', top: '4%', bottom: '5%', containLabel: true },
     xAxis: {
-      type: 'category',
-      data: ['Áreas STEM (Exatas e Tecnologia)', 'Demais Grandes Áreas'],
-      axisLabel: { color: '#cbd5e1', fontSize: 11 },
+      type: 'value',
+      axisLabel: { color: '#94a3b8' },
+      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
     },
     yAxis: {
-      type: 'value',
-      max: 50,
-      axisLabel: { formatter: '{value}%', color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      type: 'category',
+      data: dadosGraficoDesencStem.map((d) => d.rotulo).reverse(),
+      axisLabel: { fontSize: 11, color: '#cbd5e1' },
     },
     series: [
       {
         type: 'bar',
-        data: [
-          desencorajamento.stem_pct || 0,
-          desencorajamento.nao_stem_pct || 0,
-        ],
-        itemStyle: { color: '#f59e0b' },
-        label: { show: true, position: 'top', formatter: '{c}%', fontSize: 12, fontWeight: 'bold', color: '#fbbf24' },
+        data: [...dadosGraficoDesencStem].reverse().map((d) => ({
+          value: d.n,
+          itemStyle: { color: d.cor },
+        })),
+        label: {
+          show: true,
+          position: 'right',
+          formatter: (params: any) => {
+            const obj = [...dadosGraficoDesencStem].reverse()[params.dataIndex];
+            return obj ? `${formatarNumero(obj.n)} (${obj.pct}%)` : '';
+          },
+          fontSize: 11,
+          color: '#f1f5f9',
+          fontWeight: 600,
+        },
       },
     ],
   };
@@ -131,64 +328,89 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
       <div className="border-b border-[#1f2d4e] pb-3">
         <h2 className="text-xl font-bold text-slate-100">6. STEM e Masculinização das Áreas do Conhecimento</h2>
         <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
-          Análise da representação feminina em Ciências Exatas, Engenharias e Computação (STEM) em comparação às
-          demais áreas do conhecimento, diversidade racial e barreiras acadêmicas na formação discente.
+          Análise da representatividade discente em Ciências Exatas, Engenharias e Computação (STEM) em comparação às
+          demais áreas do conhecimento, diversidade étnico-racial, deficiência e barreiras acadêmicas na formação.
         </p>
       </div>
 
-      {/* KPIs de Desencorajamento e Presença em STEM */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* KPIs de Desencorajamento em STEM e Não STEM (2 colunas, removido Áreas Mapeadas Deterministicamente) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <KpiCard
-          titulo="Desencorajamento em STEM"
+          titulo="Desencorajamento na Participação Acadêmica em Áreas STEM"
           valorPrincipal={`${desencorajamento.stem_pct ?? 0}%`}
           subvalor="estudantes em STEM"
-          textoComplementar={`${formatarNumero(desencorajamento.stem_n)} discentes em Exatas e Tecnologia`}
-          notaMetodologica="Estudantes que relataram ter sido desencorajados(as) a participar com frequência ou ocasionalmente"
+          textoComplementar={`${formatarNumero(desencorajamento.stem_desencorajados ?? 187)} de ${formatarNumero(desencorajamento.stem_n)} discentes em Exatas e Tecnologia`}
+          notaMetodologica="Estudantes em cursos STEM que relataram ter sido desencorajados(as) a participar com frequência ou algumas vezes"
           icone={<AlertCircle className="w-5 h-5 text-amber-400" />}
           corDestaque="amber"
         />
 
         <KpiCard
-          titulo="Desencorajamento em Outras Áreas"
+          titulo="Desencorajamento na Participação Acadêmica em Áreas Não STEM"
           valorPrincipal={`${desencorajamento.nao_stem_pct ?? 0}%`}
           subvalor="demais áreas"
           textoComplementar={`${formatarNumero(desencorajamento.nao_stem_n)} discentes em cursos não-STEM`}
-          notaMetodologica="Comparativo com cursos de Humanas, Sociais, Agrárias e Saúde"
+          notaMetodologica="Comparativo com cursos de Humanas, Sociais, Linguagens, Biológicas, Agrárias e Saúde"
           icone={<GraduationCap className="w-5 h-5 text-sky-400" />}
           corDestaque="blue"
         />
-
-        <KpiCard
-          titulo="Áreas Mapeadas Deterministicamente"
-          valorPrincipal={`${ranking.length} áreas`}
-          subvalor="Grandes Áreas CNPq"
-          textoComplementar="Classificação padronizada para comparabilidade estatística"
-          notaMetodologica="Normalização determinística sobre todos os textos declarados pelos respondentes"
-          icone={<Cpu className="w-5 h-5 text-emerald-400" />}
-          corDestaque="emerald"
-        />
       </div>
 
-      {/* Gráficos de Ranking Feminino e Desencorajamento */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <ChartCard
-            titulo="Participação Feminina por Grande Área do Conhecimento (CNPq)"
-            subtitulo="Ordenada da maior para a menor proporção de mulheres no corpo discente"
-            option={optionRankingMulheres}
-            altura={380}
-            carregando={carregando}
-          />
-        </div>
+      {/* Gráfico 1 (Largura Total): Distribuição e Participação Discente por Grande Área do Conhecimento (CNPq) */}
+      <ChartCard
+        key={`grandes_areas_${generoArea}_${racaArea}_${idadeArea}_${pcdArea}`}
+        titulo="Distribuição e Participação Discente por Grande Área do Conhecimento (CNPq)"
+        subtitulo={
+          temFiltroAtivoArea
+            ? 'Proporção (%) e número de discentes do perfil selecionado dentro de cada Grande Área do Conhecimento (excluindo não classificadas)'
+            : 'Distribuição percentual e absoluta do corpo discente entre as Grandes Áreas do Conhecimento CNPq (excluindo não classificadas)'
+        }
+        n={nTotalGrandesAreas}
+        elementoCabecalho={
+          <div className="flex items-center justify-between gap-2.5 flex-wrap w-full">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <SeletorRaca valor={racaArea} aoMudar={setRacaArea} />
+              <SeletorDeficiencia valor={pcdArea} aoMudar={setPcdArea} />
+              <SeletorIdade valor={idadeArea} aoMudar={setIdadeArea} />
+            </div>
+            <SeletorGenero valor={generoArea} aoMudar={setGeneroArea} />
+          </div>
+        }
+        option={optionGrandesAreas}
+        altura={380}
+        carregando={carregando}
+        tabelaDados={{
+          cabecalhos: ['Grande Área (CNPq)', 'Discentes no Recorte (n)', 'Total da Área (n)', 'Participação (%)'],
+          linhas: dadosGrandesAreas.map((r) => [r.area, r.nRecorte, r.totalArea, `${r.pct}%`]),
+        }}
+      />
 
-        <ChartCard
-          titulo="Desencorajamento Acadêmico: STEM vs Outras"
-          subtitulo="Comparação do percentual de estudantes que relataram desencorajamento a participar"
-          option={optionDesencorajamento}
-          altura={380}
-          carregando={carregando}
-        />
-      </div>
+      {/* Novo Gráfico 2: Desencorajamento Acadêmico entre os 1.556 Discentes de Exatas e Tecnologia (STEM) */}
+      <ChartCard
+        key={`stem_desenc_${generoStem}_${racaStem}_${pcdStem}_${idadeStem}`}
+        titulo="Desencorajamento na Participação Acadêmica em Cursos STEM (Exatas e Tecnologia)"
+        subtitulo={`Incidência de desencorajamento entre os 1.556 discentes de Exatas e Tecnologia • No recorte atual: ${formatarNumero(
+          nDesencorajadosStemFiltrado
+        )} de ${formatarNumero(nTotalStemFiltrado)} discentes (${pctDesencorajadosStemFiltrado}%) enfrentaram desencorajamento`}
+        n={nTotalStemFiltrado}
+        elementoCabecalho={
+          <div className="flex items-center justify-between gap-2.5 flex-wrap w-full">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <SeletorRaca valor={racaStem} aoMudar={setRacaStem} />
+              <SeletorDeficiencia valor={pcdStem} aoMudar={setPcdStem} />
+              <SeletorIdade valor={idadeStem} aoMudar={setIdadeStem} />
+            </div>
+            <SeletorGenero valor={generoStem} aoMudar={setGeneroStem} />
+          </div>
+        }
+        option={optionDesencorajamentoStemDetalhado}
+        altura={360}
+        carregando={carregando}
+        tabelaDados={{
+          cabecalhos: ['Frequência de Desencorajamento Relatada', 'Discentes (n)', 'Proporção no Recorte (%)'],
+          linhas: dadosGraficoDesencStem.map((d) => [d.rotulo, d.n, `${d.pct}%`]),
+        }}
+      />
 
       {/* Tabela de Auditoria e Cobertura da Normalização */}
       <div className="bg-[#131d36] rounded-xl border border-[#223154] shadow-sm p-5 space-y-4">
@@ -198,13 +420,13 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
               Tabela de Auditoria e Cobertura da Normalização de Áreas
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
-              Mapeamento de todos os {cobertura.length} termos declarados no formulário para as Grandes Áreas CNPq ({totalNaoClassificadosGeral} respondentes em 19 termos não classificados).
+              Mapeamento de todos os {cobertura.length} termos declarados no formulário para as Grandes Áreas CNPq ({totalNaoClassificadosGeral} respondentes em {totalTermosNaoClassificados} termos não classificados).
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <span className="text-[11px] bg-[#0e162b] border border-[#223154] text-slate-300 px-2.5 py-1 rounded-lg">
-              {coberturaFiltrada.length} de {cobertura.length} termos • {formatarNumero(totalRespondentesCobertura)} respondentes
+              {coberturaFiltrada.length} de {cobertura.length} termos • n = {formatarNumero(totalRespondentesCobertura)} respondentes
             </span>
           </div>
         </div>

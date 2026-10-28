@@ -70,19 +70,54 @@ function expressaoCampoSql(campoKey: string): string {
     return SQL_ORIENTACAO_NORMALIZADA;
   }
 
+  if (campoKey === 'vinculo') {
+    return `(
+      CASE
+        WHEN vinculo ILIKE '%Discente%' THEN 'Discentes'
+        WHEN vinculo ILIKE '%Substituto%' THEN 'Docentes Substitutos'
+        WHEN vinculo ILIKE '%Efetivo%' AND cargo ILIKE '%Docente%' THEN 'Docentes'
+        WHEN vinculo ILIKE '%Efetivo%' AND (cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%') THEN 'Técnicos TAEs'
+        WHEN vinculo = 'Prefiro não responder' THEN 'Prefiro não responder'
+        ELSE NULL
+      END
+    )`;
+  }
+
+  if (campoKey === 'responsabilidade_cuidado') {
+    return `(
+      CASE
+        WHEN responsabilidade_cuidado IN ('Não', 'Não tenho responsabilidade de cuidado sobre ninguém') THEN 'Não'
+        ELSE responsabilidade_cuidado
+      END
+    )`;
+  }
+
+  if (campoKey === 'progressao_merito_nota') {
+    return `(
+      CASE
+        WHEN progressao_merito_nota = 5 THEN '5 - Concordo totalmente'
+        WHEN progressao_merito_nota = 4 THEN '4 - Concordo parcialmente'
+        WHEN progressao_merito_nota = 3 THEN '3 - Neutro'
+        WHEN progressao_merito_nota = 2 THEN '2 - Discordo parcialmente'
+        WHEN progressao_merito_nota = 1 THEN '1 - Discordo totalmente'
+        ELSE NULL
+      END
+    )`;
+  }
+
   if (campoKey === 'area_conhecimento') {
     return `(
       CASE
-        WHEN area_conhecimento ILIKE '%engenharia%' OR area_conhecimento ILIKE '%computa%' OR area_conhecimento ILIKE '%inform%' OR area_conhecimento ILIKE '%ti%' OR area_conhecimento ILIKE '%ads%' OR area_conhecimento ILIKE '%eletro%' OR area_conhecimento ILIKE '%mecânica%' OR area_conhecimento ILIKE '%mecanica%' OR area_conhecimento ILIKE '%polímero%' OR area_conhecimento ILIKE '%polimero%' OR area_conhecimento ILIKE '%plástico%' THEN 'Engenharias e Tecnologia'
-        WHEN area_conhecimento ILIKE '%exata%' OR area_conhecimento ILIKE '%física%' OR area_conhecimento ILIKE '%fisica%' OR area_conhecimento ILIKE '%química%' OR area_conhecimento ILIKE '%quimica%' OR area_conhecimento ILIKE '%matemát%' OR area_conhecimento ILIKE '%matemat%' OR area_conhecimento ILIKE '%ciências da natureza%' OR area_conhecimento ILIKE '%ciencias da natureza%' THEN 'Ciências Exatas e da Terra'
-        WHEN area_conhecimento ILIKE '%administra%' OR area_conhecimento ILIKE '%gestão%' OR area_conhecimento ILIKE '%gestao%' OR area_conhecimento ILIKE '%processos gerenciais%' OR area_conhecimento ILIKE '%comércio%' OR area_conhecimento ILIKE '%comercio%' OR area_conhecimento ILIKE '%logística%' OR area_conhecimento ILIKE '%logistica%' OR area_conhecimento ILIKE '%marketing%' OR area_conhecimento ILIKE '%secretariado%' OR area_conhecimento ILIKE '%ciência da informação%' OR area_conhecimento ILIKE '%biblioteconomia%' THEN 'Ciências Sociais Aplicadas'
-        WHEN area_conhecimento ILIKE '%agrár%' OR area_conhecimento ILIKE '%agrar%' OR area_conhecimento ILIKE '%agro%' OR area_conhecimento ILIKE '%zootec%' OR area_conhecimento ILIKE '%viticult%' OR area_conhecimento ILIKE '%meio ambiente%' OR area_conhecimento ILIKE '%ambiental%' THEN 'Ciências Agrárias'
-        WHEN area_conhecimento ILIKE '%human%' OR area_conhecimento ILIKE '%pedagog%' OR area_conhecimento ILIKE '%educa%' OR area_conhecimento ILIKE '%profept%' THEN 'Ciências Humanas'
-        WHEN area_conhecimento ILIKE '%letras%' OR area_conhecimento ILIKE '%artes%' OR area_conhecimento ILIKE '%design%' OR area_conhecimento ILIKE '%moda%' OR area_conhecimento ILIKE '%cinema%' OR area_conhecimento ILIKE '%multimídia%' OR area_conhecimento ILIKE '%multimidia%' OR area_conhecimento ILIKE '%audiovisual%' THEN 'Linguística, Letras e Artes'
-        WHEN area_conhecimento ILIKE '%biolog%' OR area_conhecimento ILIKE '%biotec%' THEN 'Ciências Biológicas'
+        WHEN TRIM(LOWER(area_conhecimento)) IN ('todos', 'sei lá', 'nenhuma área ainda', 'ensino médio', 'eja', 'mestrado', 'multidisciplinar', 'exatas e humanas') THEN NULL
+        WHEN area_conhecimento ILIKE '%engenharia%' OR area_conhecimento ILIKE '%computa%' OR area_conhecimento ILIKE '%inform%' OR area_conhecimento ILIKE '%ti%' OR area_conhecimento ILIKE '%ads%' OR area_conhecimento ILIKE '%eletro%' OR area_conhecimento ILIKE '%mecânica%' OR area_conhecimento ILIKE '%mecanica%' OR area_conhecimento ILIKE '%polímero%' OR area_conhecimento ILIKE '%polimero%' OR area_conhecimento ILIKE '%plástico%' OR area_conhecimento ILIKE '%segurança do trabalho%' OR area_conhecimento ILIKE '%sistemas%' OR area_conhecimento ILIKE '%tecnolog%' OR area_conhecimento ILIKE '%inovação%' THEN 'Engenharias e Tecnologia'
+        WHEN area_conhecimento ILIKE '%exata%' OR area_conhecimento ILIKE '%física%' OR area_conhecimento ILIKE '%fisica%' OR area_conhecimento ILIKE '%química%' OR area_conhecimento ILIKE '%quimica%' OR area_conhecimento ILIKE '%matemát%' OR area_conhecimento ILIKE '%matemat%' OR area_conhecimento ILIKE '%ciências da natureza%' OR area_conhecimento ILIKE '%ciencias da natureza%' OR area_conhecimento ILIKE '%ciências da natura%' OR area_conhecimento ILIKE '%ciências naturais%' THEN 'Ciências Exatas e da Terra'
+        WHEN area_conhecimento ILIKE '%agrár%' OR area_conhecimento ILIKE '%agrar%' OR area_conhecimento ILIKE '%agro%' OR area_conhecimento ILIKE '%zootec%' OR area_conhecimento ILIKE '%viticult%' OR area_conhecimento ILIKE '%meio ambiente%' OR area_conhecimento ILIKE '%meia ambiente%' OR area_conhecimento ILIKE '%ambiental%' OR area_conhecimento ILIKE '%panifica%' THEN 'Ciências Agrárias'
+        WHEN area_conhecimento ILIKE '%administra%' OR area_conhecimento ILIKE '%adm%' OR area_conhecimento ILIKE '%gestão%' OR area_conhecimento ILIKE '%gestao%' OR area_conhecimento ILIKE '%processo%' OR area_conhecimento ILIKE '%comércio%' OR area_conhecimento ILIKE '%comercio%' OR area_conhecimento ILIKE '%vendas%' OR area_conhecimento ILIKE '%logística%' OR area_conhecimento ILIKE '%logistica%' OR area_conhecimento ILIKE '%marketing%' OR area_conhecimento ILIKE '%secretariado%' OR area_conhecimento ILIKE '%informação%' OR area_conhecimento ILIKE '%biblioteconomia%' OR area_conhecimento ILIKE '%negócio%' OR area_conhecimento ILIKE '%negocio%' OR TRIM(LOWER(area_conhecimento)) IN ('tpg', 'lazer') THEN 'Ciências Sociais Aplicadas'
+        WHEN area_conhecimento ILIKE '%human%' OR area_conhecimento ILIKE '%pedagog%' OR area_conhecimento ILIKE '%educa%' OR area_conhecimento ILIKE '%profept%' OR area_conhecimento ILIKE '%ensino%' THEN 'Ciências Humanas'
+        WHEN area_conhecimento ILIKE '%letras%' OR area_conhecimento ILIKE '%artes%' OR area_conhecimento ILIKE '%design%' OR area_conhecimento ILIKE '%moda%' OR area_conhecimento ILIKE '%modelagem%' OR area_conhecimento ILIKE '%cinema%' OR area_conhecimento ILIKE '%multimídia%' OR area_conhecimento ILIKE '%multimidia%' OR area_conhecimento ILIKE '%audiovisual%' THEN 'Linguística, Letras e Artes'
+        WHEN area_conhecimento ILIKE '%biolog%' OR area_conhecimento ILIKE '%biotec%' OR area_conhecimento ILIKE '%boitec%' THEN 'Ciências Biológicas'
         WHEN area_conhecimento ILIKE '%saúde%' OR area_conhecimento ILIKE '%saude%' OR area_conhecimento ILIKE '%enferm%' OR area_conhecimento ILIKE '%idoso%' THEN 'Ciências da Saúde'
         WHEN area_conhecimento = 'Prefiro não responder' THEN 'Prefiro não responder'
-        WHEN area_conhecimento IS NOT NULL THEN 'Não classificada'
         ELSE NULL
       END
     )`;
@@ -158,18 +193,16 @@ export async function executarConsulta(req: RequisicaoConsulta): Promise<Respost
   const campoEixo2 = req.campos_eixo[1] || null;
   const campoCor = req.campos_cor?.[0] || null;
 
-  // Regra de Ouro de Gênero e Orientação Sexual: excluir declarações desconsideradas (NULL)
+  // Excluir registros nulos (ex.: variáveis exclusivas de Discentes ou de Servidores, ou declarações fora das 6 categorias oficiais)
   const camposEnvolvidos = [campoEixo1, campoEixo2, campoCor].filter(Boolean) as string[];
-  if (camposEnvolvidos.some((c) => c === 'genero' || c === 'genero_agrupado')) {
-    whereClauses.push(`${SQL_GENERO_NORMALIZADO} IS NOT NULL`);
-  }
-  if (camposEnvolvidos.some((c) => c === 'orientacao_sexual')) {
-    whereClauses.push(`${SQL_ORIENTACAO_NORMALIZADA} IS NOT NULL`);
+  for (const c of camposEnvolvidos) {
+    const colExpr = expressaoCampoSql(c);
+    whereClauses.push(`${colExpr} IS NOT NULL`);
   }
 
-  // Toggle de "Prefiro não responder"
+  // Toggle de "Prefiro não responder" aplicado tanto no Eixo quanto na Série
   if (req.medida.incluir_prefiro_nao_responder === false) {
-    for (const c of req.campos_eixo) {
+    for (const c of camposEnvolvidos) {
       const colExpr = expressaoCampoSql(c);
       whereClauses.push(`${colExpr} != 'Prefiro não responder'`);
     }
