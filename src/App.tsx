@@ -18,9 +18,12 @@ import { PageCuidado } from './components/pages/PageCuidado';
 import { PageStem } from './components/pages/PageStem';
 import { PageConstrutor } from './components/pages/PageConstrutor';
 import { PageMetodologia } from './components/pages/PageMetodologia';
+import { PageConhecaPesquisa } from './components/pages/PageConhecaPesquisa';
+import { PageIfrsNumeros } from './components/pages/PageIfrsNumeros';
+import { PageRespondentesDisseram } from './components/pages/PageRespondentesDisseram';
 
 export default function App() {
-  const [abaAtiva, setAbaAtiva] = useState<string>('visao_geral');
+  const [abaAtiva, setAbaAtiva] = useState<string>('conheca_pesquisa');
   const [filtros, setFiltros] = useState<FiltrosGlobaisState>({});
   const [modalFiltrosAberto, setModalFiltrosAberto] = useState<boolean>(false);
 
@@ -155,6 +158,10 @@ export default function App() {
           </div>
         )}
 
+        {abaAtiva === 'conheca_pesquisa' && <PageConhecaPesquisa />}
+
+        {abaAtiva === 'ifrs_numeros' && <PageIfrsNumeros />}
+
         {abaAtiva === 'visao_geral' && (
           <PageVisaoGeral
             dados={dadosVisaoGeral}
@@ -190,6 +197,8 @@ export default function App() {
         {abaAtiva === 'construtor' && <PageConstrutor />}
 
         {abaAtiva === 'metodologia' && <PageMetodologia />}
+
+        {abaAtiva === 'respondentes_disseram' && <PageRespondentesDisseram />}
       </main>
 
       {/* Rodapé Institucional */}

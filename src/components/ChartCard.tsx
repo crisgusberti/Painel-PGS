@@ -22,6 +22,7 @@ interface ChartCardProps {
   infoTitulo?: string;
   tabelaDados?: { cabecalhos: string[]; linhas: (string | number)[][] };
   notaRodape?: string;
+  fonte?: string;
   classeExtra?: string;
 }
 
@@ -40,6 +41,7 @@ export const ChartCard: React.FC<ChartCardProps> = ({
   infoTitulo,
   tabelaDados,
   notaRodape,
+  fonte = 'Fonte: Questionário aplicado com 4.857 respondentes',
   classeExtra = '',
 }) => {
   const chartRef = useRef<any>(null);
@@ -249,7 +251,7 @@ export const ChartCard: React.FC<ChartCardProps> = ({
 
       {/* Rodapé institucional com Fonte */}
       <div className="mt-2 pt-2 border-t border-[#1f2d4e] flex flex-col sm:flex-row items-start sm:items-center justify-between text-[11px] text-slate-400 gap-1">
-        <span>Fonte: Questionário aplicado com 4.857 respondentes</span>
+        <span>{fonte}</span>
         {notaRodape && <span className="text-slate-400 italic">{notaRodape}</span>}
       </div>
     </div>

@@ -14,6 +14,9 @@ import {
   Cpu,
   Wand2,
   BookOpen,
+  FileText,
+  Database,
+  MessageSquare,
   Filter,
   RotateCcw,
   X,
@@ -27,7 +30,9 @@ export interface TabItem {
 }
 
 export const ABAS_PAINEL: TabItem[] = [
-  { id: 'visao_geral', label: 'Visão Geral', icone: <LayoutDashboard className="w-4 h-4 shrink-0" /> },
+  { id: 'conheca_pesquisa', label: 'Conheça a Pesquisa', icone: <FileText className="w-4 h-4 shrink-0" /> },
+  { id: 'ifrs_numeros', label: 'O IFRS em Números', icone: <Database className="w-4 h-4 shrink-0" /> },
+  { id: 'visao_geral', label: 'Visão Geral da Pesquisa', icone: <LayoutDashboard className="w-4 h-4 shrink-0" /> },
   { id: 'perfil', label: '1. Perfil e Representatividade', icone: <Users className="w-4 h-4 shrink-0" /> },
   { id: 'carreira', label: '2. Carreira e Gestão', icone: <Briefcase className="w-4 h-4 shrink-0" /> },
   { id: 'ambiente_violencias', label: '3. Clima e Violências', icone: <ShieldAlert className="w-4 h-4 shrink-0" /> },
@@ -36,7 +41,29 @@ export const ABAS_PAINEL: TabItem[] = [
   { id: 'stem', label: '6. Áreas e STEM', icone: <Cpu className="w-4 h-4 shrink-0" /> },
   { id: 'construtor', label: '7. Construtor Dinâmico', icone: <Wand2 className="w-4 h-4 text-emerald-500 shrink-0" /> },
   { id: 'metodologia', label: '8. Metodologia e Dicionário', icone: <BookOpen className="w-4 h-4 shrink-0" /> },
+  { id: 'respondentes_disseram', label: '9. O que os respondentes disseram?', icone: <MessageSquare className="w-4 h-4 shrink-0" /> },
 ];
+
+// Abas principais (linha 1, sem numeração) vs. abas do roteiro da pesquisa (linha 2, numeradas 1 a 9)
+const ABAS_PRINCIPAIS = ABAS_PAINEL.slice(0, 3);
+const ABAS_NUMERADAS = ABAS_PAINEL.slice(3);
+
+function TabButton({ aba, ativa, onClick }: { aba: TabItem; ativa: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex items-center justify-start gap-2 py-2 px-2.5 text-[11px] leading-tight font-semibold border-b-2 transition-all w-36 sm:w-40 shrink-0 ${
+        ativa
+          ? 'border-teal-400 text-teal-300 bg-[#162342]'
+          : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-600 hover:bg-[#131d36]/40'
+      }`}
+    >
+      {aba.icone}
+      <span className="text-left line-clamp-2 break-words">{aba.label}</span>
+    </button>
+  );
+}
 
 interface NavbarProps {
   abaAtiva: string;
@@ -172,26 +199,18 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       )}
 
-      {/* Navegação por Abas — sem barra de rolagem, títulos em até 2 linhas */}
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-1 border-t border-[#1a2647]">
-        {ABAS_PAINEL.map((aba) => {
-          const ativa = abaAtiva === aba.id;
-          return (
-            <button
-              key={aba.id}
-              type="button"
-              onClick={() => aoMudarAba(aba.id)}
-              className={`flex items-center justify-start gap-2 py-2 px-2.5 text-[11px] leading-tight font-semibold border-b-2 transition-all min-w-0 ${
-                ativa
-                  ? 'border-teal-400 text-teal-300 bg-[#162342]'
-                  : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-600 hover:bg-[#131d36]/40'
-              }`}
-            >
-              {aba.icone}
-              <span className="text-left line-clamp-2 break-words">{aba.label}</span>
-            </button>
-          );
-        })}
+      {/* Navegação por Abas — duas linhas centralizadas, sem barra de rolagem, títulos em até 2 linhas */}
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-[#1a2647] divide-y divide-[#1a2647]">
+        <div className="flex flex-wrap justify-center gap-1 py-0.5">
+          {ABAS_PRINCIPAIS.map((aba) => (
+            <TabButton key={aba.id} aba={aba} ativa={abaAtiva === aba.id} onClick={() => aoMudarAba(aba.id)} />
+          ))}
+        </div>
+        <div className="flex flex-wrap justify-center gap-1 py-0.5">
+          {ABAS_NUMERADAS.map((aba) => (
+            <TabButton key={aba.id} aba={aba} ativa={abaAtiva === aba.id} onClick={() => aoMudarAba(aba.id)} />
+          ))}
+        </div>
       </nav>
     </header>
   );
