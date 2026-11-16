@@ -24,6 +24,8 @@ interface ChartCardProps {
   notaRodape?: string;
   fonte?: string;
   classeExtra?: string;
+  /** Callback de clique num elemento do gráfico (ex: barra), repassado ao evento 'click' do ECharts. */
+  aoClicarGrafico?: (params: any) => void;
 }
 
 export const ChartCard: React.FC<ChartCardProps> = ({
@@ -43,6 +45,7 @@ export const ChartCard: React.FC<ChartCardProps> = ({
   notaRodape,
   fonte = 'Fonte: Questionário aplicado com 4.857 respondentes',
   classeExtra = '',
+  aoClicarGrafico,
 }) => {
   const chartRef = useRef<any>(null);
   const [mostrarTabela, setMostrarTabela] = useState(false);
@@ -244,6 +247,7 @@ export const ChartCard: React.FC<ChartCardProps> = ({
               opts={{ renderer: 'canvas' }}
               notMerge={true}
               lazyUpdate={true}
+              onEvents={aoClicarGrafico ? { click: aoClicarGrafico } : undefined}
             />
           </div>
         )}

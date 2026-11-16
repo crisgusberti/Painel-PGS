@@ -27,6 +27,8 @@ export interface TabItem {
   id: string;
   label: string;
   icone: React.ReactNode;
+  /** Abas com rótulo mais longo: usa largura maior e não trunca o texto. */
+  largo?: boolean;
 }
 
 export const ABAS_PAINEL: TabItem[] = [
@@ -41,7 +43,7 @@ export const ABAS_PAINEL: TabItem[] = [
   { id: 'stem', label: '6. Áreas e STEM', icone: <Cpu className="w-4 h-4 shrink-0" /> },
   { id: 'construtor', label: '7. Construtor Dinâmico', icone: <Wand2 className="w-4 h-4 text-emerald-500 shrink-0" /> },
   { id: 'metodologia', label: '8. Metodologia e Dicionário', icone: <BookOpen className="w-4 h-4 shrink-0" /> },
-  { id: 'respondentes_disseram', label: '9. O que os respondentes disseram?', icone: <MessageSquare className="w-4 h-4 shrink-0" /> },
+  { id: 'respondentes_disseram', label: '9. O que a comunidade contou', icone: <MessageSquare className="w-4 h-4 shrink-0" />, largo: true },
 ];
 
 // Abas principais (linha 1, sem numeração) vs. abas do roteiro da pesquisa (linha 2, numeradas 1 a 9)
@@ -53,14 +55,16 @@ function TabButton({ aba, ativa, onClick }: { aba: TabItem; ativa: boolean; onCl
     <button
       type="button"
       onClick={onClick}
-      className={`flex items-center justify-start gap-2 py-2 px-2.5 text-[11px] leading-tight font-semibold border-b-2 transition-all w-36 sm:w-40 shrink-0 ${
+      className={`flex items-center justify-start gap-2 py-2 px-2.5 text-[11px] leading-tight font-semibold border-b-2 transition-all shrink-0 ${
+        aba.largo ? 'w-52 sm:w-56' : 'w-36 sm:w-40'
+      } ${
         ativa
           ? 'border-teal-400 text-teal-300 bg-[#162342]'
           : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-600 hover:bg-[#131d36]/40'
       }`}
     >
       {aba.icone}
-      <span className="text-left line-clamp-2 break-words">{aba.label}</span>
+      <span className={`text-left break-words ${aba.largo ? '' : 'line-clamp-2'}`}>{aba.label}</span>
     </button>
   );
 }
