@@ -250,7 +250,7 @@ export const PageMetodologia: React.FC = () => {
           </p>
 
           <p className="text-xs text-slate-300 leading-relaxed">
-            Para assegurar consistência absoluta entre todos os gráficos, indicadores, filtros globais e o construtor dinâmico, o painel adota uma <strong>Regra de Ouro única parametrizada no servidor</strong> (<code className="text-teal-300 font-mono">SQL_GENERO_NORMALIZADO</code>). Entre os 4.857 respondentes analisados (sem terceirizados), todas as respostas válidas são classificadas estritamente em <strong>6 categorias oficiais</strong> (<code className="text-teal-300 font-mono">n = 4.790</code>; 98,62% da amostra), enquanto respostas sem declaração de gênero ou invalidadas (<code className="text-slate-300 font-mono">n = 67</code>; 1,38%) são desconsideradas dos gráficos e filtros de gênero:
+            Para assegurar consistência absoluta entre todos os gráficos, indicadores, filtros globais e o construtor dinâmico, o painel adota uma <strong>Regra de Ouro única parametrizada no servidor</strong> (<code className="text-teal-300 font-mono">SQL_GENERO_NORMALIZADO</code>). Entre os 4.857 respondentes analisados (sem terceirizados), todas as respostas válidas são classificadas estritamente em <strong>6 categorias oficiais</strong> (<code className="text-teal-300 font-mono">total: 4.790</code>; 98,62% da amostra), enquanto respostas sem declaração de gênero ou invalidadas (<code className="text-slate-300 font-mono">total: 67</code>; 1,38%) são desconsideradas dos gráficos e filtros de gênero:
           </p>
 
           <div className="overflow-x-auto rounded-lg border border-[#223154]">
@@ -320,7 +320,7 @@ export const PageMetodologia: React.FC = () => {
                 </tr>
                 <tr className="hover:bg-[#141f3d] transition-colors">
                   <td className="px-3 py-2.5 font-bold text-teal-300">
-                    Não-binárias
+                    Não-binários
                   </td>
                   <td className="px-3 py-2.5 font-mono text-slate-200 font-semibold">
                     80 (1,7%*)
@@ -337,7 +337,7 @@ export const PageMetodologia: React.FC = () => {
                     67 (1,4% do total)
                   </td>
                   <td className="px-3 py-2.5 text-[11px] leading-relaxed">
-                    Engloba <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Prefiro não responder</code> (53) e <strong>14 respostas invalidadas</strong> por conterem orientação sexual no campo de gênero (<code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Hetero</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Bissexual</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">gay</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">sapatão</code>), protesto/recusa (<code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Acho o genero totalmente desnecessário</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Não tenho gênero...</code>) ou respostas satíricas/"zueras" (<code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Geladeira Frost Free</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Me identifico como um jegue</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Patrola</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">tio paulo</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Jedi</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">sem gênero com pênis</code>). Estes 67 registros permanecem nos indicadores gerais da pesquisa (N = 4.857), mas são filtrados (<code className="text-rose-300 font-mono">IS NOT NULL</code>) em todos os gráficos e recortes por gênero.
+                    Engloba <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Prefiro não responder</code> (53) e <strong>14 respostas invalidadas</strong> por conterem orientação sexual no campo de gênero (<code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Hetero</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Bissexual</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">gay</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">sapatão</code>), protesto/recusa (<code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Acho o genero totalmente desnecessário</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Não tenho gênero...</code>) ou respostas satíricas/"zueras" (<code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Geladeira Frost Free</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Me identifico como um jegue</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Patrola</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">tio paulo</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">Jedi</code>, <code className="text-slate-300 bg-[#162342] px-1 py-0.5 rounded">sem gênero com pênis</code>). Estes 67 registros permanecem nos indicadores gerais da pesquisa (total: 4.857), mas são filtrados (<code className="text-rose-300 font-mono">IS NOT NULL</code>) em todos os gráficos e recortes por gênero.
                   </td>
                 </tr>
               </tbody>
@@ -402,7 +402,7 @@ export const PageMetodologia: React.FC = () => {
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3 space-y-1">
             <span className="font-bold text-teal-300">Diversidade de Shannon e Categorias Oficiais</span>
             <p className="text-slate-300">
-              Shannon avalia o equilíbrio proporcional entre grupos. Na identidade de gênero, os gráficos exibem estritamente as 6 categorias oficiais padronizadas pela Regra de Ouro (Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binárias). Respostas inválidas e "Prefiro não responder" no campo de gênero são desconsideradas.
+              Shannon avalia o equilíbrio proporcional entre grupos. Na identidade de gênero, os gráficos exibem estritamente as 6 categorias oficiais padronizadas pela Regra de Ouro (Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binários). Respostas inválidas e "Prefiro não responder" no campo de gênero são desconsideradas.
             </p>
           </div>
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3 space-y-1">
@@ -453,7 +453,7 @@ export const PageMetodologia: React.FC = () => {
           <div className="bg-[#0e162b] border border-[#223154] rounded-lg p-3.5 space-y-1.5">
             <h3 className="font-bold text-teal-300 text-sm">Página 1 — Perfil Demográfico e Representatividade</h3>
             <p className="text-slate-300 leading-relaxed">
-              Mapeamento sociodemográfico com seletores padrão reutilizáveis de Segmento (Geral, Docente, Técnico TAE e Discente), Gênero (estritamente nas 6 categorias oficiais: Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binárias), Cor / Raça (6 opções IBGE), Deficiência (PCD) e Idade (Menor e Maior) em todos os gráficos: Autodeclaração Étnico-Racial, Faixa Etária (com alinhamento visual de altura), Pessoas com Deficiência (PCD), Orientação Sexual e cartões de Diversidade de Shannon por unidade e segmento.
+              Mapeamento sociodemográfico com seletores padrão reutilizáveis de Segmento (Geral, Docente, Técnico TAE e Discente), Gênero (estritamente nas 6 categorias oficiais: Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binários), Cor / Raça (6 opções IBGE), Deficiência (PCD) e Idade (Menor e Maior) em todos os gráficos: Autodeclaração Étnico-Racial, Faixa Etária (com alinhamento visual de altura), Pessoas com Deficiência (PCD), Orientação Sexual e cartões de Diversidade de Shannon por unidade e segmento.
             </p>
           </div>
 

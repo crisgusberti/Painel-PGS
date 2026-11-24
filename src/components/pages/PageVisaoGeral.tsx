@@ -191,7 +191,7 @@ export const PageVisaoGeral: React.FC<PageVisaoGeralProps> = ({
           valorPrincipal={formatarNumero(kpis.total_respondentes || 4857)}
           subvalor="respostas validadas"
           textoComplementar={`${kpis.unidades_validas || 18} unidades (17 Campi e Reitoria)`}
-          notaMetodologica={`Discentes: ${formatarPercentual(kpis.discentes?.pct)} (${formatarNumero(kpis.discentes?.n)}) • Servidores: ${formatarPercentual(kpis.servidores_total?.pct)} (${formatarNumero(kpis.servidores_total?.n)}). Não contabiliza 'Prefiro não responder' em unidades nem terceirizados.`}
+          notaMetodologica={`Discentes: ${formatarPercentual(kpis.discentes?.pct)} (${formatarNumero(kpis.discentes?.n)}) • Servidores: ${formatarPercentual(kpis.servidores_total?.pct)} (${formatarNumero(kpis.servidores_total?.n)}). Não contabiliza 'Prefiro não responder' em unidades, nem terceirizados.`}
           icone={<Users className="w-5 h-5 text-slate-300" />}
           corDestaque="slate"
         />

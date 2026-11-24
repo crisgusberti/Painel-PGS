@@ -313,14 +313,14 @@ export async function executarConsulta(req: RequisicaoConsulta): Promise<Respost
   });
 
   if (pequenasAmostras > 0) {
-    avisos.push(`Amostra pequena: ${pequenasAmostras} categoria(s) possuem n < 10 respondentes.`);
+    avisos.push(`Amostra pequena: ${pequenasAmostras} categoria(s) possuem menos de 10 respondentes.`);
   }
 
   const resposta: RespostaConsulta = {
     linhas,
     n_total: 4857,
     n_filtrado: nFiltrado,
-    base_descricao: `Respondentes com filtros aplicados (n = ${nFiltrado.toLocaleString('pt-BR')})`,
+    base_descricao: `Respondentes com filtros aplicados (total: ${nFiltrado.toLocaleString('pt-BR')})`,
     avisos,
     metadados: {
       campo_eixo_1: campoEixo1,

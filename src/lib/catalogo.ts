@@ -61,7 +61,7 @@ export const CATALOGO_CAMPOS: Record<string, CampoCatalogo> = {
     escopo: 'geral',
     papel: 'perfil',
     permitirComoSerie: true,
-    descricao: 'Classificação oficial normalizada nas 6 categorias de gênero: Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binárias.',
+    descricao: 'Classificação oficial normalizada nas 6 categorias de gênero: Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binários.',
   },
   cor_raca: {
     key: 'cor_raca',

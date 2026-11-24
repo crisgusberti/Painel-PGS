@@ -145,7 +145,7 @@ export const ChartCard: React.FC<ChartCardProps> = ({
             </div>
             {(subtitulo || n !== undefined) && (
               <p className="text-xs text-slate-400 mt-0.5">
-                {subtitulo} {n !== undefined && `• n = ${n.toLocaleString('pt-BR')}`}{' '}
+                {subtitulo} {n !== undefined && `• Total: ${n.toLocaleString('pt-BR')}`}{' '}
                 {baseDescricao && `(${baseDescricao})`}
               </p>
             )}
@@ -183,7 +183,7 @@ export const ChartCard: React.FC<ChartCardProps> = ({
         {(avisoCustomizado || avisoAmostraPequena) && (
           <div className="mb-3 flex items-center gap-1.5 text-xs text-amber-300 bg-amber-950/40 border border-amber-800/60 px-2.5 py-1.5 rounded-lg">
             <AlertCircle className="w-4 h-4 shrink-0 text-amber-400" />
-            <span>{avisoCustomizado || 'Nota informativa: algumas categorias possuem amostra pequena (n < 10 respondentes).'}</span>
+            <span>{avisoCustomizado || 'Nota informativa: algumas categorias possuem amostra pequena (menos de 10 respondentes).'}</span>
           </div>
         )}
       </div>

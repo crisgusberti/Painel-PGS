@@ -15,7 +15,7 @@ export const CATEGORIAS_GENERO_OFICIAIS = [
   'Mulher Trans',
   'Homem Trans',
   'Travesti',
-  'Não-binárias',
+  'Não-binários',
 ] as const;
 
 export type CategoriaGeneroOficial = (typeof CATEGORIAS_GENERO_OFICIAIS)[number];
@@ -26,7 +26,7 @@ export const SQL_GENERO_NORMALIZADO = `(
     WHEN genero ILIKE '%não-binár%' OR genero ILIKE '%nao-binar%'
       OR genero ILIKE '%agênero%' OR genero ILIKE '%alexigênero%'
       OR genero ILIKE '%fluido%' OR genero ILIKE '%fluído%'
-      OR genero ILIKE '%demigirl%' OR genero ILIKE '%multigênero%' THEN 'Não-binárias'
+      OR genero ILIKE '%demigirl%' OR genero ILIKE '%multigênero%' THEN 'Não-binários'
     WHEN genero ILIKE '%mulher%' AND genero ILIKE '%trans%' THEN 'Mulher Trans'
     WHEN genero ILIKE '%homem%' AND genero ILIKE '%trans%' THEN 'Homem Trans'
     WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'

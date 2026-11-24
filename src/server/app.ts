@@ -153,7 +153,7 @@ apiRouter.get('/filtros-opcoes', async (_req: Request, res: Response) => {
 
         'Prefiro não responder',
       ],
-      genero_agrupado: ['Mulher', 'Homem', 'Mulher Trans', 'Homem Trans', 'Travesti', 'Não-binárias'],
+      genero_agrupado: ['Mulher', 'Homem', 'Mulher Trans', 'Homem Trans', 'Travesti', 'Não-binários'],
       pcd: ['Sim', 'Não', 'Prefiro não responder'],
       responsabilidade_cuidado: [
         'Sim',

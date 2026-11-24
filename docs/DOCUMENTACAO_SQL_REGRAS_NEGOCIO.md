@@ -85,7 +85,7 @@ CASE
     OR genero ILIKE '%alexigenero%'
     OR genero ILIKE '%pangênero%'
     OR genero ILIKE '%pangenero%'
-    OR genero ILIKE '%multigênero%' THEN 'Não-binárias'
+    OR genero ILIKE '%multigênero%' THEN 'Não-binários'
   WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
   WHEN genero ILIKE '%homem%'
     OR genero ILIKE '%masculin%'
@@ -101,7 +101,7 @@ END
 | **`Mulher Trans`** | **25** | 0,51% | 0,52% | `Mulher (transgênero)` (25) |
 | **`Homem Trans`** | **40** | 0,82% | 0,84% | `Homem (transgênero)` (39), `Transmasculino` (1) |
 | **`Travesti`** | **6** | 0,12% | 0,13% | `Travesti` (6) |
-| **`Não-binárias`** | **80** | 1,65% | 1,67% | `Não-binário` (71), `Agênero` (2), `Gênero Fluido` (1), `Genero fluído ` (1), `Gênero fluído` (1), `Gênero fluido` (1), `Demigirl` (1), `Alexigênero` (1), `Pangênero` (1) |
+| **`Não-binários`** | **80** | 1,65% | 1,67% | `Não-binário` (71), `Agênero` (2), `Gênero Fluido` (1), `Genero fluído ` (1), `Gênero fluído` (1), `Gênero fluido` (1), `Demigirl` (1), `Alexigênero` (1), `Pangênero` (1) |
 | **`NULL` (Desconsideradas em gráficos de gênero)** | **67** | 1,38% | — | `Prefiro não responder` (53) + 14 respostas inválidas (`Hetero` [2], `Bissexual`, `gay`, `sapatão`, `Acho o genero totalmente desnecessário`, `Não tenho gênero...`, `Geladeira Frost Free`, `Jedi`, `Me identifico como um jegue`, `Normal`, `Patrola`, `sem gênero com pênis`, `tio paulo`) |
 
 ---
@@ -140,7 +140,7 @@ END
 O projeto padroniza **5 componentes reutilizáveis de filtro** nos cabeçalhos dos gráficos (`ChartCard`), além do indicador obrigatório de amostra **`n`** e do confinamento automático de tooltips (`confine: true` em [`src/components/ChartCard.tsx`](file:///c:/Users/Cristian/GitHub/Painel-PGS/src/components/ChartCard.tsx)):
 
 1. **`SeletorGenero` ([`src/components/SeletorGenero.tsx`](file:///c:/Users/Cristian/GitHub/Painel-PGS/src/components/SeletorGenero.tsx)):**
-   - Opções: `Todos`, `Mulher`, `Homem`, `Mulher Trans`, `Homem Trans`, `Travesti`, `Não-binárias` (`CATEGORIAS_GENERO_OFICIAIS`).
+   - Opções: `Todos`, `Mulher`, `Homem`, `Mulher Trans`, `Homem Trans`, `Travesti`, `Não-binários` (`CATEGORIAS_GENERO_OFICIAIS`).
 2. **`SeletorSegmento` ([`src/components/SeletorSegmento.tsx`](file:///c:/Users/Cristian/GitHub/Painel-PGS/src/components/SeletorSegmento.tsx)):**
    - Opções: `Geral`, `Docente`, `Técnico TAE`, `Discentes` (`correspondeSegmento` aceita os valores singulares e plurais vindos do banco).
 3. **`SeletorRaca` ([`src/components/SeletorRaca.tsx`](file:///c:/Users/Cristian/GitHub/Painel-PGS/src/components/SeletorRaca.tsx)):**

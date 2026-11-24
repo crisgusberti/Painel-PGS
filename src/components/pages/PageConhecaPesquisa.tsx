@@ -40,8 +40,16 @@ export const PageConhecaPesquisa: React.FC = () => {
           realidades ajuda a planejar ações que atendam melhor à diversidade da comunidade.
         </p>
         <p>
-          A pesquisa foi orientada pelo Marco Referencial para a Igualdade de Gênero em Instituições de Ensino
-          Superior no Brasil, uma ferramenta que apoia as instituições a conhecer sua realidade e planejar
+          A pesquisa foi orientada pelo{' '}
+          <a
+            href="https://www.britishcouncil.org.br/mulheres-na-ciencia/marco-referencial"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-teal-300 underline underline-offset-2 hover:text-teal-200"
+          >
+            Marco Referencial para a Igualdade de Gênero em Instituições de Ensino Superior no Brasil
+          </a>
+          , uma ferramenta que apoia as instituições a conhecer sua realidade e planejar
           melhorias. Ao explorar as abas, você encontrará tanto números quanto relatos das pessoas participantes,
           contribuindo para pensar os próximos passos do IFRS.
         </p>
@@ -53,8 +61,9 @@ export const PageConhecaPesquisa: React.FC = () => {
           <Target className="w-5 h-5 text-sky-400" />
           <h3 className="text-sm font-bold text-slate-100">Objetivo</h3>
           <p className="text-xs text-slate-400 leading-relaxed">
-            Traçar o perfil da comunidade do IFRS para subsidiar políticas de promoção da igualdade de gênero e
-            de combate ao assédio e à violência de gênero.
+            Conhecer o perfil, as percepções e as experiências de estudantes e servidores(as) do IFRS,
+            considerando como gênero e outras características sociais se articulam, para subsidiar políticas de
+            igualdade e respeito à diversidade.
           </p>
         </div>
         <div className="bg-[#131d36] rounded-xl border border-[#223154] shadow-sm p-5 space-y-2">

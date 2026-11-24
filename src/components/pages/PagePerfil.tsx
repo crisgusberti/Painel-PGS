@@ -239,7 +239,7 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
       {/* Gráfico 1: Identidade de Gênero Detalhada (Largura Completa) */}
       <ChartCard
         titulo="Identidade de Gênero Detalhada"
-        subtitulo="Classificação padronizada nas 6 categorias oficiais: Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binárias"
+        subtitulo="Classificação padronizada nas 6 categorias oficiais: Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binários"
         n={totalGenero}
         elementoCabecalho={
           <div className="flex items-center justify-between gap-2.5 flex-wrap w-full">
@@ -250,7 +250,7 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
         option={criarOpcaoBarra(generoItens, PALETA_ACESSIVEL[3], totalGenero)}
         altura={340}
         carregando={carregando}
-        avisoCustomizado="Nota metodológica: contempla estritamente as 6 categorias oficiais de gênero (Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binárias). Respostas inválidas e 'Prefiro não responder' são desconsideradas."
+        avisoCustomizado="Nota metodológica: contempla estritamente as 6 categorias oficiais de gênero (Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binários). Respostas inválidas e 'Prefiro não responder' são desconsideradas."
         tabelaDados={{
           cabecalhos: ['Identidade de Gênero', 'Respondentes', '% Válidos no Segmento'],
           linhas: [...generoItens]

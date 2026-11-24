@@ -242,7 +242,7 @@ export const PageNucleos: React.FC<PageNucleosProps> = ({ dados, carregando }) =
         altura={420}
         carregando={carregando}
         tabelaDados={{
-          cabecalhos: ['Núcleo / Assessoria', 'Muito Boa', 'Boa', 'Regular', 'Ruim', 'Muito Ruim', 'Não conheço', 'Total (n)'],
+          cabecalhos: ['Núcleo / Assessoria', 'Muito Boa', 'Boa', 'Regular', 'Ruim', 'Muito Ruim', 'Não conheço', 'Total'],
           linhas: distNucleosFiltrada.map((nuc: any) => [
             nuc.nome,
             nuc.respostas.find((r: any) => r.avaliacao === 'Muito Boa')?.n || 0,
@@ -269,7 +269,7 @@ export const PageNucleos: React.FC<PageNucleosProps> = ({ dados, carregando }) =
             </p>
           </div>
           <span className="text-[11px] bg-[#0e162b] border border-[#223154] text-slate-300 px-2.5 py-1 rounded-lg shrink-0">
-            {heatmapData.length} unidades • n informado por célula
+            {heatmapData.length} unidades • total informado por célula
           </span>
         </div>
 
@@ -296,7 +296,7 @@ export const PageNucleos: React.FC<PageNucleosProps> = ({ dados, carregando }) =
                   else if (num <= 2.5) colorClass = 'text-rose-400 font-bold';
                   return (
                     <span className={colorClass}>
-                      {formatarNota(num)} <span className="text-[10px] text-slate-400 font-normal">(n={v})</span>
+                      {formatarNota(num)} <span className="text-[10px] text-slate-400 font-normal">(total: {v})</span>
                     </span>
                   );
                 };
@@ -333,7 +333,7 @@ export const PageNucleos: React.FC<PageNucleosProps> = ({ dados, carregando }) =
         altura={360}
         carregando={carregando}
         tabelaDados={{
-          cabecalhos: ['Vínculo Institucional', ...respostasQ28.map(String), 'Total (n)'],
+          cabecalhos: ['Vínculo Institucional', ...respostasQ28.map(String), 'Total'],
           linhas: ORDEM_VINCULOS_CAMPANHAS.map((vinc) => {
             const vals = respostasQ28.map((resp) =>
               campanhasFiltradas

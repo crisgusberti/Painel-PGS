@@ -34,7 +34,7 @@ const GRUPOS_CATALOGO = [
 const METRICAS_VALIDAS: Array<{ id: TipoMedida; label: string }> = [
   { id: 'percentual_no_grupo', label: '% no Grupo (Eixo Principal soma 100%)' },
   { id: 'percentual_do_total', label: '% do Total Geral de Respondentes' },
-  { id: 'contagem', label: 'Contagem Absoluta (n)' },
+  { id: 'contagem', label: 'Contagem Absoluta' },
 ];
 
 export const PageConstrutor: React.FC = () => {
@@ -191,7 +191,7 @@ export const PageConstrutor: React.FC = () => {
   // Exportar dados atuais em CSV
   const exportarCSV = () => {
     if (!resultado || !resultado.linhas) return;
-    const cabecalhos = ['Eixo Principal', 'Série / Cor', 'Valor', 'Respondentes (n)', 'Base Grupo'];
+    const cabecalhos = ['Eixo Principal', 'Série / Cor', 'Valor', 'Respondentes', 'Base Grupo'];
     const linhasCsv = resultado.linhas.map((l) => [
       `"${l.eixo_1 || ''}"`,
       `"${l.cor || 'Total'}"`,
@@ -250,7 +250,7 @@ export const PageConstrutor: React.FC = () => {
             let html = `<div class="font-bold text-slate-100 mb-1.5 border-b border-slate-700 pb-1">${catName}</div>`;
             params.forEach((p) => {
               const match = linhas.find((l) => l.eixo_1 === catName && (l.cor || 'Total') === p.seriesName);
-              const nTxt = match ? ` <span class="text-slate-400">(n=${formatarNumero(match.n)})</span>` : '';
+              const nTxt = match ? ` <span class="text-slate-400">(total: ${formatarNumero(match.n)})</span>` : '';
               html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
                 <span>${p.marker} ${p.seriesName}</span>
                 <span class="font-bold text-teal-300">${p.value}${sufixoUnidade}${nTxt}</span>
@@ -365,7 +365,7 @@ export const PageConstrutor: React.FC = () => {
           textStyle: { color: '#f1f5f9' },
           formatter: (p: any) => {
             const item = dadosFinais.find((d) => d.name === p.name);
-            const nInfo = item?.n ? ` <span style="color:#94a3b8;">(n = ${formatarNumero(item.n)})</span>` : '';
+            const nInfo = item?.n ? ` <span style="color:#94a3b8;">(total: ${formatarNumero(item.n)})</span>` : '';
             return `<div style="font-weight:600;color:#f1f5f9;">${p.name}</div>
               <div style="font-size:12px;margin-top:4px;color:#cbd5e1;">
                 Proporção: <strong style="color:#2dd4bf;">${p.percent}%</strong>${nInfo}
@@ -426,7 +426,7 @@ export const PageConstrutor: React.FC = () => {
           return `<div class="font-bold text-slate-100">${p.name}</div>
             <div class="text-xs mt-1 text-teal-300">
               Valor: <strong>${p.value}${sufixoUnidade}</strong>
-              ${match ? ` <span class="text-slate-400">(n = ${formatarNumero(match.n)})</span>` : ''}
+              ${match ? ` <span class="text-slate-400">(total: ${formatarNumero(match.n)})</span>` : ''}
             </div>`;
         },
       },
@@ -722,9 +722,9 @@ export const PageConstrutor: React.FC = () => {
                     cabecalhos: [
                       labelEixo1,
                       labelCor || 'Série',
-                      tipoMedida.includes('percentual') ? 'Proporção (%)' : 'Contagem (n)',
-                      'Amostra (n)',
-                      'Base do Grupo (n)',
+                      tipoMedida.includes('percentual') ? 'Proporção (%)' : 'Contagem',
+                      'Total da amostra',
+                      'Total do grupo',
                     ],
                     linhas: resultado.linhas.map((l) => [
                       l.eixo_1 || 'Sem resposta',

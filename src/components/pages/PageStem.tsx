@@ -178,7 +178,7 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
           position: 'right',
           formatter: (params: any) => {
             const areaObj = [...dadosGrandesAreas].reverse()[params.dataIndex];
-            return areaObj ? `${params.value}% (n=${formatarNumero(areaObj.nRecorte)})` : `${params.value}%`;
+            return areaObj ? `${params.value}% (total: ${formatarNumero(areaObj.nRecorte)})` : `${params.value}%`;
           },
           fontSize: 11,
           color: '#38bdf8',
@@ -380,7 +380,7 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
         altura={380}
         carregando={carregando}
         tabelaDados={{
-          cabecalhos: ['Grande Área (CNPq)', 'Discentes no Recorte (n)', 'Total da Área (n)', 'Participação (%)'],
+          cabecalhos: ['Grande Área (CNPq)', 'Discentes no Recorte', 'Total da Área', 'Participação (%)'],
           linhas: dadosGrandesAreas.map((r) => [r.area, r.nRecorte, r.totalArea, `${r.pct}%`]),
         }}
       />
@@ -407,7 +407,7 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
         altura={360}
         carregando={carregando}
         tabelaDados={{
-          cabecalhos: ['Frequência de Desencorajamento Relatada', 'Discentes (n)', 'Proporção no Recorte (%)'],
+          cabecalhos: ['Frequência de Desencorajamento Relatada', 'Discentes', 'Proporção no Recorte (%)'],
           linhas: dadosGraficoDesencStem.map((d) => [d.rotulo, d.n, `${d.pct}%`]),
         }}
       />
@@ -426,7 +426,7 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
 
           <div className="flex items-center gap-2">
             <span className="text-[11px] bg-[#0e162b] border border-[#223154] text-slate-300 px-2.5 py-1 rounded-lg">
-              {coberturaFiltrada.length} de {cobertura.length} termos • n = {formatarNumero(totalRespondentesCobertura)} respondentes
+              {coberturaFiltrada.length} de {cobertura.length} termos • Total: {formatarNumero(totalRespondentesCobertura)} respondentes
             </span>
           </div>
         </div>
@@ -495,7 +495,7 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
               <tr>
                 <th className="px-3 py-2.5">Texto Declarado no Formulário</th>
                 <th className="px-3 py-2.5">Grande Área Atribuída (CNPq)</th>
-                <th className="px-3 py-2.5">Respondentes (n)</th>
+                <th className="px-3 py-2.5">Respondentes</th>
                 <th className="px-3 py-2.5">Classificação</th>
               </tr>
             </thead>

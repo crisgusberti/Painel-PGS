@@ -615,7 +615,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
           altura={320}
           carregando={carregando}
           tabelaDados={{
-            cabecalhos: ['Cor / Raça', 'Respondentes (n)', 'Relatos Sim (n)', 'Percentual (%)'],
+            cabecalhos: ['Cor / Raça', 'Respondentes', 'Relatos Sim', 'Percentual (%)'],
             linhas: [...violenciaCorFiltrada].reverse().map((r) => [r.cor_raca, r.n_total, r.n_sim, `${r.taxa_pct}%`]),
           }}
         />
@@ -639,7 +639,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
           altura={320}
           carregando={carregando}
           tabelaDados={{
-            cabecalhos: ['Identidade de Gênero', 'Respondentes (n)', 'Relatos Sim (n)', 'Percentual (%)'],
+            cabecalhos: ['Identidade de Gênero', 'Respondentes', 'Relatos Sim', 'Percentual (%)'],
             linhas: [...violenciaGeneroFiltrada].reverse().map((r) => [r.grupo_genero, r.n_total, r.n_sim, `${r.taxa_pct}%`]),
           }}
         />
@@ -662,7 +662,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
           {/* Resumo do Recorte Ativo */}
           <div className="flex items-center gap-2 shrink-0">
             <span className="text-[11px] bg-[#0e162b] border border-[#223154] text-slate-300 px-2.5 py-1 rounded-lg">
-              {matrizFiltrada.length} de {vitimizacaoIntersec.length} grupos • n = {formatarNumero(subtotalRespondentes)} respondentes
+              {matrizFiltrada.length} de {vitimizacaoIntersec.length} grupos • Total: {formatarNumero(subtotalRespondentes)} respondentes
             </span>
           </div>
         </div>
@@ -739,9 +739,9 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
               <tr>
                 <th className="px-4 py-3">Cor / Raça</th>
                 <th className="px-4 py-3">Identidade de Gênero</th>
-                <th className="px-4 py-3">Respondentes (n)</th>
-                <th className="px-4 py-3">Discrim. Racial (n)</th>
-                <th className="px-4 py-3">Discrim. Gênero/Orient. (n)</th>
+                <th className="px-4 py-3">Respondentes</th>
+                <th className="px-4 py-3">Discrim. Racial</th>
+                <th className="px-4 py-3">Discrim. Gênero/Orient.</th>
                 <th className="px-4 py-3">Total Vítimas (União)</th>
                 <th className="px-4 py-3">Percentual (%)</th>
                 <th className="px-4 py-3">Status Amostral</th>
@@ -824,10 +824,10 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
         tabelaDados={{
           cabecalhos: [
             'Vínculo Institucional',
-            'Respondentes (n)',
-            'Conhece Canais (n / %)',
-            'Considera Efetivos (n / %)',
-            'Considera os Resultados Justos (n / %)',
+            'Respondentes',
+            'Conhece Canais (total / %)',
+            'Considera Efetivos (total / %)',
+            'Considera os Resultados Justos (total / %)',
           ],
           linhas: funilFiltradoPorVinculo.map((r) => [
             r.vinculo_grp,

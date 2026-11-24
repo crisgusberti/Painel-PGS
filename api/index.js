@@ -51,7 +51,7 @@ var SQL_GENERO_NORMALIZADO = `(
     WHEN genero ILIKE '%n\xE3o-bin\xE1r%' OR genero ILIKE '%nao-binar%'
       OR genero ILIKE '%ag\xEAnero%' OR genero ILIKE '%alexig\xEAnero%'
       OR genero ILIKE '%fluido%' OR genero ILIKE '%flu\xEDdo%'
-      OR genero ILIKE '%demigirl%' OR genero ILIKE '%multig\xEAnero%' THEN 'N\xE3o-bin\xE1rias'
+      OR genero ILIKE '%demigirl%' OR genero ILIKE '%multig\xEAnero%' THEN 'N\xE3o-bin\xE1rios'
     WHEN genero ILIKE '%mulher%' AND genero ILIKE '%trans%' THEN 'Mulher Trans'
     WHEN genero ILIKE '%homem%' AND genero ILIKE '%trans%' THEN 'Homem Trans'
     WHEN genero ILIKE '%mulher%' OR genero ILIKE '%femin%' THEN 'Mulher'
@@ -180,7 +180,7 @@ var CATALOGO_CAMPOS = {
     escopo: "geral",
     papel: "perfil",
     permitirComoSerie: true,
-    descricao: "Classifica\xE7\xE3o oficial normalizada nas 6 categorias de g\xEAnero: Mulher, Homem, Mulher Trans, Homem Trans, Travesti e N\xE3o-bin\xE1rias."
+    descricao: "Classifica\xE7\xE3o oficial normalizada nas 6 categorias de g\xEAnero: Mulher, Homem, Mulher Trans, Homem Trans, Travesti e N\xE3o-bin\xE1rios."
   },
   cor_raca: {
     key: "cor_raca",
@@ -894,13 +894,13 @@ async function executarConsulta(req) {
     };
   });
   if (pequenasAmostras > 0) {
-    avisos.push(`Amostra pequena: ${pequenasAmostras} categoria(s) possuem n < 10 respondentes.`);
+    avisos.push(`Amostra pequena: ${pequenasAmostras} categoria(s) possuem menos de 10 respondentes.`);
   }
   const resposta = {
     linhas,
     n_total: 4857,
     n_filtrado: nFiltrado,
-    base_descricao: `Respondentes com filtros aplicados (n = ${nFiltrado.toLocaleString("pt-BR")})`,
+    base_descricao: `Respondentes com filtros aplicados (total: ${nFiltrado.toLocaleString("pt-BR")})`,
     avisos,
     metadados: {
       campo_eixo_1: campoEixo1,
@@ -1899,7 +1899,7 @@ async function obterDadosStem(filtros) {
     else if (row.genero_grp === "Mulher Trans") contagemPorGrandeArea[ga].mulheres_trans += n;
     else if (row.genero_grp === "Homem Trans") contagemPorGrandeArea[ga].homens_trans += n;
     else if (row.genero_grp === "Travesti") contagemPorGrandeArea[ga].travestis += n;
-    else if (row.genero_grp === "N\xE3o-bin\xE1rias") contagemPorGrandeArea[ga].nao_binarias += n;
+    else if (row.genero_grp === "N\xE3o-bin\xE1rios") contagemPorGrandeArea[ga].nao_binarias += n;
     if (row.cor_raca === "Preta" || row.cor_raca === "Parda") {
       contagemPorGrandeArea[ga].negros += n;
     }
@@ -2067,7 +2067,7 @@ apiRouter.get("/filtros-opcoes", async (_req, res) => {
         "Docente (professor/a) Substituto",
         "Prefiro n\xE3o responder"
       ],
-      genero_agrupado: ["Mulher", "Homem", "Mulher Trans", "Homem Trans", "Travesti", "N\xE3o-bin\xE1rias"],
+      genero_agrupado: ["Mulher", "Homem", "Mulher Trans", "Homem Trans", "Travesti", "N\xE3o-bin\xE1rios"],
       pcd: ["Sim", "N\xE3o", "Prefiro n\xE3o responder"],
       responsabilidade_cuidado: [
         "Sim",

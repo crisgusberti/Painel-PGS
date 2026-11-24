@@ -964,7 +964,7 @@ export async function obterDadosStem(filtros?: FiltrosGlobaisState) {
     else if (row.genero_grp === 'Mulher Trans') contagemPorGrandeArea[ga].mulheres_trans += n;
     else if (row.genero_grp === 'Homem Trans') contagemPorGrandeArea[ga].homens_trans += n;
     else if (row.genero_grp === 'Travesti') contagemPorGrandeArea[ga].travestis += n;
-    else if (row.genero_grp === 'Não-binárias') contagemPorGrandeArea[ga].nao_binarias += n;
+    else if (row.genero_grp === 'Não-binários') contagemPorGrandeArea[ga].nao_binarias += n;
 
     if (row.cor_raca === 'Preta' || row.cor_raca === 'Parda') {
       contagemPorGrandeArea[ga].negros += n;

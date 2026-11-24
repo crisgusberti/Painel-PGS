@@ -277,7 +277,7 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
       total,
       contagens,
       percentuais,
-      rotuloComN: `${g} (n=${formatarNumero(total)})`,
+      rotuloComN: `${g} (total: ${formatarNumero(total)})`,
     };
   });
 
@@ -477,7 +477,7 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
             </div>
           }
           tabelaDados={{
-            cabecalhos: ['Gênero', ...categoriasCuidado, 'Total (n)'],
+            cabecalhos: ['Gênero', ...categoriasCuidado, 'Total'],
             linhas: generosOficiais.map((g) => {
               const vals = categoriasCuidado.map((cat) =>
                 respCuidadoFiltrado
@@ -552,7 +552,7 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
         altura={380}
         carregando={carregando}
         tabelaDados={{
-          cabecalhos: ['Gênero', ...opcoesLikertMaternidade.map((op) => `${op} (n / %)`), 'Total (n)'],
+          cabecalhos: ['Gênero', ...opcoesLikertMaternidade.map((op) => `${op} (total / %)`), 'Total'],
           linhas: dadosMaternidadePorGenero.map((d) => [
             d.genero,
             ...opcoesLikertMaternidade.map((op) => `${formatarNumero(d.contagens[op])} (${d.percentuais[op]}%)`),
@@ -577,7 +577,7 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
           {/* Resumo do Recorte Ativo */}
           <div className="flex items-center gap-2 shrink-0">
             <span className="text-[11px] bg-[#0e162b] border border-[#223154] text-slate-300 px-2.5 py-1 rounded-lg">
-              {estudantesFiltrados.length} linhas • n = {formatarNumero(subtotalEstudantes)} estudantes
+              {estudantesFiltrados.length} linhas • Total: {formatarNumero(subtotalEstudantes)} estudantes
             </span>
           </div>
         </div>

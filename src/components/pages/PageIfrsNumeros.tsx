@@ -131,6 +131,27 @@ const DISCENTES_POR_CAMPUS: { nivel: NivelDiscente; campus: string; feminino: nu
   { nivel: 'T', campus: 'CAMPUS ZONA NORTE', feminino: 28, masculino: 8 },
 ];
 
+// Série auxiliar (invisível) que exibe o total de cada barra empilhada ao final dela,
+// para que o total fique visível sem precisar passar o cursor sobre o gráfico.
+const NOME_SERIE_TOTAL = 'Total';
+const criarSerieTotal = (totais: number[]) => ({
+  name: NOME_SERIE_TOTAL,
+  type: 'bar',
+  stack: 'total',
+  data: totais.map(() => 0),
+  itemStyle: { color: 'transparent' },
+  tooltip: { show: false },
+  emphasis: { disabled: true },
+  label: {
+    show: true,
+    position: 'right',
+    color: '#5eead4',
+    fontSize: 11,
+    fontWeight: 700,
+    formatter: (p: any) => `Total: ${formatarNumero(totais[p.dataIndex])}`,
+  },
+});
+
 export const PageIfrsNumeros: React.FC = () => {
   // Quadro de servidores do IFRS por sexo (dados institucionais do SIG, fora do universo da pesquisa)
   const quadroServidores = [
@@ -162,7 +183,7 @@ export const PageIfrsNumeros: React.FC = () => {
         const diferenca = row ? Math.abs(row.homens - row.mulheres) : 0;
         const predominante = row && row.homens === row.mulheres ? null : row && row.homens > row.mulheres ? 'homens' : 'mulheres';
         let html = `<div class="font-bold mb-1 text-slate-100">${cNome}</div>`;
-        params.forEach((p) => {
+        params.filter((p) => p.seriesName !== NOME_SERIE_TOTAL).forEach((p) => {
           html += `<div class="flex items-center justify-between gap-4 text-xs text-slate-300">
             <span>${p.marker} ${p.seriesName}</span>
             <span class="font-bold text-slate-100">${formatarNumero(p.value)} (${total > 0 ? ((p.value / total) * 100).toFixed(1) : '0,0'}%)</span>
@@ -185,7 +206,7 @@ export const PageIfrsNumeros: React.FC = () => {
     },
     grid: {
       left: '3%',
-      right: '4%',
+      right: 90,
       top: '5%',
       bottom: '14%',
       containLabel: true,
@@ -241,6 +262,7 @@ export const PageIfrsNumeros: React.FC = () => {
           },
         },
       },
+      criarSerieTotal(linhasServidores.map((c) => c.homens + c.mulheres)),
     ],
   };
 
@@ -274,10 +296,11 @@ export const PageIfrsNumeros: React.FC = () => {
       textStyle: { color: '#f1f5f9' },
       formatter: (params: any[]) => {
         const codNome = params[0]?.axisValueLabel || '';
-        const totalCod = params.reduce((acc, p) => acc + Number(p.value || 0), 0);
+        const visiveis = params.filter((p) => p.seriesName !== NOME_SERIE_TOTAL);
+        const totalCod = visiveis.reduce((acc, p) => acc + Number(p.value || 0), 0);
         let html = `<div class="font-bold text-slate-100 mb-1">${codNome}</div>`;
         html += `<div class="text-[11px] text-slate-400 mb-2">Total na função: <strong>${formatarNumero(totalCod)}</strong></div>`;
-        params.forEach((p) => {
+        visiveis.forEach((p) => {
           const val = Number(p.value || 0);
           const pct = totalCod > 0 ? ((val / totalCod) * 100).toFixed(1) : '0.0';
           html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
@@ -289,7 +312,7 @@ export const PageIfrsNumeros: React.FC = () => {
       },
     },
     legend: { data: ['Homens', 'Mulheres'], bottom: 0, textStyle: { color: '#cbd5e1', fontSize: 10 } },
-    grid: { left: '3%', right: '4%', top: '4%', bottom: '10%', containLabel: true },
+    grid: { left: '3%', right: 90, top: '4%', bottom: '10%', containLabel: true },
     xAxis: {
       type: 'value',
       axisLabel: { color: '#94a3b8' },
@@ -315,6 +338,7 @@ export const PageIfrsNumeros: React.FC = () => {
         itemStyle: { color: PALETA_ACESSIVEL[4] },
         data: linhasTipologiaFuncao.map((c) => c.mulheres),
       },
+      criarSerieTotal(linhasTipologiaFuncao.map((c) => c.homens + c.mulheres)),
     ],
   };
 
@@ -370,9 +394,10 @@ export const PageIfrsNumeros: React.FC = () => {
       textStyle: { color: '#f1f5f9' },
       formatter: (params: any[]) => {
         const cNome = params[0]?.axisValueLabel || '';
-        const total = params.reduce((acc, p) => acc + Number(p.value || 0), 0);
+        const visiveis = params.filter((p) => p.seriesName !== NOME_SERIE_TOTAL);
+        const total = visiveis.reduce((acc, p) => acc + Number(p.value || 0), 0);
         let html = `<div class="font-bold mb-1 text-slate-100">${cNome}</div>`;
-        params.forEach((p) => {
+        visiveis.forEach((p) => {
           const pct = total > 0 ? ((Number(p.value || 0) / total) * 100).toFixed(1) : '0.0';
           html += `<div class="flex items-center justify-between gap-4 text-xs text-slate-300">
             <span>${p.marker} ${p.seriesName}</span>
@@ -394,7 +419,7 @@ export const PageIfrsNumeros: React.FC = () => {
     },
     grid: {
       left: '3%',
-      right: '4%',
+      right: 90,
       top: '5%',
       bottom: sexoDiscentes === 'todos' ? '8%' : '3%',
       containLabel: true,
@@ -426,6 +451,7 @@ export const PageIfrsNumeros: React.FC = () => {
               data: linhasDiscentes.map((c) => c.masculino),
               itemStyle: { color: PALETA_ACESSIVEL[0] },
             },
+            criarSerieTotal(linhasDiscentes.map((c) => c.feminino + c.masculino)),
           ]
         : [
             {
@@ -433,6 +459,14 @@ export const PageIfrsNumeros: React.FC = () => {
               type: 'bar',
               data: linhasDiscentes.map((c) => (sexoDiscentes === 'feminino' ? c.feminino : c.masculino)),
               itemStyle: { color: sexoDiscentes === 'feminino' ? PALETA_ACESSIVEL[4] : PALETA_ACESSIVEL[0] },
+              label: {
+                show: true,
+                position: 'right',
+                color: '#5eead4',
+                fontSize: 11,
+                fontWeight: 700,
+                formatter: (p: any) => `Total: ${formatarNumero(p.value)}`,
+              },
             },
           ],
   };

@@ -542,7 +542,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
       pctPos: total > 0 ? Number(((pos / total) * 100).toFixed(1)) : 0,
       pctNeu: total > 0 ? Number(((neu / total) * 100).toFixed(1)) : 0,
       pctNeg: total > 0 ? Number(((neg / total) * 100).toFixed(1)) : 0,
-      rotuloComN: `${g} (n=${formatarNumero(total)})`,
+      rotuloComN: `${g} (total: ${formatarNumero(total)})`,
     };
   });
 
@@ -684,7 +684,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
       pctPos: total > 0 ? Number(((pos / total) * 100).toFixed(1)) : 0,
       pctNeg: total > 0 ? Number(((neg / total) * 100).toFixed(1)) : 0,
       pctNeu: total > 0 ? Number(((neutro / total) * 100).toFixed(1)) : 0,
-      rotuloComN: `${g} (n=${formatarNumero(total)})`,
+      rotuloComN: `${g} (total: ${formatarNumero(total)})`,
     };
   });
 
@@ -1285,7 +1285,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
                 </span>
               </div>
               <p className="text-xs text-slate-400 mt-1">
-                Análise integrada do impacto do trabalho de cuidado na renúncia a pleitear posições de liderança e gestão institucional • n = {formatarNumero(totalRespondentesCuidadoBloco)}
+                Análise integrada do impacto do trabalho de cuidado na renúncia a pleitear posições de liderança e gestão institucional • Total: {formatarNumero(totalRespondentesCuidadoBloco)}
               </p>
             </div>
 
@@ -1357,7 +1357,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           <div className="mt-3 flex items-center gap-1.5 text-xs text-amber-300 bg-amber-950/40 border border-amber-800/60 px-2.5 py-1.5 rounded-lg">
             <AlertCircle className="w-4 h-4 shrink-0 text-amber-400" />
             <span>
-              Nota metodológica: contempla estritamente as 6 categorias oficiais de gênero (Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binárias). Respostas inválidas e 'Prefiro não responder' são desconsideradas.
+              Nota metodológica: contempla estritamente as 6 categorias oficiais de gênero (Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binários). Respostas inválidas e 'Prefiro não responder' são desconsideradas.
             </span>
           </div>
         </div>
