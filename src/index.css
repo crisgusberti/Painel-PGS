@@ -1,16 +1,75 @@
 @import "tailwindcss";
 
+/*
+ * Tema claro inspirado na identidade visual dos Institutos Federais (manual da marca):
+ *   verde oficial  #2F9E41  -> usado só em elementos de marca/decorativos e áreas grandes
+ *   vermelho       #CD191E
+ * Para texto e botões com texto branco usamos um verde mais escuro (#1F6D2B, ~6,4:1 sobre branco),
+ * porque o verde oficial sobre branco fica em ~3,45:1, abaixo dos 4,5:1 exigidos para texto comum.
+ *
+ * Tokens semânticos (use-os em vez de cores fixas):
+ *   fundo / superficie / superficie-2 / realce   -> planos de fundo
+ *   borda / borda-forte                          -> contornos
+ *   texto / texto-2 / texto-3                    -> texto forte, corpo e secundário (todos >= 4,5:1 sobre branco)
+ *   marca / marca-escura / marca-oficial / marca-fundo / marca-borda
+ *   alerta*, perigo*, info*                      -> estados
+ */
 @theme {
   --font-sans: 'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --font-heading: 'Outfit', sans-serif;
+
+  /* Escala tipográfica maior: o menor texto do painel passa a ter 13px e o corpo 15px */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.25rem;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.4rem;
+
+  --color-fundo: #f3f5f4;
+  --color-superficie: #ffffff;
+  --color-superficie-2: #f7f9f8;
+  --color-realce: #e9f3eb;
+
+  --color-borda: #d3dbd6;
+  --color-borda-forte: #9aa8a0;
+
+  --color-texto: #14201a;
+  --color-texto-2: #2f3b35;
+  --color-texto-3: #4d5a53;
+
+  --color-marca: #1f6d2b;
+  --color-marca-escura: #175421;
+  --color-marca-oficial: #2f9e41;
+  --color-marca-fundo: #e9f3eb;
+  --color-marca-borda: #8fc49a;
+
+  --color-vermelho-oficial: #cd191e;
+
+  --color-alerta: #8a4b00;
+  --color-alerta-fundo: #fff6e5;
+  --color-alerta-borda: #e8b45c;
+
+  --color-perigo: #b4141a;
+  --color-perigo-fundo: #fdeced;
+  --color-perigo-borda: #eea3a6;
+
+  --color-info: #075985;
+  --color-info-fundo: #e8f3fb;
+  --color-info-borda: #7cb8dd;
+
+  --color-roxo: #4338ca;
+
+  /* Barra lateral verde-escura (texto branco ~11:1; rótulos ~6:1) */
+  --color-lateral: #123d22;
+  --color-lateral-texto: #d6e6da;
+  --color-lateral-rotulo: #a3c9ad;
 }
 
 html,
 body,
 #root {
   font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background-color: #0b1329;
-  color: #f1f5f9;
+  background-color: var(--color-fundo);
+  color: var(--color-texto);
 }
 
 *,
@@ -23,20 +82,62 @@ button, input, select, textarea {
   font-family: inherit;
 }
 
-/* Custom dark scrollbar */
+/* Área mínima de toque/clique de 24 x 24 px (WCAG 2.2, critério 2.5.8) */
+button,
+select,
+[role="button"] {
+  min-height: 1.5rem;
+  min-width: 1.5rem;
+}
+
+/*
+ * Indicador de foco bem visível: contorno verde escuro de 3px com anel branco por fora,
+ * o que garante contraste tanto sobre fundos claros quanto sobre botões verdes.
+ * Fora de @layer para prevalecer sobre utilitários como `focus:outline-none`.
+ */
+:focus-visible {
+  outline: 3px solid var(--color-marca) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 5px #ffffff !important;
+}
+
+/* Dentro da barra lateral escura o foco é branco, para manter o contraste */
+.menu-escuro :focus-visible {
+  outline-color: #ffffff !important;
+  box-shadow: 0 0 0 5px var(--color-lateral) !important;
+}
+.menu-escuro ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.menu-escuro ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+@keyframes gavetaEntrada {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.gaveta-entrada {
+  animation: gavetaEntrada 0.2s ease-out both;
+}
+
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: var(--color-fundo);
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 4px;
+  background: var(--color-borda-forte);
+  border-radius: 5px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: var(--color-texto-3);
 }
 
 @keyframes chartEntrance {
@@ -54,3 +155,14 @@ button, input, select, textarea {
   animation: chartEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* Respeita quem prefere menos movimento */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

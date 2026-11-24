@@ -149,29 +149,29 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
       tooltip: {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
-        backgroundColor: '#0e162b',
-        borderColor: '#223154',
-        textStyle: { color: '#f1f5f9' },
+        backgroundColor: '#ffffff',
+        borderColor: '#d3dbd6',
+        textStyle: { color: '#14201a' },
         formatter: (params: any[]) => {
           const item = params[0];
           const val = Number(item.value || 0);
           const pct = denominadorBase > 0 ? ((val / denominadorBase) * 100).toFixed(1) : '0,0';
-          return `<div class="font-bold text-slate-100">${item.name}</div>
-            <div class="text-xs text-slate-300 mt-1">
-              Quantidade: <strong class="text-teal-300">${formatarNumero(val)}</strong> (${pct}%)
+          return `<div class="font-bold text-texto">${item.name}</div>
+            <div class="text-xs text-texto-2 mt-1">
+              Quantidade: <strong class="text-marca">${formatarNumero(val)}</strong> (${pct}%)
             </div>`;
         },
       },
       grid: { left: '3%', right: '12%', top: '4%', bottom: '5%', containLabel: true },
       xAxis: {
         type: 'value',
-        axisLabel: { fontSize: 10, color: '#94a3b8' },
-        splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+        axisLabel: { fontSize: 12, color: '#4d5a53' },
+        splitLine: { lineStyle: { stroke: '#e3e8e5' } },
       },
       yAxis: {
         type: 'category',
         data: ordenados.map((i) => i.categoria || 'Não informado').reverse(),
-        axisLabel: { fontSize: 11, width: 160, overflow: 'truncate', color: '#cbd5e1' },
+        axisLabel: { fontSize: 13, width: 160, overflow: 'truncate', color: '#2f3b35' },
       },
       series: [
         {
@@ -185,8 +185,8 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
               const pct = denominadorBase > 0 ? ((p.value / denominadorBase) * 100).toFixed(1) : '0.0';
               return `${formatarNumero(p.value)} (${pct}%)`;
             },
-            fontSize: 10,
-            color: '#cbd5e1',
+            fontSize: 12,
+            color: '#2f3b35',
           },
         },
       ],
@@ -197,28 +197,28 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
   const optionRoscaPcd = {
     tooltip: {
       trigger: 'item',
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
+      backgroundColor: '#ffffff',
+      borderColor: '#d3dbd6',
+      textStyle: { color: '#14201a' },
       formatter: (p: any) => {
-        return `<div class="font-bold text-slate-100">${p.name}</div>
-          <div class="text-xs mt-1 text-slate-300">Respondentes: <strong class="text-teal-300">${formatarNumero(p.value)}</strong> (${p.percent}%)</div>`;
+        return `<div class="font-bold text-texto">${p.name}</div>
+          <div class="text-xs mt-1 text-texto-2">Respondentes: <strong class="text-marca">${formatarNumero(p.value)}</strong> (${p.percent}%)</div>`;
       },
     },
-    legend: { bottom: '0', textStyle: { fontSize: 11, color: '#cbd5e1' } },
+    legend: { bottom: '0', textStyle: { fontSize: 13, color: '#2f3b35' } },
     series: [
       {
         name: 'PCD',
         type: 'pie',
         radius: ['45%', '70%'],
         avoidLabelOverlap: true,
-        itemStyle: { borderRadius: 6, borderColor: '#131d36', borderWidth: 2 },
+        itemStyle: { borderRadius: 6, borderColor: '#ffffff', borderWidth: 2 },
         color: [PALETA_ACESSIVEL[1], PALETA_ACESSIVEL[0], PALETA_ACESSIVEL[9]],
         label: {
           show: true,
           formatter: '{b}: {d}%',
-          color: '#cbd5e1',
-          fontSize: 11,
+          color: '#2f3b35',
+          fontSize: 13,
         },
         data: pcdItens.map((item) => ({ name: item.categoria || 'Não informado', value: item.n })),
       },
@@ -228,9 +228,9 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
   return (
     <div className="space-y-6">
       {/* Título de Seção */}
-      <div className="border-b border-[#1f2d4e] pb-3">
-        <h2 className="text-xl font-bold text-slate-100">1. Perfil Demográfico e Representatividade</h2>
-        <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
+      <div className="border-b border-borda pb-3">
+        <h2 className="text-xl font-bold text-texto">1. Perfil Demográfico e Representatividade</h2>
+        <p className="text-xs sm:text-sm text-texto-3 mt-0.5">
           Caracterização sociodemográfica da comunidade do IFRS por identidade de gênero, autodeclaração
           étnico-racial, orientação sexual, faixa etária e pessoas com deficiência, com filtro individual por segmento (Geral, Docente, Técnico TAE e Discente).
         </p>
@@ -264,7 +264,7 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
       />
 
       {/* Gráficos 2 e 3: Cor/Raça e Orientação Sexual */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 @4xl:grid-cols-2 gap-6">
         <ChartCard
           titulo="Autodeclaração Étnico-Racial (Cor / Raça)"
           subtitulo="Categorias censitárias autodeclaradas (IBGE)"
@@ -320,8 +320,8 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
       </div>
 
       {/* Gráficos 4 e 5: Faixa Etária e PCD */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 flex flex-col">
+      <div className="grid grid-cols-1 @4xl:grid-cols-3 gap-6">
+        <div className="@4xl:col-span-2 flex flex-col">
           <ChartCard
             titulo="Distribuição por Faixa Etária"
             subtitulo="Estrutura etária dos respondentes"

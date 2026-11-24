@@ -59,20 +59,20 @@ export const PageNucleos: React.FC<PageNucleosProps> = ({ dados, carregando }) =
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
+      backgroundColor: '#ffffff',
+      borderColor: '#d3dbd6',
+      textStyle: { color: '#14201a' },
       formatter: (params: any[]) => {
         const nomeNuc = params[0]?.axisValueLabel || '';
         const totalNuc = params.reduce((acc, p) => acc + Number(p.value || 0), 0);
-        let html = `<div class="font-bold text-slate-100 mb-1">${nomeNuc}</div>`;
-        html += `<div class="text-[11px] text-slate-400 mb-2">Total de respondentes: <strong>${formatarNumero(totalNuc)}</strong></div>`;
+        let html = `<div class="font-bold text-texto mb-1">${nomeNuc}</div>`;
+        html += `<div class="text-xs text-texto-3 mb-2">Total de respondentes: <strong>${formatarNumero(totalNuc)}</strong></div>`;
         params.forEach((p) => {
           const val = Number(p.value || 0);
           const pct = totalNuc > 0 ? ((val * 100) / totalNuc).toFixed(1) : '0.0';
           html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
             <span>${p.marker} ${p.seriesName}</span>
-            <span class="font-bold text-slate-100">${formatarNumero(val)} <span class="text-slate-400 font-normal">(${pct}%)</span></span>
+            <span class="font-bold text-texto">${formatarNumero(val)} <span class="text-texto-3 font-normal">(${pct}%)</span></span>
           </div>`;
         });
         return html;
@@ -81,18 +81,18 @@ export const PageNucleos: React.FC<PageNucleosProps> = ({ dados, carregando }) =
     legend: {
       data: ['Muito Boa', 'Boa', 'Regular', 'Ruim', 'Muito Ruim', 'Não conheço'],
       bottom: 0,
-      textStyle: { color: '#cbd5e1', fontSize: 10 },
+      textStyle: { color: '#2f3b35', fontSize: 12 },
     },
     grid: { left: '3%', right: '4%', top: '4%', bottom: '15%', containLabel: true },
     xAxis: {
       type: 'value',
-      axisLabel: { color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      axisLabel: { color: '#4d5a53' },
+      splitLine: { lineStyle: { stroke: '#e3e8e5' } },
     },
     yAxis: {
       type: 'category',
       data: distNucleosFiltrada.map((n: any) => n.nome).reverse(),
-      axisLabel: { fontSize: 11, color: '#cbd5e1', width: 260, overflow: 'break' },
+      axisLabel: { fontSize: 13, color: '#2f3b35', width: 260, overflow: 'break' },
     },
     series: [
       {
@@ -168,36 +168,36 @@ export const PageNucleos: React.FC<PageNucleosProps> = ({ dados, carregando }) =
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
+      backgroundColor: '#ffffff',
+      borderColor: '#d3dbd6',
+      textStyle: { color: '#14201a' },
       formatter: (params: any[]) => {
         const vinc = params[0]?.axisValueLabel || '';
         const totalVinc = params.reduce((acc, p) => acc + Number(p.value || 0), 0);
-        let html = `<div class="font-bold text-slate-100 mb-1">${vinc}</div>`;
-        html += `<div class="text-[11px] text-slate-400 mb-2">Total no vínculo: <strong>${formatarNumero(totalVinc)}</strong></div>`;
+        let html = `<div class="font-bold text-texto mb-1">${vinc}</div>`;
+        html += `<div class="text-xs text-texto-3 mb-2">Total no vínculo: <strong>${formatarNumero(totalVinc)}</strong></div>`;
         params.forEach((p) => {
           const val = Number(p.value || 0);
           const pct = totalVinc > 0 ? ((val * 100) / totalVinc).toFixed(1) : '0.0';
           html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
             <span>${p.marker} ${p.seriesName}</span>
-            <span class="font-bold text-slate-100">${formatarNumero(val)} <span class="text-slate-400 font-normal">(${pct}%)</span></span>
+            <span class="font-bold text-texto">${formatarNumero(val)} <span class="text-texto-3 font-normal">(${pct}%)</span></span>
           </div>`;
         });
         return html;
       },
     },
-    legend: { bottom: 0, textStyle: { color: '#cbd5e1', fontSize: 10 } },
+    legend: { bottom: 0, textStyle: { color: '#2f3b35', fontSize: 12 } },
     grid: { left: '3%', right: '4%', top: '4%', bottom: '15%', containLabel: true },
     xAxis: {
       type: 'category',
       data: ORDEM_VINCULOS_CAMPANHAS,
-      axisLabel: { color: '#cbd5e1' },
+      axisLabel: { color: '#2f3b35' },
     },
     yAxis: {
       type: 'value',
-      axisLabel: { color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      axisLabel: { color: '#4d5a53' },
+      splitLine: { lineStyle: { stroke: '#e3e8e5' } },
     },
     series: respostasQ28.map((resp: any, idx: number) => ({
       name: resp as string,
@@ -219,9 +219,9 @@ export const PageNucleos: React.FC<PageNucleosProps> = ({ dados, carregando }) =
   return (
     <div className="space-y-6">
       {/* Título de Seção */}
-      <div className="border-b border-[#1f2d4e] pb-3">
-        <h2 className="text-xl font-bold text-slate-100">4. Núcleos, Assessorias e Políticas Institucionais</h2>
-        <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
+      <div className="border-b border-borda pb-3">
+        <h2 className="text-xl font-bold text-texto">4. Núcleos, Assessorias e Políticas Institucionais</h2>
+        <p className="text-xs sm:text-sm text-texto-3 mt-0.5">
           Avaliação de desempenho dos núcleos de ações afirmativas (NAAFs, NEABIs, NEPGSs e Assessorias) e percepção de eficácia das campanhas e capacitações de diversidade.
         </p>
       </div>
@@ -257,25 +257,25 @@ export const PageNucleos: React.FC<PageNucleosProps> = ({ dados, carregando }) =
       />
 
       {/* Tabela Heatmap Campus × Núcleo */}
-      <div className="bg-[#131d36] rounded-xl border border-[#223154] shadow-sm p-5">
+      <div className="bg-superficie rounded-xl border border-borda shadow-sm p-5">
         <div className="mb-4 flex flex-col sm:flex-row sm:items-start justify-between gap-2">
           <div>
-            <h3 className="text-base font-bold text-slate-100">
+            <h3 className="text-base font-bold text-texto">
               Matriz Campus × Núcleo: Média de Qualidade (Escala 1 a 5)
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-texto-3">
               Média calculada exclusivamente sobre os respondentes válidos que conhecem o órgão
               (excluindo 'Não conheço', escala de 1 = muito ruim até 5 = muito bom).
             </p>
           </div>
-          <span className="text-[11px] bg-[#0e162b] border border-[#223154] text-slate-300 px-2.5 py-1 rounded-lg shrink-0">
+          <span className="text-xs bg-superficie-2 border border-borda text-texto-2 px-2.5 py-1 rounded-lg shrink-0">
             {heatmapData.length} unidades • total informado por célula
           </span>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border border-[#223154] rounded-lg">
-            <thead className="bg-[#0e162b] text-slate-200 font-semibold border-b border-[#223154]">
+          <table className="w-full text-left text-xs border border-borda rounded-lg">
+            <thead className="bg-superficie-2 text-texto font-semibold border-b border-borda">
               <tr>
                 <th className="px-3 py-2.5">Campus / Unidade</th>
                 <th className="px-3 py-2.5">NAAF</th>
@@ -286,24 +286,24 @@ export const PageNucleos: React.FC<PageNucleosProps> = ({ dados, carregando }) =
                 <th className="px-3 py-2.5">Ass. Étnico-Raciais</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1f2d4e]">
+            <tbody className="divide-y divide-borda">
               {heatmapData.map((row: any, idx: number) => {
                 const getMediaDisplay = (m: any, v: any) => {
-                  if (!v || v === 0 || m === null) return <span className="text-slate-500 font-normal">—</span>;
+                  if (!v || v === 0 || m === null) return <span className="text-texto-3 font-normal">—</span>;
                   const num = Number(m);
-                  let colorClass = 'text-slate-300';
-                  if (num >= 4.0) colorClass = 'text-emerald-400 font-bold';
-                  else if (num <= 2.5) colorClass = 'text-rose-400 font-bold';
+                  let colorClass = 'text-texto-2';
+                  if (num >= 4.0) colorClass = 'text-marca font-bold';
+                  else if (num <= 2.5) colorClass = 'text-perigo font-bold';
                   return (
                     <span className={colorClass}>
-                      {formatarNota(num)} <span className="text-[10px] text-slate-400 font-normal">(total: {v})</span>
+                      {formatarNota(num)} <span className="text-xs text-texto-3 font-normal">(total: {v})</span>
                     </span>
                   );
                 };
 
                 return (
-                  <tr key={idx} className="hover:bg-[#1a2647] transition-colors">
-                    <td className="px-3 py-2 font-medium text-slate-200">{row.campus}</td>
+                  <tr key={idx} className="hover:bg-realce transition-colors">
+                    <td className="px-3 py-2 font-medium text-texto">{row.campus}</td>
                     <td className="px-3 py-2">{getMediaDisplay(row.media_avaliacao_naaf, row.validos_avaliacao_naaf)}</td>
                     <td className="px-3 py-2">{getMediaDisplay(row.media_avaliacao_neabi, row.validos_avaliacao_neabi)}</td>
                     <td className="px-3 py-2">{getMediaDisplay(row.media_avaliacao_nepgs, row.validos_avaliacao_nepgs)}</td>

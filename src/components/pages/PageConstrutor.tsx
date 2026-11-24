@@ -225,7 +225,7 @@ export const PageConstrutor: React.FC = () => {
           text: 'Nenhum registro encontrado para esta combinação',
           left: 'center',
           top: 'center',
-          textStyle: { color: '#94a3b8', fontSize: 14 },
+          textStyle: { color: '#4d5a53', fontSize: 14 },
         },
       };
     }
@@ -242,18 +242,18 @@ export const PageConstrutor: React.FC = () => {
         tooltip: {
           trigger: 'axis',
           axisPointer: { type: 'shadow' },
-          backgroundColor: '#0e162b',
-          borderColor: '#223154',
-          textStyle: { color: '#f1f5f9' },
+          backgroundColor: '#ffffff',
+          borderColor: '#d3dbd6',
+          textStyle: { color: '#14201a' },
           formatter: (params: any[]) => {
             const catName = params[0]?.name || '';
-            let html = `<div class="font-bold text-slate-100 mb-1.5 border-b border-slate-700 pb-1">${catName}</div>`;
+            let html = `<div class="font-bold text-texto mb-1.5 border-b border-borda-forte pb-1">${catName}</div>`;
             params.forEach((p) => {
               const match = linhas.find((l) => l.eixo_1 === catName && (l.cor || 'Total') === p.seriesName);
-              const nTxt = match ? ` <span class="text-slate-400">(total: ${formatarNumero(match.n)})</span>` : '';
+              const nTxt = match ? ` <span class="text-texto-3">(total: ${formatarNumero(match.n)})</span>` : '';
               html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
                 <span>${p.marker} ${p.seriesName}</span>
-                <span class="font-bold text-teal-300">${p.value}${sufixoUnidade}${nTxt}</span>
+                <span class="font-bold text-marca">${p.value}${sufixoUnidade}${nTxt}</span>
               </div>`;
             });
             return html;
@@ -262,23 +262,23 @@ export const PageConstrutor: React.FC = () => {
         legend: {
           bottom: 0,
           type: 'scroll',
-          textStyle: { fontSize: 11, color: '#cbd5e1' },
-          pageTextStyle: { color: '#cbd5e1' },
+          textStyle: { fontSize: 13, color: '#2f3b35' },
+          pageTextStyle: { color: '#2f3b35' },
         },
         grid: { left: '3%', right: '5%', top: '4%', bottom: '14%', containLabel: true },
         xAxis: {
           type: 'value',
           max: ehEmpilhada && tipoMedida === 'percentual_no_grupo' ? 100 : undefined,
           axisLabel: {
-            color: '#94a3b8',
+            color: '#4d5a53',
             formatter: `{value}${sufixoUnidade}`,
           },
-          splitLine: { lineStyle: { color: '#1f2d4e' } },
+          splitLine: { lineStyle: { color: '#e3e8e5' } },
         },
         yAxis: {
           type: 'category',
           data: categoriasEixo1.slice(0, 30).reverse(),
-          axisLabel: { fontSize: 11, width: 155, overflow: 'truncate', color: '#cbd5e1' },
+          axisLabel: { fontSize: 13, width: 155, overflow: 'truncate', color: '#2f3b35' },
         },
         series: seriesCores.map((corName, idx) => ({
           name: corName,
@@ -360,15 +360,15 @@ export const PageConstrutor: React.FC = () => {
         color: PALETA_ACESSIVEL,
         tooltip: {
           trigger: 'item',
-          backgroundColor: '#0e162b',
-          borderColor: '#223154',
-          textStyle: { color: '#f1f5f9' },
+          backgroundColor: '#ffffff',
+          borderColor: '#d3dbd6',
+          textStyle: { color: '#14201a' },
           formatter: (p: any) => {
             const item = dadosFinais.find((d) => d.name === p.name);
-            const nInfo = item?.n ? ` <span style="color:#94a3b8;">(total: ${formatarNumero(item.n)})</span>` : '';
-            return `<div style="font-weight:600;color:#f1f5f9;">${p.name}</div>
-              <div style="font-size:12px;margin-top:4px;color:#cbd5e1;">
-                Proporção: <strong style="color:#2dd4bf;">${p.percent}%</strong>${nInfo}
+            const nInfo = item?.n ? ` <span style="color:#4d5a53;">(total: ${formatarNumero(item.n)})</span>` : '';
+            return `<div style="font-weight:600;color:#14201a;">${p.name}</div>
+              <div style="font-size:12px;margin-top:4px;color:#2f3b35;">
+                Proporção: <strong style="color:#1f6d2b;">${p.percent}%</strong>${nInfo}
               </div>`;
           },
         },
@@ -376,9 +376,9 @@ export const PageConstrutor: React.FC = () => {
           type: 'scroll',
           orient: 'horizontal',
           bottom: 4,
-          textStyle: { fontSize: 11, color: '#cbd5e1' },
-          pageTextStyle: { color: '#cbd5e1' },
-          pageIconColor: '#2dd4bf',
+          textStyle: { fontSize: 13, color: '#2f3b35' },
+          pageTextStyle: { color: '#2f3b35' },
+          pageIconColor: '#1f6d2b',
           pageIconInactiveColor: '#475569',
         },
         series: [
@@ -390,14 +390,14 @@ export const PageConstrutor: React.FC = () => {
             avoidLabelOverlap: true,
             itemStyle: {
               borderRadius: 6,
-              borderColor: '#0e162b',
+              borderColor: '#ffffff',
               borderWidth: 2,
             },
             label: {
               show: true,
               formatter: '{b}: {d}%',
-              color: '#e2e8f0',
-              fontSize: 11,
+              color: '#2f3b35',
+              fontSize: 13,
             },
             labelLine: {
               show: true,
@@ -417,16 +417,16 @@ export const PageConstrutor: React.FC = () => {
     return {
       tooltip: {
         trigger: 'axis',
-        backgroundColor: '#0e162b',
-        borderColor: '#223154',
-        textStyle: { color: '#f1f5f9' },
+        backgroundColor: '#ffffff',
+        borderColor: '#d3dbd6',
+        textStyle: { color: '#14201a' },
         formatter: (params: any[]) => {
           const p = params[0];
           const match = linhas.find((l) => l.eixo_1 === p.name);
-          return `<div class="font-bold text-slate-100">${p.name}</div>
-            <div class="text-xs mt-1 text-teal-300">
+          return `<div class="font-bold text-texto">${p.name}</div>
+            <div class="text-xs mt-1 text-marca">
               Valor: <strong>${p.value}${sufixoUnidade}</strong>
-              ${match ? ` <span class="text-slate-400">(total: ${formatarNumero(match.n)})</span>` : ''}
+              ${match ? ` <span class="text-texto-3">(total: ${formatarNumero(match.n)})</span>` : ''}
             </div>`;
         },
       },
@@ -434,15 +434,15 @@ export const PageConstrutor: React.FC = () => {
       xAxis: {
         type: 'value',
         axisLabel: {
-          color: '#94a3b8',
+          color: '#4d5a53',
           formatter: `{value}${sufixoUnidade}`,
         },
-        splitLine: { lineStyle: { color: '#1f2d4e' } },
+        splitLine: { lineStyle: { color: '#e3e8e5' } },
       },
       yAxis: {
         type: 'category',
         data: linhasOrdenadas.map((l) => l.eixo_1 || 'Sem resposta').reverse(),
-        axisLabel: { fontSize: 11, width: 165, overflow: 'truncate', color: '#cbd5e1' },
+        axisLabel: { fontSize: 13, width: 165, overflow: 'truncate', color: '#2f3b35' },
       },
       series: [
         {
@@ -452,9 +452,9 @@ export const PageConstrutor: React.FC = () => {
           label: {
             show: true,
             position: 'right',
-            color: '#e2e8f0',
+            color: '#2f3b35',
             formatter: (p: any) => `${p.value}${sufixoUnidade}`,
-            fontSize: 11,
+            fontSize: 13,
           },
         },
       ],
@@ -464,13 +464,13 @@ export const PageConstrutor: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Cabeçalho */}
-      <div className="border-b border-[#1f2d4e] pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="border-b border-borda pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <Wand2 className="w-5 h-5 text-teal-400" />
-            <h2 className="text-xl font-bold text-slate-100">7. Construtor Dinâmico de Gráficos</h2>
+            <Wand2 className="w-5 h-5 text-marca" />
+            <h2 className="text-xl font-bold text-texto">7. Construtor Dinâmico de Gráficos</h2>
           </div>
-          <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
+          <p className="text-xs sm:text-sm text-texto-3 mt-0.5">
             Cruze dimensões demográficas e indicadores do diagnóstico em tempo real com filtragem inteligente de combinações compatíveis.
           </p>
         </div>
@@ -480,37 +480,37 @@ export const PageConstrutor: React.FC = () => {
           <button
             type="button"
             onClick={exportarCSV}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#2b3e6c] bg-[#131d36] text-xs font-semibold text-slate-200 hover:bg-[#1c2a4d] transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-borda-forte bg-superficie text-xs font-semibold text-texto hover:bg-realce transition-colors"
           >
-            <Download className="w-4 h-4 text-teal-400" />
+            <Download className="w-4 h-4 text-marca" />
             Exportar CSV
           </button>
         </div>
       </div>
 
       {/* Grid Principal: Painel de Configuração vs Área de Gráfico */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 @4xl:grid-cols-12 gap-6">
         {/* Coluna Esquerda: Catálogo e Seletores (4 colunas) */}
-        <div className="lg:col-span-4 space-y-4">
-          <div className="bg-[#131d36] rounded-xl border border-[#223154] shadow-sm p-4 space-y-4">
-            <div className="flex items-center justify-between border-b border-[#1f2d4e] pb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
+        <div className="@4xl:col-span-4 space-y-4">
+          <div className="bg-superficie rounded-xl border border-borda shadow-sm p-4 space-y-4">
+            <div className="flex items-center justify-between border-b border-borda pb-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-texto-2">
                 Parâmetros do Gráfico
               </span>
-              <span className="text-[10px] bg-teal-950/70 border border-teal-700/60 text-teal-300 font-bold px-2 py-0.5 rounded-full">
+              <span className="text-xs bg-marca-fundo/70 border border-marca-borda/60 text-marca font-bold px-2 py-0.5 rounded-full">
                 Cruzamento Validado
               </span>
             </div>
 
             {/* Seletor Eixo X / Linhas agrupado por tema */}
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1">
+              <label className="block text-xs font-bold text-texto-2 mb-1">
                 Eixo Principal (Eixo X / Categorias) *
               </label>
               <select
                 value={eixo1}
                 onChange={(e) => setEixo1(e.target.value)}
-                className="w-full text-xs rounded-lg border border-[#25355a] bg-[#0e162b] px-3 py-2 text-slate-100 focus:outline-teal-500 font-medium"
+                className="w-full text-xs rounded-lg border border-borda bg-superficie-2 px-3 py-2 text-texto focus:outline-marca font-medium"
               >
                 {GRUPOS_CATALOGO.map((grp) => {
                   const itens = camposEixoPrincipal.filter((c) => c.grupo === grp.id);
@@ -530,13 +530,13 @@ export const PageConstrutor: React.FC = () => {
 
             {/* Seletor Cor / Série filtrado dinamicamente pela compatibilidade com o Eixo Principal */}
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1">
+              <label className="block text-xs font-bold text-texto-2 mb-1">
                 Série / Cor (Cruzamento Opcional)
               </label>
               <select
                 value={campoCor}
                 onChange={(e) => setCampoCor(e.target.value)}
-                className="w-full text-xs rounded-lg border border-[#25355a] bg-[#0e162b] px-3 py-2 text-slate-100 focus:outline-teal-500 font-medium"
+                className="w-full text-xs rounded-lg border border-borda bg-superficie-2 px-3 py-2 text-texto focus:outline-marca font-medium"
               >
                 <option value="">(Nenhuma série - exibir distribuição simples)</option>
                 {GRUPOS_CATALOGO.map((grp) => {
@@ -553,8 +553,8 @@ export const PageConstrutor: React.FC = () => {
                   );
                 })}
               </select>
-              <p className="text-[11px] text-slate-400 mt-1.5 flex items-start gap-1.5 leading-relaxed">
-                <Info className="w-3.5 h-3.5 text-teal-400 shrink-0 mt-0.5" />
+              <p className="text-xs text-texto-3 mt-1.5 flex items-start gap-1.5 leading-relaxed">
+                <Info className="w-3.5 h-3.5 text-marca shrink-0 mt-0.5" />
                 <span>
                   {campoEixoObj?.papel === 'indicador'
                     ? 'Para indicadores temáticos no Eixo Principal, as séries exibem apenas recortes demográficos e funcionais compatíveis.'
@@ -569,13 +569,13 @@ export const PageConstrutor: React.FC = () => {
 
             {/* Seletor de Medida */}
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1">
+              <label className="block text-xs font-bold text-texto-2 mb-1">
                 Métrica / Medida *
               </label>
               <select
                 value={tipoMedida}
                 onChange={(e) => setTipoMedida(e.target.value as TipoMedida)}
-                className="w-full text-xs rounded-lg border border-[#25355a] bg-[#0e162b] px-3 py-2 text-slate-100 focus:outline-teal-500 font-medium"
+                className="w-full text-xs rounded-lg border border-borda bg-superficie-2 px-3 py-2 text-texto focus:outline-marca font-medium"
               >
                 {METRICAS_VALIDAS.map((m) => (
                   <option key={m.id} value={m.id}>
@@ -587,7 +587,7 @@ export const PageConstrutor: React.FC = () => {
 
             {/* Tipo de Visualização */}
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1">
+              <label className="block text-xs font-bold text-texto-2 mb-1">
                 Tipo de Visualização
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -618,10 +618,10 @@ export const PageConstrutor: React.FC = () => {
                     onClick={() => setTipoVisualizacao(t.id as any)}
                     className={`flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                       t.desabilitado
-                        ? 'bg-[#0a1020] border-[#1a2642] text-slate-600 cursor-not-allowed'
+                        ? 'bg-superficie-2 border-borda text-texto-3 cursor-not-allowed'
                         : tipoVisualizacao === t.id
-                        ? 'bg-teal-600 border-teal-500 text-white shadow-xs'
-                        : 'bg-[#0e162b] border-[#25355a] text-slate-300 hover:bg-[#162342]'
+                        ? 'bg-marca border-marca text-white shadow-xs'
+                        : 'bg-superficie-2 border-borda text-texto-2 hover:bg-realce'
                     }`}
                   >
                     {t.icone}
@@ -632,13 +632,13 @@ export const PageConstrutor: React.FC = () => {
             </div>
 
             {/* Toggle Prefiro Não Responder */}
-            <div className="pt-2 border-t border-[#1f2d4e]">
-              <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-300">
+            <div className="pt-2 border-t border-borda">
+              <label className="flex items-center gap-2 cursor-pointer text-xs text-texto-2">
                 <input
                   type="checkbox"
                   checked={incluirPrefiroNao}
                   onChange={(e) => setIncluirPrefiroNao(e.target.checked)}
-                  className="rounded text-teal-500 focus:ring-teal-400 w-4 h-4 bg-[#0e162b] border-[#25355a]"
+                  className="rounded text-marca focus:ring-marca w-4 h-4 bg-superficie-2 border-borda"
                 />
                 <span>Incluir "Prefiro não responder"</span>
               </label>
@@ -646,8 +646,8 @@ export const PageConstrutor: React.FC = () => {
           </div>
 
           {/* Seção de Salvar / Restaurar Painéis */}
-          <div className="bg-[#131d36] border border-[#223154] rounded-xl p-4 space-y-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-300 block">
+          <div className="bg-superficie border border-borda rounded-xl p-4 space-y-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-texto-2 block">
               Salvar Visão no Navegador
             </span>
             <div className="flex gap-2">
@@ -656,13 +656,13 @@ export const PageConstrutor: React.FC = () => {
                 placeholder="Nome da visualização..."
                 value={nomeNovoPainel}
                 onChange={(e) => setNomeNovoPainel(e.target.value)}
-                className="flex-1 text-xs px-2.5 py-1.5 rounded-lg border border-[#25355a] bg-[#0e162b] text-slate-100"
+                className="flex-1 text-xs px-2.5 py-1.5 rounded-lg border border-borda bg-superficie-2 text-texto"
               />
               <button
                 type="button"
                 onClick={salvarPainelAtual}
                 disabled={!nomeNovoPainel.trim()}
-                className="px-3 py-1.5 rounded-lg bg-teal-600 text-white text-xs font-bold hover:bg-teal-500 disabled:opacity-50 transition-colors flex items-center gap-1"
+                className="px-3 py-1.5 rounded-lg bg-marca text-white text-xs font-bold hover:bg-marca-escura disabled:opacity-50 transition-colors flex items-center gap-1"
               >
                 <Save className="w-3.5 h-3.5" />
                 Salvar
@@ -671,21 +671,21 @@ export const PageConstrutor: React.FC = () => {
 
             {paineisSalvos.length > 0 && (
               <div className="space-y-1.5 max-h-36 overflow-y-auto pt-2">
-                <span className="text-[11px] font-semibold text-slate-400 block">Salvos:</span>
+                <span className="text-xs font-semibold text-texto-3 block">Salvos:</span>
                 {paineisSalvos.map((p) => (
                   <div
                     key={p.id}
-                    className="flex items-center justify-between text-xs bg-[#0e162b] border border-[#25355a] px-2.5 py-1.5 rounded-lg"
+                    className="flex items-center justify-between text-xs bg-superficie-2 border border-borda px-2.5 py-1.5 rounded-lg"
                   >
                     <button
                       onClick={() => carregarPainel(p.config)}
-                      className="text-left font-medium text-teal-300 hover:underline truncate mr-2"
+                      className="text-left font-medium text-marca hover:underline truncate mr-2"
                     >
                       {p.nome}
                     </button>
                     <button
                       onClick={() => excluirPainel(p.id)}
-                      className="text-slate-400 hover:text-rose-400"
+                      className="text-texto-3 hover:text-perigo"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -697,9 +697,9 @@ export const PageConstrutor: React.FC = () => {
         </div>
 
         {/* Coluna Direita: Visualização do Gráfico e Tabela Pivô (8 colunas) */}
-        <div className="lg:col-span-8 space-y-4">
+        <div className="@4xl:col-span-8 space-y-4">
           {erro && (
-            <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium">
+            <div className="p-4 rounded-xl bg-perigo-fundo border border-perigo-borda text-perigo text-xs font-medium">
               Falha ao processar consulta: {erro}
             </div>
           )}

@@ -143,16 +143,16 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
+      backgroundColor: '#ffffff',
+      borderColor: '#d3dbd6',
+      textStyle: { color: '#14201a' },
       formatter: (p: any[]) => {
         const item = p[0];
         const areaData = dadosGrandesAreas.find((r) => r.area === item.name);
         if (!areaData) return '';
-        return `<div class="font-bold text-slate-100 mb-1">${areaData.area}</div>
-          <div class="text-xs text-teal-300">Discentes no recorte: <strong>${formatarNumero(areaData.nRecorte)}</strong> (${areaData.pct}%)</div>
-          <div class="text-[11px] text-slate-400 mt-0.5">Total da Grande Área: <strong>${formatarNumero(areaData.totalArea)}</strong> discentes</div>`;
+        return `<div class="font-bold text-texto mb-1">${areaData.area}</div>
+          <div class="text-xs text-marca">Discentes no recorte: <strong>${formatarNumero(areaData.nRecorte)}</strong> (${areaData.pct}%)</div>
+          <div class="text-xs text-texto-3 mt-0.5">Total da Grande Área: <strong>${formatarNumero(areaData.totalArea)}</strong> discentes</div>`;
       },
     },
     grid: { left: '3%', right: '10%', top: '4%', bottom: '5%', containLabel: true },
@@ -160,13 +160,13 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
       type: 'value',
       min: 0,
       max: Math.max(40, ...dadosGrandesAreas.map((r) => Math.ceil(r.pct + 5))),
-      axisLabel: { formatter: '{value}%', color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      axisLabel: { formatter: '{value}%', color: '#4d5a53' },
+      splitLine: { lineStyle: { stroke: '#e3e8e5' } },
     },
     yAxis: {
       type: 'category',
       data: dadosGrandesAreas.map((r) => r.area).reverse(),
-      axisLabel: { fontSize: 11, color: '#cbd5e1' },
+      axisLabel: { fontSize: 13, color: '#2f3b35' },
     },
     series: [
       {
@@ -180,7 +180,7 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
             const areaObj = [...dadosGrandesAreas].reverse()[params.dataIndex];
             return areaObj ? `${params.value}% (total: ${formatarNumero(areaObj.nRecorte)})` : `${params.value}%`;
           },
-          fontSize: 11,
+          fontSize: 13,
           color: '#38bdf8',
           fontWeight: 600,
         },
@@ -277,28 +277,28 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
+      backgroundColor: '#ffffff',
+      borderColor: '#d3dbd6',
+      textStyle: { color: '#14201a' },
       formatter: (p: any[]) => {
         const item = p[0];
         const obj = dadosGraficoDesencStem.find((d) => d.rotulo === item.name);
         if (!obj) return '';
-        return `<div class="font-bold text-slate-100 mb-1">${obj.rotulo}</div>
-          <div class="text-xs text-amber-300">Discentes: <strong>${formatarNumero(obj.n)}</strong> (${obj.pct}%)</div>
-          <div class="text-[11px] text-slate-400 mt-0.5">Base STEM filtrada: <strong>${formatarNumero(nTotalStemFiltrado)}</strong> de ${formatarNumero(nTotalStemBase)} discentes</div>`;
+        return `<div class="font-bold text-texto mb-1">${obj.rotulo}</div>
+          <div class="text-xs text-alerta">Discentes: <strong>${formatarNumero(obj.n)}</strong> (${obj.pct}%)</div>
+          <div class="text-xs text-texto-3 mt-0.5">Base STEM filtrada: <strong>${formatarNumero(nTotalStemFiltrado)}</strong> de ${formatarNumero(nTotalStemBase)} discentes</div>`;
       },
     },
     grid: { left: '3%', right: '14%', top: '4%', bottom: '5%', containLabel: true },
     xAxis: {
       type: 'value',
-      axisLabel: { color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      axisLabel: { color: '#4d5a53' },
+      splitLine: { lineStyle: { stroke: '#e3e8e5' } },
     },
     yAxis: {
       type: 'category',
       data: dadosGraficoDesencStem.map((d) => d.rotulo).reverse(),
-      axisLabel: { fontSize: 11, color: '#cbd5e1' },
+      axisLabel: { fontSize: 13, color: '#2f3b35' },
     },
     series: [
       {
@@ -314,8 +314,8 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
             const obj = [...dadosGraficoDesencStem].reverse()[params.dataIndex];
             return obj ? `${formatarNumero(obj.n)} (${obj.pct}%)` : '';
           },
-          fontSize: 11,
-          color: '#f1f5f9',
+          fontSize: 13,
+          color: '#14201a',
           fontWeight: 600,
         },
       },
@@ -325,23 +325,23 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
   return (
     <div className="space-y-6">
       {/* Título de Seção */}
-      <div className="border-b border-[#1f2d4e] pb-3">
-        <h2 className="text-xl font-bold text-slate-100">6. STEM e Masculinização das Áreas do Conhecimento</h2>
-        <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
+      <div className="border-b border-borda pb-3">
+        <h2 className="text-xl font-bold text-texto">6. STEM e Masculinização das Áreas do Conhecimento</h2>
+        <p className="text-xs sm:text-sm text-texto-3 mt-0.5">
           Análise da representatividade discente em Ciências Exatas, Engenharias e Computação (STEM) em comparação às
           demais áreas do conhecimento, diversidade étnico-racial, deficiência e barreiras acadêmicas na formação.
         </p>
       </div>
 
       {/* KPIs de Desencorajamento em STEM e Não STEM (2 colunas, removido Áreas Mapeadas Deterministicamente) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 @lg:grid-cols-2 gap-4">
         <KpiCard
           titulo="Desencorajamento na Participação Acadêmica em Áreas STEM"
           valorPrincipal={`${desencorajamento.stem_pct ?? 0}%`}
           subvalor="estudantes em STEM"
           textoComplementar={`${formatarNumero(desencorajamento.stem_desencorajados ?? 187)} de ${formatarNumero(desencorajamento.stem_n)} discentes em Exatas e Tecnologia`}
           notaMetodologica="Estudantes em cursos STEM que relataram ter sido desencorajados(as) a participar com frequência ou algumas vezes"
-          icone={<AlertCircle className="w-5 h-5 text-amber-400" />}
+          icone={<AlertCircle className="w-5 h-5 text-alerta" />}
           corDestaque="amber"
         />
 
@@ -351,7 +351,7 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
           subvalor="demais áreas"
           textoComplementar={`${formatarNumero(desencorajamento.nao_stem_n)} discentes em cursos não-STEM`}
           notaMetodologica="Comparativo com cursos de Humanas, Sociais, Linguagens, Biológicas, Agrárias e Saúde"
-          icone={<GraduationCap className="w-5 h-5 text-sky-400" />}
+          icone={<GraduationCap className="w-5 h-5 text-info" />}
           corDestaque="blue"
         />
       </div>
@@ -413,40 +413,41 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
       />
 
       {/* Tabela de Auditoria e Cobertura da Normalização */}
-      <div className="bg-[#131d36] rounded-xl border border-[#223154] shadow-sm p-5 space-y-4">
+      <div className="bg-superficie rounded-xl border border-borda shadow-sm p-5 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h3 className="text-base font-bold text-slate-100">
+            <h3 className="text-base font-bold text-texto">
               Tabela de Auditoria e Cobertura da Normalização de Áreas
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-texto-3 mt-0.5">
               Mapeamento de todos os {cobertura.length} termos declarados no formulário para as Grandes Áreas CNPq ({totalNaoClassificadosGeral} respondentes em {totalTermosNaoClassificados} termos não classificados).
             </p>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-[11px] bg-[#0e162b] border border-[#223154] text-slate-300 px-2.5 py-1 rounded-lg">
+            <span className="text-xs bg-superficie-2 border border-borda text-texto-2 px-2.5 py-1 rounded-lg">
               {coberturaFiltrada.length} de {cobertura.length} termos • Total: {formatarNumero(totalRespondentesCobertura)} respondentes
             </span>
           </div>
         </div>
 
         {/* Barra de Filtros e Busca */}
-        <div className="p-3 rounded-lg bg-[#0e162b] border border-[#223154] flex flex-wrap items-center justify-between gap-3">
+        <div className="p-3 rounded-lg bg-superficie-2 border border-borda flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-teal-400 font-semibold flex items-center gap-1">
+            <span className="text-xs text-marca font-semibold flex items-center gap-1">
               <Filter className="w-3.5 h-3.5" />
               Filtrar:
             </span>
 
-            <div className="inline-flex items-center p-0.5 rounded-lg bg-[#131d36] border border-[#223154] text-xs">
+            <div className="inline-flex items-center p-0.5 rounded-lg bg-superficie border border-borda text-xs">
               <button
                 type="button"
                 onClick={() => setFiltroStatus('todos')}
-                className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
+                aria-pressed={filtroStatus === 'todos'}
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
                   filtroStatus === 'todos'
-                    ? 'bg-teal-500 text-slate-950 shadow-xs'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-marca text-white shadow-xs'
+                    : 'text-texto-3 hover:text-texto'
                 }`}
               >
                 Todos ({cobertura.length})
@@ -456,8 +457,8 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
                 onClick={() => setFiltroStatus('nao_classificada')}
                 className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
                   filtroStatus === 'nao_classificada'
-                    ? 'bg-rose-500 text-slate-950 shadow-xs'
-                    : 'text-slate-400 hover:text-rose-300'
+                    ? 'bg-perigo text-white shadow-xs'
+                    : 'text-texto-3 hover:text-perigo'
                 }`}
               >
                 Não classificadas ({totalNaoClassificadosGeral} resp.)
@@ -465,10 +466,11 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
               <button
                 type="button"
                 onClick={() => setFiltroStatus('padronizada')}
-                className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
+                aria-pressed={filtroStatus === 'padronizada'}
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
                   filtroStatus === 'padronizada'
-                    ? 'bg-emerald-500 text-slate-950 shadow-xs'
-                    : 'text-slate-400 hover:text-emerald-300'
+                    ? 'bg-marca-oficial text-white shadow-xs'
+                    : 'text-texto-3 hover:text-marca'
                 }`}
               >
                 Padronizadas
@@ -478,20 +480,20 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
 
           {/* Campo de Busca Rápida */}
           <div className="relative min-w-[200px]">
-            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-texto-3" />
             <input
               type="text"
               value={buscaTexto}
               onChange={(e) => setBuscaTexto(e.target.value)}
               placeholder="Buscar termo ou área..."
-              className="w-full bg-[#131d36] border border-[#2b3e6c] rounded-md pl-8 pr-3 py-1 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-teal-500"
+              className="w-full bg-superficie border border-borda-forte rounded-md pl-8 pr-3 py-1 text-xs text-texto placeholder-texto-3 focus:outline-none focus:border-marca"
             />
           </div>
         </div>
 
-        <div className="overflow-x-auto max-h-96 rounded-lg border border-[#223154]">
+        <div className="overflow-x-auto max-h-96 rounded-lg border border-borda">
           <table className="w-full text-left text-xs border-collapse">
-            <thead className="bg-[#0e162b] text-slate-200 font-semibold border-b border-[#223154] sticky top-0 z-10">
+            <thead className="bg-superficie-2 text-texto font-semibold border-b border-borda sticky top-0 z-10">
               <tr>
                 <th className="px-3 py-2.5">Texto Declarado no Formulário</th>
                 <th className="px-3 py-2.5">Grande Área Atribuída (CNPq)</th>
@@ -499,26 +501,26 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
                 <th className="px-3 py-2.5">Classificação</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1f2d4e]">
+            <tbody className="divide-y divide-borda">
               {coberturaFiltrada.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-slate-400">
+                  <td colSpan={4} className="px-4 py-8 text-center text-texto-3">
                     Nenhum termo encontrado com os filtros aplicados.
                   </td>
                 </tr>
               ) : (
                 coberturaFiltrada.map((row: any, idx: number) => (
-                  <tr key={idx} className="hover:bg-[#1a2647] transition-colors">
-                    <td className="px-3 py-2 font-mono text-slate-300 text-[11px]">{row.textoOriginal}</td>
-                    <td className="px-3 py-2 font-medium text-teal-300">{row.grandeArea}</td>
-                    <td className="px-3 py-2 text-slate-300">{formatarNumero(row.n)}</td>
+                  <tr key={idx} className="hover:bg-realce transition-colors">
+                    <td className="px-3 py-2 font-mono text-texto-2 text-xs">{row.textoOriginal}</td>
+                    <td className="px-3 py-2 font-medium text-marca">{row.grandeArea}</td>
+                    <td className="px-3 py-2 text-texto-2">{formatarNumero(row.n)}</td>
                     <td className="px-3 py-2">
                       {row.grandeArea === 'Não classificada' ? (
-                        <span className="text-[10px] bg-rose-950/60 border border-rose-800/60 text-rose-300 px-2 py-0.5 rounded font-medium">
+                        <span className="text-xs bg-perigo-fundo/60 border border-perigo-borda/60 text-perigo px-2 py-0.5 rounded font-medium">
                           Não classificada
                         </span>
                       ) : (
-                        <span className="text-[10px] bg-emerald-950/60 border border-emerald-800/60 text-emerald-300 px-2 py-0.5 rounded font-medium">
+                        <span className="text-xs bg-marca-fundo/60 border border-marca-borda/60 text-marca px-2 py-0.5 rounded font-medium">
                           Padronizada
                         </span>
                       )}

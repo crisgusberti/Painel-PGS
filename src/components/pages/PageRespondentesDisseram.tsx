@@ -308,32 +308,32 @@ export const PageRespondentesDisseram: React.FC = () => {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
+      backgroundColor: '#ffffff',
+      borderColor: '#d3dbd6',
+      textStyle: { color: '#14201a' },
       formatter: (params: any[]) => {
         const p = params[0];
         const tema = linhasTemas[p.dataIndex];
-        return `<div class="font-bold text-slate-100 mb-1">${tema.titulo}</div><div class="text-xs text-slate-300">Identificado em <strong>${formatarNumero(tema.contagem)}</strong> respostas</div>`;
+        return `<div class="font-bold text-texto mb-1">${tema.titulo}</div><div class="text-xs text-texto-2">Identificado em <strong>${formatarNumero(tema.contagem)}</strong> respostas</div>`;
       },
     },
     grid: { left: '3%', right: '4%', top: '4%', bottom: '3%', containLabel: true },
     xAxis: {
       type: 'value',
-      axisLabel: { fontSize: 10, color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      axisLabel: { fontSize: 12, color: '#4d5a53' },
+      splitLine: { lineStyle: { stroke: '#e3e8e5' } },
     },
     yAxis: {
       type: 'category',
       data: linhasTemas.map((t) => t.titulo),
-      axisLabel: { fontSize: 11, color: '#cbd5e1' },
+      axisLabel: { fontSize: 13, color: '#2f3b35' },
     },
     series: [
       {
         type: 'bar',
         data: linhasTemas.map((t) => ({
           value: t.contagem,
-          itemStyle: { color: t.id === temaSelecionado ? '#2dd4bf' : PALETA_ACESSIVEL[1] },
+          itemStyle: { color: t.id === temaSelecionado ? '#1f6d2b' : PALETA_ACESSIVEL[1] },
         })),
         cursor: 'pointer',
         barMaxWidth: 28,
@@ -356,32 +356,32 @@ export const PageRespondentesDisseram: React.FC = () => {
         tooltip: {
           trigger: 'axis',
           axisPointer: { type: 'shadow' },
-          backgroundColor: '#0e162b',
-          borderColor: '#223154',
-          textStyle: { color: '#f1f5f9' },
+          backgroundColor: '#ffffff',
+          borderColor: '#d3dbd6',
+          textStyle: { color: '#14201a' },
           formatter: (params: any[]) => {
             const p = params[0];
             const sub = linhasSubtemas[p.dataIndex];
-            return `<div class="font-bold text-slate-100 mb-1">${sub.nome}</div><div class="text-xs text-slate-300">${formatarNumero(sub.frequencia)} respostas</div>`;
+            return `<div class="font-bold text-texto mb-1">${sub.nome}</div><div class="text-xs text-texto-2">${formatarNumero(sub.frequencia)} respostas</div>`;
           },
         },
         grid: { left: '3%', right: '4%', top: '4%', bottom: '3%', containLabel: true },
         xAxis: {
           type: 'value',
-          axisLabel: { fontSize: 10, color: '#94a3b8' },
-          splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+          axisLabel: { fontSize: 12, color: '#4d5a53' },
+          splitLine: { lineStyle: { stroke: '#e3e8e5' } },
         },
         yAxis: {
           type: 'category',
           data: linhasSubtemas.map((s) => s.nome),
-          axisLabel: { fontSize: 11, color: '#cbd5e1' },
+          axisLabel: { fontSize: 13, color: '#2f3b35' },
         },
         series: [
           {
             type: 'bar',
             data: linhasSubtemas.map((s) => ({
               value: s.frequencia,
-              itemStyle: { color: s.id === subtemaSelecionado ? '#2dd4bf' : PALETA_ACESSIVEL[1] },
+              itemStyle: { color: s.id === subtemaSelecionado ? '#1f6d2b' : PALETA_ACESSIVEL[1] },
             })),
             cursor: 'pointer',
             barMaxWidth: 28,
@@ -404,18 +404,18 @@ export const PageRespondentesDisseram: React.FC = () => {
   return (
     <div className="space-y-6 max-w-4xl mx-auto pb-12">
       {/* Título e Resumo Introdutório */}
-      <div className="border-b border-[#1f2d4e] pb-3">
+      <div className="border-b border-borda pb-3">
         <div className="flex items-center gap-2.5">
-          <MessageSquare className="w-6 h-6 text-teal-400" />
-          <h2 className="text-xl font-bold text-slate-100">O que a comunidade contou</h2>
+          <MessageSquare className="w-6 h-6 text-marca" />
+          <h2 className="text-xl font-bold text-texto">O que a comunidade contou</h2>
         </div>
-        <p className="text-xs sm:text-sm text-slate-400 mt-1.5">
+        <p className="text-xs sm:text-sm text-texto-3 mt-1.5">
           Experiências, opiniões e sugestões de quem participou da pesquisa.
         </p>
       </div>
 
       {/* Conteúdo introdutório */}
-      <div className="bg-[#131d36] rounded-xl border border-[#223154] shadow-sm p-6 space-y-4 text-sm text-slate-300 leading-relaxed">
+      <div className="bg-superficie rounded-xl border border-borda shadow-sm p-6 space-y-4 text-sm text-texto-2 leading-relaxed">
         <p>
           Nas perguntas abertas, estudantes e servidores(as) puderam escrever sobre suas vivências, avaliar
           aspectos do cotidiano institucional e compartilhar ideias para o IFRS. A leitura dessas respostas nos
@@ -434,17 +434,17 @@ export const PageRespondentesDisseram: React.FC = () => {
         <button
           type="button"
           onClick={() => setModalPerguntas(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold border border-[#2b3d68] bg-[#131d36] text-slate-200 hover:bg-[#1c2a4d] transition-colors"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold border border-borda-forte bg-superficie text-texto hover:bg-realce transition-colors"
         >
-          <HelpCircle className="w-4 h-4 text-sky-400" />
+          <HelpCircle className="w-4 h-4 text-info" />
           O que perguntamos?
         </button>
         <button
           type="button"
           onClick={() => setModalAnalise(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold border border-[#2b3d68] bg-[#131d36] text-slate-200 hover:bg-[#1c2a4d] transition-colors"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold border border-borda-forte bg-superficie text-texto hover:bg-realce transition-colors"
         >
-          <ClipboardList className="w-4 h-4 text-emerald-400" />
+          <ClipboardList className="w-4 h-4 text-marca" />
           Como analisamos as respostas?
         </button>
       </div>
@@ -469,14 +469,14 @@ export const PageRespondentesDisseram: React.FC = () => {
           linhas: temasOrdenados.map((t) => [t.titulo, t.contagem]),
         }}
       />
-      <p className="text-xs text-slate-400 leading-relaxed -mt-2">
+      <p className="text-xs text-texto-3 leading-relaxed -mt-2">
         Uma resposta pode abordar vários temas e ser contada em mais de uma barra. Os números mostram a presença
         dos assuntos nas respostas abertas, não quantas pessoas de todo o IFRS vivenciaram cada situação. A
         frequência também não indica, sozinha, a gravidade ou a importância de um tema.
       </p>
 
       {/* Cartões temáticos (funcionam como botões de acesso ao mesmo detalhamento do gráfico) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 @lg:grid-cols-2 gap-3">
         {TEMAS.map((tema) => {
           const ativo = temaSelecionado === tema.id;
           return (
@@ -486,15 +486,15 @@ export const PageRespondentesDisseram: React.FC = () => {
               onClick={() => selecionarTema(tema.id)}
               className={`flex items-center justify-between gap-3 p-4 rounded-xl border text-left transition-all ${
                 ativo
-                  ? 'bg-[#162342] border-teal-500/60 shadow-xs'
-                  : 'bg-[#131d36] border-[#223154] hover:bg-[#1a2647]/60'
+                  ? 'bg-realce border-marca/60 shadow-xs'
+                  : 'bg-superficie border-borda hover:bg-realce/60'
               }`}
             >
-              <span className="flex items-center gap-2.5 text-sm font-bold text-slate-100">
-                <span className={ativo ? 'text-teal-300' : 'text-teal-400'}>{tema.icone}</span>
+              <span className="flex items-center gap-2.5 text-sm font-bold text-texto">
+                <span className={ativo ? 'text-marca' : 'text-marca'}>{tema.icone}</span>
                 {tema.titulo}
               </span>
-              <span className="text-[11px] text-slate-400 font-semibold shrink-0">{formatarNumero(tema.contagem)}</span>
+              <span className="text-xs text-texto-3 font-semibold shrink-0">{formatarNumero(tema.contagem)}</span>
             </button>
           );
         })}
@@ -504,23 +504,23 @@ export const PageRespondentesDisseram: React.FC = () => {
       {temaAtual && (
         <div
           ref={detalheRef}
-          className="bg-[#131d36] rounded-xl border border-teal-500/40 shadow-sm p-6 space-y-5 scroll-mt-20"
+          className="bg-superficie rounded-xl border border-marca/40 shadow-sm p-6 space-y-5 scroll-mt-20"
         >
           {/* Título e contagem */}
-          <div className="flex items-start justify-between gap-3 border-b border-[#1f2d4e] pb-3">
+          <div className="flex items-start justify-between gap-3 border-b border-borda pb-3">
             <div className="flex items-center gap-2.5">
-              <span className="text-teal-400">{temaAtual.icone}</span>
+              <span className="text-marca">{temaAtual.icone}</span>
               <div>
-                <h3 className="text-base font-bold text-slate-100">{temaAtual.titulo}</h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Tema identificado em <strong className="text-slate-200">{formatarNumero(temaAtual.contagem)}</strong> respostas.
+                <h3 className="text-base font-bold text-texto">{temaAtual.titulo}</h3>
+                <p className="text-xs text-texto-3 mt-0.5">
+                  Tema identificado em <strong className="text-texto">{formatarNumero(temaAtual.contagem)}</strong> respostas.
                 </p>
               </div>
             </div>
             <button
               type="button"
               onClick={() => setTemaSelecionado(null)}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-[#1a284c] transition-colors shrink-0"
+              className="p-1.5 rounded-lg text-texto-3 hover:text-texto hover:bg-realce transition-colors shrink-0"
               title="Fechar detalhamento"
             >
               <X className="w-4 h-4" />
@@ -529,13 +529,13 @@ export const PageRespondentesDisseram: React.FC = () => {
 
           {/* Síntese da análise */}
           <div>
-            <span className="text-[11px] uppercase tracking-wider text-teal-400 font-semibold">Síntese da análise</span>
-            <p className="text-sm text-slate-300 leading-relaxed mt-1">{temaAtual.sintese}</p>
+            <span className="text-xs uppercase tracking-wider text-marca font-semibold">Síntese da análise</span>
+            <p className="text-sm text-texto-2 leading-relaxed mt-1">{temaAtual.sintese}</p>
           </div>
 
           {/* Gráfico dos assuntos específicos (subtemas) */}
           <div>
-            <span className="text-[11px] uppercase tracking-wider text-teal-400 font-semibold">
+            <span className="text-xs uppercase tracking-wider text-marca font-semibold">
               Quais assuntos apareceram nesse tema?
             </span>
             {subtemasOrdenados.length > 0 ? (
@@ -550,7 +550,7 @@ export const PageRespondentesDisseram: React.FC = () => {
                     classeExtra="!p-4"
                   />
                 </div>
-                <p className="text-[11px] text-slate-500 italic mt-1.5">
+                <p className="text-xs text-texto-3 italic mt-1.5">
                   Estas são as subcategorias mais recorrentes identificadas neste tema, não necessariamente
                   todas as existentes. As barras não são empilhadas: uma mesma resposta pode mencionar mais de
                   um assunto. Clique numa barra para ver os trechos correspondentes.
@@ -564,23 +564,24 @@ export const PageRespondentesDisseram: React.FC = () => {
                       key={sub.id}
                       type="button"
                       onClick={() => alternarSubtema(sub.id)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                      aria-pressed={subtemaSelecionado === sub.id}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                         subtemaSelecionado === sub.id
-                          ? 'bg-teal-500 border-teal-400 text-slate-950'
-                          : 'bg-[#0e162b] border-[#223154] text-slate-300 hover:bg-[#1a2647]'
+                          ? 'bg-marca border-marca text-white'
+                          : 'bg-superficie-2 border-borda text-texto-2 hover:bg-realce'
                       }`}
                     >
                       {sub.nome}
                     </button>
                   ))}
                 </div>
-                <p className="text-[11px] text-slate-500 italic mt-1.5">
+                <p className="text-xs text-texto-3 italic mt-1.5">
                   Assuntos identificados neste tema; as frequências de cada um ainda estão em apuração. Clique
                   num assunto para ver os trechos correspondentes.
                 </p>
               </>
             ) : (
-              <p className="text-xs text-slate-500 italic mt-1">
+              <p className="text-xs text-texto-3 italic mt-1">
                 Os assuntos específicos deste tema ainda serão detalhados em uma próxima atualização.
               </p>
             )}
@@ -588,10 +589,10 @@ export const PageRespondentesDisseram: React.FC = () => {
 
           {/* Trechos selecionados */}
           <div>
-            <span className="text-[11px] uppercase tracking-wider text-teal-400 font-semibold">
+            <span className="text-xs uppercase tracking-wider text-marca font-semibold">
               Trechos selecionados
               {subtemaSelecionado && (
-                <span className="text-slate-500 normal-case font-normal">
+                <span className="text-texto-3 normal-case font-normal">
                   {' '}
                   — assunto: {temaAtual.subtemas.find((s) => s.id === subtemaSelecionado)?.nome}
                 </span>
@@ -602,20 +603,20 @@ export const PageRespondentesDisseram: React.FC = () => {
                 {trechosVisiveis.map((trecho, idx) => {
                   const chave = `${temaAtual.id}-${subtemaSelecionado || 'geral'}-${idx}`;
                   return (
-                    <div key={chave} className="bg-[#0e162b] border border-[#223154] rounded-lg p-3 space-y-2">
+                    <div key={chave} className="bg-superficie-2 border border-borda rounded-lg p-3 space-y-2">
                       <div className="flex gap-2">
-                        <Quote className="w-3.5 h-3.5 text-teal-500 shrink-0 mt-0.5" />
-                        <p className="text-xs text-slate-300 italic leading-relaxed">“{trecho.texto}”</p>
+                        <Quote className="w-3.5 h-3.5 text-marca shrink-0 mt-0.5" />
+                        <p className="text-xs text-texto-2 italic leading-relaxed">“{trecho.texto}”</p>
                       </div>
                       <div className="flex items-center justify-between gap-2 flex-wrap pl-5">
                         <div className="flex items-center gap-2 flex-wrap">
                           {trecho.perfil && (
-                            <span className="text-[11px] text-slate-500 font-medium">— {trecho.perfil}</span>
+                            <span className="text-xs text-texto-3 font-medium">— {trecho.perfil}</span>
                           )}
                           {trecho.temasAssociados?.map((tId) => (
                             <span
                               key={tId}
-                              className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#162342] text-teal-300 border border-[#2b3d68]"
+                              className="text-xs px-1.5 py-0.5 rounded-full bg-realce text-marca border border-borda-forte"
                             >
                               {TITULOS_POR_ID[tId] || tId}
                             </span>
@@ -625,7 +626,7 @@ export const PageRespondentesDisseram: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => alternarPergunta(chave)}
-                            className="flex items-center gap-1 text-[11px] font-semibold text-sky-400 hover:text-sky-300 transition-colors"
+                            className="flex items-center gap-1 text-xs font-semibold text-info hover:text-info transition-colors"
                           >
                             <HelpCircle className="w-3 h-3" />
                             Ver a pergunta respondida
@@ -633,7 +634,7 @@ export const PageRespondentesDisseram: React.FC = () => {
                         )}
                       </div>
                       {trecho.pergunta && perguntasReveladas.has(chave) && (
-                        <div className="pl-5 text-[11px] text-slate-400 bg-[#111c38] border border-[#223154] rounded-md p-2">
+                        <div className="pl-5 text-xs text-texto-3 bg-superficie border border-borda rounded-md p-2">
                           Pergunta respondida: <em>“{trecho.pergunta}”</em>
                         </div>
                       )}
@@ -644,14 +645,14 @@ export const PageRespondentesDisseram: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setMostrarTodosTrechos(true)}
-                    className="text-xs font-semibold text-teal-400 hover:text-teal-300 transition-colors"
+                    className="text-xs font-semibold text-marca hover:text-marca transition-colors"
                   >
                     Ler mais respostas selecionadas ({trechosFiltrados.length - 2})
                   </button>
                 )}
               </div>
             ) : (
-              <p className="text-xs text-slate-500 italic mt-1">
+              <p className="text-xs text-texto-3 italic mt-1">
                 Nenhum trecho selecionado para este recorte até o momento.
               </p>
             )}
@@ -660,13 +661,13 @@ export const PageRespondentesDisseram: React.FC = () => {
           {/* Sugestões relacionadas */}
           {temaAtual.sugestoes && temaAtual.sugestoes.length > 0 && (
             <div>
-              <span className="text-[11px] uppercase tracking-wider text-teal-400 font-semibold">
+              <span className="text-xs uppercase tracking-wider text-marca font-semibold">
                 Sugestões relacionadas
               </span>
               <ul className="mt-1.5 space-y-1.5">
                 {temaAtual.sugestoes.map((sugestao, idx) => (
-                  <li key={idx} className="flex gap-2 text-xs text-slate-300 leading-relaxed">
-                    <Lightbulb className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                  <li key={idx} className="flex gap-2 text-xs text-texto-2 leading-relaxed">
+                    <Lightbulb className="w-3.5 h-3.5 text-alerta shrink-0 mt-0.5" />
                     {sugestao}
                   </li>
                 ))}
@@ -679,30 +680,30 @@ export const PageRespondentesDisseram: React.FC = () => {
       {/* Modal: O que perguntamos? */}
       {modalPerguntas && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 overflow-y-auto">
-          <div className="bg-[#0e162b] rounded-2xl shadow-2xl border border-[#1f2d4e] w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150 text-slate-100">
-            <div className="px-6 py-4 border-b border-[#1f2d4e] flex items-center justify-between bg-[#111a33]">
+          <div className="bg-superficie-2 rounded-2xl shadow-2xl border border-borda w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150 text-texto">
+            <div className="px-6 py-4 border-b border-borda flex items-center justify-between bg-superficie">
               <div className="flex items-center gap-2">
-                <HelpCircle className="w-5 h-5 text-sky-400" />
-                <h2 className="text-lg font-bold text-slate-100">O que perguntamos?</h2>
+                <HelpCircle className="w-5 h-5 text-info" />
+                <h2 className="text-lg font-bold text-texto">O que perguntamos?</h2>
               </div>
               <button
                 onClick={() => setModalPerguntas(false)}
-                className="p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-[#1a284c] transition-colors"
+                className="p-2 rounded-lg text-texto-3 hover:text-texto hover:bg-realce transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-6 overflow-y-auto space-y-3 flex-1 text-sm bg-[#0b1329]">
-              <p className="text-xs text-slate-400 italic">
+            <div className="p-6 overflow-y-auto space-y-3 flex-1 text-sm bg-fundo">
+              <p className="text-xs text-texto-3 italic">
                 Estas são as 4 perguntas abertas do formulário "Diagnóstico sobre Gênero e Sexualidade no IFRS".
                 Quando a pergunta de origem de um trecho for conhecida, ela aparece junto do trecho exibido na
                 página, pelo botão "Ver a pergunta respondida".
               </p>
-              <ol className="space-y-3 list-decimal list-inside text-slate-300 text-sm">
+              <ol className="space-y-3 list-decimal list-inside text-texto-2 text-sm">
                 {PERGUNTAS_ABERTAS.map((pergunta, idx) => (
                   <li key={idx} className="leading-relaxed">
                     {pergunta.texto}
-                    <div className="text-[11px] text-slate-500 italic mt-0.5 ml-0.5">{pergunta.contexto}</div>
+                    <div className="text-xs text-texto-3 italic mt-0.5 ml-0.5">{pergunta.contexto}</div>
                   </li>
                 ))}
               </ol>
@@ -714,21 +715,21 @@ export const PageRespondentesDisseram: React.FC = () => {
       {/* Modal: Como analisamos as respostas? */}
       {modalAnalise && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 overflow-y-auto">
-          <div className="bg-[#0e162b] rounded-2xl shadow-2xl border border-[#1f2d4e] w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150 text-slate-100">
-            <div className="px-6 py-4 border-b border-[#1f2d4e] flex items-center justify-between bg-[#111a33]">
+          <div className="bg-superficie-2 rounded-2xl shadow-2xl border border-borda w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150 text-texto">
+            <div className="px-6 py-4 border-b border-borda flex items-center justify-between bg-superficie">
               <div className="flex items-center gap-2">
-                <ClipboardList className="w-5 h-5 text-emerald-400" />
-                <h2 className="text-lg font-bold text-slate-100">Como analisamos as respostas?</h2>
+                <ClipboardList className="w-5 h-5 text-marca" />
+                <h2 className="text-lg font-bold text-texto">Como analisamos as respostas?</h2>
               </div>
               <button
                 onClick={() => setModalAnalise(false)}
-                className="p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-[#1a284c] transition-colors"
+                className="p-2 rounded-lg text-texto-3 hover:text-texto hover:bg-realce transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-6 overflow-y-auto space-y-4 flex-1 text-sm bg-[#0b1329]">
-              <p className="text-slate-300 leading-relaxed">
+            <div className="p-6 overflow-y-auto space-y-4 flex-1 text-sm bg-fundo">
+              <p className="text-texto-2 leading-relaxed">
                 As respostas às perguntas abertas foram lidas na íntegra e analisadas com base em categorias
                 temáticas definidas a priori, a partir do referencial teórico e dos objetivos da pesquisa
                 (análise de conteúdo e análise temática), complementadas por subcategorias identificadas no
@@ -737,28 +738,28 @@ export const PageRespondentesDisseram: React.FC = () => {
                 categoria ou subcategoria.
               </p>
 
-              <ul className="space-y-2 text-xs text-slate-300">
+              <ul className="space-y-2 text-xs text-texto-2">
                 <li className="flex gap-2">
-                  <Info className="w-3.5 h-3.5 text-teal-400 shrink-0 mt-0.5" />
+                  <Info className="w-3.5 h-3.5 text-marca shrink-0 mt-0.5" />
                   <span>
-                    Base de respostas abertas analisadas: <strong className="text-slate-100">1.533</strong>, com{' '}
-                    <strong className="text-slate-100">1.852</strong> ocorrências de categorias ao todo
+                    Base de respostas abertas analisadas: <strong className="text-texto">1.533</strong>, com{' '}
+                    <strong className="text-texto">1.852</strong> ocorrências de categorias ao todo
                     (multicodificação).
                   </span>
                 </li>
                 <li className="flex gap-2">
-                  <Info className="w-3.5 h-3.5 text-teal-400 shrink-0 mt-0.5" />
+                  <Info className="w-3.5 h-3.5 text-marca shrink-0 mt-0.5" />
                   <span>Uma mesma pessoa pode ter respondido a várias perguntas abertas diferentes.</span>
                 </li>
                 <li className="flex gap-2">
-                  <Info className="w-3.5 h-3.5 text-teal-400 shrink-0 mt-0.5" />
+                  <Info className="w-3.5 h-3.5 text-marca shrink-0 mt-0.5" />
                   <span>
                     As respostas foram classificadas em temas e, dentro de cada tema, em assuntos (subtemas)
                     mais específicos.
                   </span>
                 </li>
                 <li className="flex gap-2">
-                  <Info className="w-3.5 h-3.5 text-teal-400 shrink-0 mt-0.5" />
+                  <Info className="w-3.5 h-3.5 text-marca shrink-0 mt-0.5" />
                   <span>
                     Respostas fora do escopo da pesquisa, muito vagas ou sem elementos suficientes para
                     codificação temática foram organizadas numa categoria operacional à parte (484 ocorrências)
@@ -768,7 +769,7 @@ export const PageRespondentesDisseram: React.FC = () => {
                   </span>
                 </li>
                 <li className="flex gap-2">
-                  <Info className="w-3.5 h-3.5 text-teal-400 shrink-0 mt-0.5" />
+                  <Info className="w-3.5 h-3.5 text-marca shrink-0 mt-0.5" />
                   <span>
                     A seleção de trechos seguiu critério ético de proteção das pessoas respondentes, priorizando
                     excertos com menor risco de identificação; por isso, a contagem do gráfico pode ser maior
@@ -777,33 +778,33 @@ export const PageRespondentesDisseram: React.FC = () => {
                 </li>
               </ul>
 
-              <div className="bg-amber-950/40 border border-amber-800/60 rounded-xl p-4 text-amber-200 text-xs leading-relaxed">
+              <div className="bg-alerta-fundo/40 border border-alerta-borda/60 rounded-xl p-4 text-alerta text-xs leading-relaxed">
                 As contagens apresentadas referem-se às respostas e aos temas identificados nelas, e não
                 necessariamente a pessoas diferentes: uma mesma resposta pode conter mais de um tema.
               </div>
 
               <div>
-                <span className="text-[11px] uppercase tracking-wider text-teal-400 font-semibold">
+                <span className="text-xs uppercase tracking-wider text-marca font-semibold">
                   Principais coocorrências entre temas
                 </span>
-                <p className="text-xs text-slate-400 mt-1 mb-2">
+                <p className="text-xs text-texto-3 mt-1 mb-2">
                   Alguns temas aparecem juntos na mesma resposta. Por exemplo, a combinação mais frequente,
                   Convivência e pertencimento + Violências e discriminação, mostra que relatos de violência
                   aparecem fortemente associados a clima institucional e segurança.
                 </p>
-                <div className="overflow-x-auto rounded-lg border border-[#223154] max-h-56 overflow-y-auto">
+                <div className="overflow-x-auto rounded-lg border border-borda max-h-56 overflow-y-auto">
                   <table className="w-full text-left text-xs border-collapse">
-                    <thead className="bg-[#111c38] text-slate-200 font-semibold border-b border-[#223154] sticky top-0">
+                    <thead className="bg-superficie text-texto font-semibold border-b border-borda sticky top-0">
                       <tr>
                         <th className="px-3 py-2">Combinação de temas</th>
                         <th className="px-3 py-2">Respostas</th>
                         <th className="px-3 py-2">% do total</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#1f2d4e] text-slate-400">
+                    <tbody className="divide-y divide-borda text-texto-3">
                       {COOCORRENCIAS.map((c, idx) => (
                         <tr key={idx}>
-                          <td className="px-3 py-2 text-slate-300">
+                          <td className="px-3 py-2 text-texto-2">
                             {TITULOS_POR_ID[c.a]} + {TITULOS_POR_ID[c.b]}
                           </td>
                           <td className="px-3 py-2">{formatarNumero(c.respostas)}</td>
@@ -815,9 +816,9 @@ export const PageRespondentesDisseram: React.FC = () => {
                 </div>
               </div>
 
-              <div className="bg-[#111c38] border border-[#223154] rounded-xl p-4 text-xs text-slate-400 leading-relaxed space-y-1.5">
-                <div className="flex items-center gap-1.5 font-semibold text-slate-200">
-                  <Info className="w-3.5 h-3.5 text-sky-400" />
+              <div className="bg-superficie border border-borda rounded-xl p-4 text-xs text-texto-3 leading-relaxed space-y-1.5">
+                <div className="flex items-center gap-1.5 font-semibold text-texto">
+                  <Info className="w-3.5 h-3.5 text-info" />
                   Filtros (em planejamento)
                 </div>
                 <p>

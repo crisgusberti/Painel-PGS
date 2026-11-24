@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
-import { Navbar } from './components/Navbar';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Navbar, MenuLateral, LayoutMenu, listarFiltrosAtivos } from './components/Navbar';
 import { FiltrosGlobaisModal } from './components/FiltrosGlobaisModal';
 import { FiltrosGlobaisState } from './lib/types';
 
@@ -26,6 +26,45 @@ export default function App() {
   const [abaAtiva, setAbaAtiva] = useState<string>('conheca_pesquisa');
   const [filtros, setFiltros] = useState<FiltrosGlobaisState>({});
   const [modalFiltrosAberto, setModalFiltrosAberto] = useState<boolean>(false);
+
+  // Layout do menu de abas: lateral (padrão) ou no topo. Pode ser forçado por ?menu=topo / ?menu=lateral
+  const [layoutMenu, setLayoutMenu] = useState<LayoutMenu>(() => {
+    const daUrl = new URLSearchParams(window.location.search).get('menu');
+    if (daUrl === 'topo' || daUrl === 'lateral') return daUrl;
+    try {
+      const salvo = window.localStorage.getItem('painel_layout_menu');
+      if (salvo === 'topo' || salvo === 'lateral') return salvo;
+    } catch {
+      /* armazenamento indisponível */
+    }
+    return 'lateral';
+  });
+  const mudarLayoutMenu = (layout: LayoutMenu) => {
+    setLayoutMenu(layout);
+    try {
+      window.localStorage.setItem('painel_layout_menu', layout);
+    } catch {
+      /* armazenamento indisponível */
+    }
+  };
+
+  // Ao trocar de aba, leva o foco (e a rolagem) para o início do conteúdo,
+  // para que quem navega por teclado ou leitor de tela não precise percorrer o menu de novo.
+  const conteudoRef = useRef<HTMLElement>(null);
+  const [menuMobileAberto, setMenuMobileAberto] = useState(false);
+  const fecharMenuMobile = useCallback(() => setMenuMobileAberto(false), []);
+  const primeiraRenderizacao = useRef(true);
+  const mudarAba = (aba: string) => {
+    setAbaAtiva(aba);
+  };
+  useEffect(() => {
+    if (primeiraRenderizacao.current) {
+      primeiraRenderizacao.current = false;
+      return;
+    }
+    window.scrollTo({ top: 0 });
+    conteudoRef.current?.focus({ preventScroll: true });
+  }, [abaAtiva]);
 
   // Estados de dados das páginas
   const [dadosVisaoGeral, setDadosVisaoGeral] = useState<any>(null);
@@ -129,29 +168,58 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b1329] flex flex-col font-sans text-slate-100 selection:bg-teal-500/30 selection:text-teal-200">
-      {/* Barra de Navegação e Filtros */}
+    <div className="min-h-screen bg-fundo flex flex-col font-sans text-texto selection:bg-marca/20">
+      <a
+        href="#conteudo"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-marca focus:text-white focus:font-semibold"
+      >
+        Pular para o conteúdo
+      </a>
+
+      {layoutMenu === 'lateral' && (
+        <MenuLateral
+          abaAtiva={abaAtiva}
+          aoMudarAba={mudarAba}
+          aoAbrirFiltros={() => setModalFiltrosAberto(true)}
+          totalFiltrosAtivos={listarFiltrosAtivos(filtros).length}
+          abertoMobile={menuMobileAberto}
+          aoFecharMobile={fecharMenuMobile}
+        />
+      )}
+
+      {/* No layout lateral, todo o restante fica à direita da barra fixa (lg:pl-[19rem]) */}
+      <div className={`flex-1 flex flex-col min-w-0 ${layoutMenu === 'lateral' ? 'lg:pl-[19rem]' : ''}`}>
+      {/* Cabeçalho, filtros ativos e (no layout "topo") as abas */}
       <Navbar
         abaAtiva={abaAtiva}
-        aoMudarAba={setAbaAtiva}
+        aoMudarAba={mudarAba}
         filtros={filtros}
         aoAbrirFiltros={() => setModalFiltrosAberto(true)}
         aoLimparFiltros={handleLimparFiltros}
         aoRemoverFiltro={handleRemoverFiltro}
         nFiltrado={nFiltrado}
+        layoutMenu={layoutMenu}
+        aoMudarLayoutMenu={mudarLayoutMenu}
+        aoAbrirMenuMobile={() => setMenuMobileAberto(true)}
       />
 
       {/* Conteúdo Principal */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main
+        id="conteudo"
+        ref={conteudoRef}
+        tabIndex={-1}
+        className="@container flex-1 min-w-0 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 focus:outline-none"
+      >
         {erroCarregamento && (
-          <div className="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-3 text-amber-200">
+          <div role="alert" className="mb-6 p-4 rounded-xl bg-alerta-fundo border border-alerta-borda flex items-center justify-between gap-3 text-alerta">
             <div className="flex items-center gap-3">
-              <span className="text-xl">⚠️</span>
+              <span className="text-xl" aria-hidden="true">⚠️</span>
               <span className="text-sm">{erroCarregamento}</span>
             </div>
             <button
+              type="button"
               onClick={() => carregarDadosAba(abaAtiva, filtros)}
-              className="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-100 text-xs font-semibold transition-colors"
+              className="px-3 py-2 rounded-lg bg-superficie border border-alerta-borda hover:bg-alerta-fundo text-alerta text-sm font-semibold transition-colors"
             >
               Tentar novamente
             </button>
@@ -166,7 +234,7 @@ export default function App() {
           <PageVisaoGeral
             dados={dadosVisaoGeral}
             carregando={carregando}
-            aoNavegarAba={setAbaAtiva}
+            aoNavegarAba={mudarAba}
           />
         )}
 
@@ -202,18 +270,20 @@ export default function App() {
       </main>
 
       {/* Rodapé Institucional */}
-      <footer className="bg-[#0e162b] border-t border-[#1f2d4e] mt-12 py-6 text-xs text-slate-400">
+      <footer className="bg-superficie border-t-4 border-marca-oficial py-6 text-sm text-texto-3">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
           <div>
-            <span className="font-bold text-slate-200">
+            <span className="font-bold text-texto">
               Instituto Federal de Educação, Ciência e Tecnologia do Rio Grande do Sul (IFRS)
             </span>
-            <div className="text-[11px] text-teal-400/80 mt-0.5">
+            <div className="text-sm text-marca mt-0.5">
               Assessoria de Gênero e Sexualidade
             </div>
           </div>
         </div>
       </footer>
+
+      </div>
 
       {/* Modal de Filtros Globais */}
       <FiltrosGlobaisModal

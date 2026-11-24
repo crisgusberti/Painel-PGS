@@ -54,7 +54,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
       const base64 = echartInstance.getDataURL({
         type: 'png',
         pixelRatio: 2,
-        backgroundColor: '#131d36',
+        backgroundColor: '#ffffff',
       });
       const link = document.createElement('a');
       link.download = `cruzamento_cuidado_gestao_${segmentoCuidado}_${generoCuidado}_${racaCuidado}_${pcdCuidado}.png`;
@@ -122,15 +122,15 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
+      backgroundColor: '#ffffff',
+      borderColor: '#d3dbd6',
+      textStyle: { color: '#14201a' },
       formatter: (params: any[]) => {
         const uniNome = params[0]?.axisValueLabel || '';
         const itemObj = dadosAglutinadosProgressao.find((d) => d.universo === uniNome);
-        let html = `<div class="font-bold text-slate-100 mb-1">${uniNome}</div>`;
+        let html = `<div class="font-bold text-texto mb-1">${uniNome}</div>`;
         if (itemObj) {
-          html += `<div class="text-[11px] text-slate-400 mb-2">Total de respondentes: <strong>${formatarNumero(itemObj.total)}</strong></div>`;
+          html += `<div class="text-xs text-texto-3 mb-2">Total de respondentes: <strong>${formatarNumero(itemObj.total)}</strong></div>`;
         }
         params.forEach((p) => {
           let nAbsoluto = 0;
@@ -141,7 +141,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           }
           html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
             <span>${p.marker} ${p.seriesName}</span>
-            <span class="font-bold text-slate-100">${Number(p.value || 0).toFixed(1)}% <span class="text-slate-400 font-normal">(${formatarNumero(nAbsoluto)} resp.)</span></span>
+            <span class="font-bold text-texto">${Number(p.value || 0).toFixed(1)}% <span class="text-texto-3 font-normal">(${formatarNumero(nAbsoluto)} resp.)</span></span>
           </div>`;
         });
         return html;
@@ -154,20 +154,20 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
         'Discordo (Discordo totalmente + Discordo)',
       ],
       bottom: 0,
-      textStyle: { color: '#cbd5e1', fontSize: 11 },
+      textStyle: { color: '#2f3b35', fontSize: 13 },
     },
     grid: { left: '3%', right: '4%', top: '6%', bottom: '15%', containLabel: true },
     xAxis: {
       type: 'category',
       data: dadosAglutinadosProgressao.map((d) => d.universo),
-      axisLabel: { color: '#f1f5f9', fontWeight: 'bold' },
+      axisLabel: { color: '#14201a', fontWeight: 'bold' },
     },
     yAxis: {
       type: 'value',
       min: 0,
       max: 100,
-      axisLabel: { formatter: '{value}%', color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      axisLabel: { formatter: '{value}%', color: '#4d5a53' },
+      splitLine: { lineStyle: { stroke: '#e3e8e5' } },
     },
     series: [
       {
@@ -181,7 +181,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
           color: '#ffffff',
           fontWeight: 'bold',
-          fontSize: 11,
+          fontSize: 13,
         },
         data: dadosAglutinadosProgressao.map((d) => d.pctPos),
       },
@@ -194,8 +194,8 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           show: true,
           position: 'inside',
           formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
-          color: '#f1f5f9',
-          fontSize: 10,
+          color: '#14201a',
+          fontSize: 12,
         },
         data: dadosAglutinadosProgressao.map((d) => d.pctNeu),
       },
@@ -210,7 +210,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
           color: '#ffffff',
           fontWeight: 'bold',
-          fontSize: 10,
+          fontSize: 12,
         },
         data: dadosAglutinadosProgressao.map((d) => d.pctNeg),
       },
@@ -258,15 +258,15 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
+      backgroundColor: '#ffffff',
+      borderColor: '#d3dbd6',
+      textStyle: { color: '#14201a' },
       formatter: (params: any[]) => {
         const uniNome = params[0]?.axisValueLabel || '';
         const itemObj = dadosAglutinadosAcesso.find((d) => d.universo === uniNome);
-        let html = `<div class="font-bold text-slate-100 mb-1">${uniNome}</div>`;
+        let html = `<div class="font-bold text-texto mb-1">${uniNome}</div>`;
         if (itemObj) {
-          html += `<div class="text-[11px] text-slate-400 mb-2">Total de respondentes: <strong>${formatarNumero(itemObj.total)}</strong></div>`;
+          html += `<div class="text-xs text-texto-3 mb-2">Total de respondentes: <strong>${formatarNumero(itemObj.total)}</strong></div>`;
         }
         params.forEach((p) => {
           let nAbsoluto = 0;
@@ -277,7 +277,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           }
           html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
             <span>${p.marker} ${p.seriesName}</span>
-            <span class="font-bold text-slate-100">${Number(p.value || 0).toFixed(1)}% <span class="text-slate-400 font-normal">(${formatarNumero(nAbsoluto)} resp.)</span></span>
+            <span class="font-bold text-texto">${Number(p.value || 0).toFixed(1)}% <span class="text-texto-3 font-normal">(${formatarNumero(nAbsoluto)} resp.)</span></span>
           </div>`;
         });
         return html;
@@ -286,20 +286,20 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
     legend: {
       data: ['Equitativo (Muito equitativo + Equitativo)', 'Pouco ou nada equitativo', 'Não sei avaliar / Sem resposta'],
       bottom: 0,
-      textStyle: { color: '#cbd5e1', fontSize: 11 },
+      textStyle: { color: '#2f3b35', fontSize: 13 },
     },
     grid: { left: '3%', right: '4%', top: '6%', bottom: '15%', containLabel: true },
     xAxis: {
       type: 'category',
       data: dadosAglutinadosAcesso.map((d) => d.universo),
-      axisLabel: { color: '#f1f5f9', fontWeight: 'bold' },
+      axisLabel: { color: '#14201a', fontWeight: 'bold' },
     },
     yAxis: {
       type: 'value',
       min: 0,
       max: 100,
-      axisLabel: { formatter: '{value}%', color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      axisLabel: { formatter: '{value}%', color: '#4d5a53' },
+      splitLine: { lineStyle: { stroke: '#e3e8e5' } },
     },
     series: [
       {
@@ -313,7 +313,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
           color: '#ffffff',
           fontWeight: 'bold',
-          fontSize: 11,
+          fontSize: 13,
         },
         data: dadosAglutinadosAcesso.map((d) => d.pctPos),
       },
@@ -328,7 +328,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
           color: '#ffffff',
           fontWeight: 'bold',
-          fontSize: 10,
+          fontSize: 12,
         },
         data: dadosAglutinadosAcesso.map((d) => d.pctNeg),
       },
@@ -341,8 +341,8 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           show: true,
           position: 'inside',
           formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
-          color: '#f1f5f9',
-          fontSize: 10,
+          color: '#14201a',
+          fontSize: 12,
         },
         data: dadosAglutinadosAcesso.map((d) => d.pctNeu),
       },
@@ -409,33 +409,33 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
+      backgroundColor: '#ffffff',
+      borderColor: '#d3dbd6',
+      textStyle: { color: '#14201a' },
       formatter: (params: any[]) => {
         const cargoNome = params[0]?.axisValueLabel || '';
         const totalCargo = params.reduce((acc, p) => acc + Number(p.value || 0), 0);
-        let html = `<div class="font-bold text-slate-100 mb-1">${cargoNome}</div>`;
-        html += `<div class="text-[11px] text-slate-400 mb-2">Total no cargo: <strong>${formatarNumero(totalCargo)}</strong></div>`;
+        let html = `<div class="font-bold text-texto mb-1">${cargoNome}</div>`;
+        html += `<div class="text-xs text-texto-3 mb-2">Total no cargo: <strong>${formatarNumero(totalCargo)}</strong></div>`;
         params.forEach((p) => {
           const val = Number(p.value || 0);
           const pct = totalCargo > 0 ? ((val / totalCargo) * 100).toFixed(1) : '0.0';
           html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
             <span>${p.marker} ${p.seriesName}</span>
-            <span class="font-bold text-slate-100">${formatarNumero(val)} <span class="text-slate-400 font-normal">(${pct}%)</span></span>
+            <span class="font-bold text-texto">${formatarNumero(val)} <span class="text-texto-3 font-normal">(${pct}%)</span></span>
           </div>`;
         });
         return html;
       },
     },
-    legend: { data: [...CATEGORIAS_GENERO_OFICIAIS], bottom: 0, textStyle: { color: '#cbd5e1', fontSize: 10 } },
+    legend: { data: [...CATEGORIAS_GENERO_OFICIAIS], bottom: 0, textStyle: { color: '#2f3b35', fontSize: 12 } },
     grid: { left: '3%', right: '4%', top: '4%', bottom: '14%', containLabel: true },
     xAxis: {
       type: 'value',
-      axisLabel: { color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      axisLabel: { color: '#4d5a53' },
+      splitLine: { lineStyle: { stroke: '#e3e8e5' } },
     },
-    yAxis: { type: 'category', data: cargosYAxis, axisLabel: { color: '#cbd5e1', fontSize: 11 } },
+    yAxis: { type: 'category', data: cargosYAxis, axisLabel: { color: '#2f3b35', fontSize: 13 } },
     series: CATEGORIAS_GENERO_OFICIAIS.map((g, idx) => ({
       name: g,
       type: 'bar',
@@ -469,36 +469,36 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
+      backgroundColor: '#ffffff',
+      borderColor: '#d3dbd6',
+      textStyle: { color: '#14201a' },
       formatter: (params: any[]) => {
         const funcNome = params[0]?.axisValueLabel || '';
         const totalFunc = params.reduce((acc, p) => acc + Number(p.value || 0), 0);
-        let html = `<div class="font-bold text-slate-100 mb-1">${funcNome}</div>`;
-        html += `<div class="text-[11px] text-slate-400 mb-2">Total na função: <strong>${formatarNumero(totalFunc)}</strong></div>`;
+        let html = `<div class="font-bold text-texto mb-1">${funcNome}</div>`;
+        html += `<div class="text-xs text-texto-3 mb-2">Total na função: <strong>${formatarNumero(totalFunc)}</strong></div>`;
         params.forEach((p) => {
           const val = Number(p.value || 0);
           const pct = totalFunc > 0 ? ((val / totalFunc) * 100).toFixed(1) : '0.0';
           html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
             <span>${p.marker} ${p.seriesName}</span>
-            <span class="font-bold text-slate-100">${formatarNumero(val)} <span class="text-slate-400 font-normal">(${pct}%)</span></span>
+            <span class="font-bold text-texto">${formatarNumero(val)} <span class="text-texto-3 font-normal">(${pct}%)</span></span>
           </div>`;
         });
         return html;
       },
     },
-    legend: { data: [...CATEGORIAS_GENERO_OFICIAIS], bottom: 0, textStyle: { color: '#cbd5e1', fontSize: 10 } },
+    legend: { data: [...CATEGORIAS_GENERO_OFICIAIS], bottom: 0, textStyle: { color: '#2f3b35', fontSize: 12 } },
     grid: { left: '3%', right: '4%', top: '4%', bottom: '14%', containLabel: true },
     xAxis: {
       type: 'value',
-      axisLabel: { color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      axisLabel: { color: '#4d5a53' },
+      splitLine: { lineStyle: { stroke: '#e3e8e5' } },
     },
     yAxis: {
       type: 'category',
       data: funcoesYAxis.length > 0 ? funcoesYAxis : ['Nenhum registro'],
-      axisLabel: { color: '#cbd5e1', fontSize: 11 },
+      axisLabel: { color: '#2f3b35', fontSize: 13 },
     },
     series: CATEGORIAS_GENERO_OFICIAIS.map((g, idx) => ({
       name: g,
@@ -553,17 +553,17 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
+      backgroundColor: '#ffffff',
+      borderColor: '#d3dbd6',
+      textStyle: { color: '#14201a' },
       formatter: (params: any[]) => {
         const rotulo = params[0]?.axisValueLabel || '';
         const itemObj = dadosDetalhadoProgressao.find(
           (d) => d.rotuloComN === rotulo || d.genero === rotulo
         );
-        let html = `<div class="font-bold text-slate-100 mb-1">${itemObj?.genero || rotulo} (${rotuloSegProgressao})</div>`;
+        let html = `<div class="font-bold text-texto mb-1">${itemObj?.genero || rotulo} (${rotuloSegProgressao})</div>`;
         if (itemObj) {
-          html += `<div class="text-[11px] text-slate-400 mb-2">Total de respondentes: <strong>${formatarNumero(itemObj.total)}</strong></div>`;
+          html += `<div class="text-xs text-texto-3 mb-2">Total de respondentes: <strong>${formatarNumero(itemObj.total)}</strong></div>`;
         }
         params.forEach((p) => {
           let nAbsoluto = 0;
@@ -575,11 +575,11 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           const valPct = Number(p.value || 0).toFixed(1);
           html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
             <span>${p.marker} ${p.seriesName}</span>
-            <span class="font-bold text-slate-100">${valPct}% <span class="text-slate-400 font-normal">(${formatarNumero(nAbsoluto)} resp.)</span></span>
+            <span class="font-bold text-texto">${valPct}% <span class="text-texto-3 font-normal">(${formatarNumero(nAbsoluto)} resp.)</span></span>
           </div>`;
         });
         if (itemObj && itemObj.total === 0) {
-          html += `<div class="mt-2 pt-1.5 border-t border-slate-700 text-[11px] text-slate-400 italic">
+          html += `<div class="mt-2 pt-1.5 border-t border-borda-forte text-xs text-texto-3 italic">
             Nenhum registro nesta categoria para este segmento.
           </div>`;
         }
@@ -593,20 +593,20 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
         'Discordo (Discordo totalmente + Discordo)',
       ],
       bottom: 0,
-      textStyle: { color: '#cbd5e1', fontSize: 11 },
+      textStyle: { color: '#2f3b35', fontSize: 13 },
     },
     grid: { left: '3%', right: '5%', top: '6%', bottom: '14%', containLabel: true },
     xAxis: {
       type: 'value',
       min: 0,
       max: 100,
-      axisLabel: { formatter: '{value}%', color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      axisLabel: { formatter: '{value}%', color: '#4d5a53' },
+      splitLine: { lineStyle: { stroke: '#e3e8e5' } },
     },
     yAxis: {
       type: 'category',
       data: dadosOrdenadosProg.map((d) => d.rotuloComN),
-      axisLabel: { color: '#f1f5f9', fontWeight: 'bold', fontSize: 11 },
+      axisLabel: { color: '#14201a', fontWeight: 'bold', fontSize: 13 },
     },
     series: [
       {
@@ -620,7 +620,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
           color: '#ffffff',
           fontWeight: 'bold',
-          fontSize: 10,
+          fontSize: 12,
         },
         data: dadosOrdenadosProg.map((d) => d.pctPos),
       },
@@ -633,8 +633,8 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           show: true,
           position: 'inside',
           formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
-          color: '#f1f5f9',
-          fontSize: 10,
+          color: '#14201a',
+          fontSize: 12,
         },
         data: dadosOrdenadosProg.map((d) => d.pctNeu),
       },
@@ -649,7 +649,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
           color: '#ffffff',
           fontWeight: 'bold',
-          fontSize: 10,
+          fontSize: 12,
         },
         data: dadosOrdenadosProg.map((d) => d.pctNeg),
       },
@@ -694,17 +694,17 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
+      backgroundColor: '#ffffff',
+      borderColor: '#d3dbd6',
+      textStyle: { color: '#14201a' },
       formatter: (params: any[]) => {
         const rotulo = params[0]?.axisValueLabel || '';
         const itemObj = dadosDetalhadoAcesso.find(
           (d) => d.rotuloComN === rotulo || d.genero === rotulo
         );
-        let html = `<div class="font-bold text-slate-100 mb-1">${itemObj?.genero || rotulo} (${rotuloSegAcesso})</div>`;
+        let html = `<div class="font-bold text-texto mb-1">${itemObj?.genero || rotulo} (${rotuloSegAcesso})</div>`;
         if (itemObj) {
-          html += `<div class="text-[11px] text-slate-400 mb-2">Total de respondentes: <strong>${formatarNumero(itemObj.total)}</strong></div>`;
+          html += `<div class="text-xs text-texto-3 mb-2">Total de respondentes: <strong>${formatarNumero(itemObj.total)}</strong></div>`;
         }
         params.forEach((p) => {
           let nAbsoluto = 0;
@@ -716,11 +716,11 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           const valPct = Number(p.value || 0).toFixed(1);
           html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
             <span>${p.marker} ${p.seriesName}</span>
-            <span class="font-bold text-slate-100">${valPct}% <span class="text-slate-400 font-normal">(${formatarNumero(nAbsoluto)} resp.)</span></span>
+            <span class="font-bold text-texto">${valPct}% <span class="text-texto-3 font-normal">(${formatarNumero(nAbsoluto)} resp.)</span></span>
           </div>`;
         });
         if (itemObj && itemObj.total === 0) {
-          html += `<div class="mt-2 pt-1.5 border-t border-slate-700 text-[11px] text-slate-400 italic">
+          html += `<div class="mt-2 pt-1.5 border-t border-borda-forte text-xs text-texto-3 italic">
             Nenhum registro nesta categoria para este segmento.
           </div>`;
         }
@@ -734,20 +734,20 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
         'Não sei avaliar / Sem resposta',
       ],
       bottom: 0,
-      textStyle: { color: '#cbd5e1', fontSize: 11 },
+      textStyle: { color: '#2f3b35', fontSize: 13 },
     },
     grid: { left: '3%', right: '5%', top: '6%', bottom: '14%', containLabel: true },
     xAxis: {
       type: 'value',
       min: 0,
       max: 100,
-      axisLabel: { formatter: '{value}%', color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      axisLabel: { formatter: '{value}%', color: '#4d5a53' },
+      splitLine: { lineStyle: { stroke: '#e3e8e5' } },
     },
     yAxis: {
       type: 'category',
       data: dadosOrdenadosAcesso.map((d) => d.rotuloComN),
-      axisLabel: { color: '#f1f5f9', fontWeight: 'bold', fontSize: 11 },
+      axisLabel: { color: '#14201a', fontWeight: 'bold', fontSize: 13 },
     },
     series: [
       {
@@ -761,7 +761,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
           color: '#ffffff',
           fontWeight: 'bold',
-          fontSize: 10,
+          fontSize: 12,
         },
         data: dadosOrdenadosAcesso.map((d) => d.pctPos),
       },
@@ -776,7 +776,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
           color: '#ffffff',
           fontWeight: 'bold',
-          fontSize: 10,
+          fontSize: 12,
         },
         data: dadosOrdenadosAcesso.map((d) => d.pctNeg),
       },
@@ -789,8 +789,8 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           show: true,
           position: 'inside',
           formatter: (p: any) => (p.value >= 7 ? `${p.value}%` : ''),
-          color: '#f1f5f9',
-          fontSize: 10,
+          color: '#14201a',
+          fontSize: 12,
         },
         data: dadosOrdenadosAcesso.map((d) => d.pctNeu),
       },
@@ -854,15 +854,15 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
+      backgroundColor: '#ffffff',
+      borderColor: '#d3dbd6',
+      textStyle: { color: '#14201a' },
       formatter: (params: any[]) => {
         const rotulo = params[0]?.axisValueLabel || '';
         const itemObj = dadosCuidadoGrafico.find((d) => d.rotuloCurto === rotulo);
-        let html = `<div class="font-bold text-slate-100 mb-1">${itemObj?.categoriaOriginal || rotulo}</div>`;
+        let html = `<div class="font-bold text-texto mb-1">${itemObj?.categoriaOriginal || rotulo}</div>`;
         if (itemObj) {
-          html += `<div class="text-[11px] text-slate-400 mb-2">Segmento: <strong>${rotuloSegCuidado}</strong> | Gênero: <strong>${generoCuidado === 'todos' ? 'Todos' : generoCuidado}</strong> (Total: ${formatarNumero(itemObj.total)})</div>`;
+          html += `<div class="text-xs text-texto-3 mb-2">Segmento: <strong>${rotuloSegCuidado}</strong> | Gênero: <strong>${generoCuidado === 'todos' ? 'Todos' : generoCuidado}</strong> (Total: ${formatarNumero(itemObj.total)})</div>`;
         }
         params.forEach((p) => {
           const val = Number(p.value || 0);
@@ -870,7 +870,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
             itemObj && itemObj.total > 0 ? ((val / itemObj.total) * 100).toFixed(1) : '0,0';
           html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
             <span>${p.marker} ${p.seriesName}</span>
-            <span class="font-bold text-slate-100">${formatarNumero(val)} (${pct}%)</span>
+            <span class="font-bold text-texto">${formatarNumero(val)} (${pct}%)</span>
           </div>`;
         });
         return html;
@@ -884,19 +884,19 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
         'Prefiro não responder',
       ],
       bottom: 0,
-      textStyle: { color: '#cbd5e1', fontSize: 11 },
+      textStyle: { color: '#2f3b35', fontSize: 13 },
     },
     grid: { left: '3%', right: '5%', top: '6%', bottom: '15%', containLabel: true },
     xAxis: {
       type: 'value',
-      axisLabel: { color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      axisLabel: { color: '#4d5a53' },
+      splitLine: { lineStyle: { stroke: '#e3e8e5' } },
     },
     yAxis: {
       type: 'category',
       inverse: true,
       data: dadosCuidadoGrafico.map((d) => d.rotuloCurto),
-      axisLabel: { color: '#f1f5f9', fontWeight: 'bold', fontSize: 11 },
+      axisLabel: { color: '#14201a', fontWeight: 'bold', fontSize: 13 },
     },
     series: [
       {
@@ -915,7 +915,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           },
           color: '#ffffff',
           fontWeight: 'bold',
-          fontSize: 10,
+          fontSize: 12,
         },
         data: dadosCuidadoGrafico.map((d) => d.sim),
       },
@@ -933,7 +933,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
             return itemObj && itemObj.nao > 0 && Number(pctNao) >= 12 ? `${pctNao}%` : '';
           },
           color: '#ffffff',
-          fontSize: 10,
+          fontSize: 12,
         },
         data: dadosCuidadoGrafico.map((d) => d.nao),
       },
@@ -979,10 +979,10 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
   return (
     <div className="space-y-6">
       {/* Título de Seção com Aviso Obrigatório de Base */}
-      <div className="border-b border-[#1f2d4e] pb-3">
-        <h2 className="text-xl font-bold text-slate-100">2. Carreira, Progressão e Equidade Institucional</h2>
-        <div className="mt-1 flex items-center gap-1.5 text-xs text-teal-300 bg-[#131d36] border border-[#223154] px-3 py-1.5 rounded-lg">
-          <Info className="w-4 h-4 text-teal-400 shrink-0" />
+      <div className="border-b border-borda pb-3">
+        <h2 className="text-xl font-bold text-texto">2. Carreira, Progressão e Equidade Institucional</h2>
+        <div className="mt-1 flex items-center gap-1.5 text-xs text-marca bg-superficie border border-borda px-3 py-1.5 rounded-lg">
+          <Info className="w-4 h-4 text-marca shrink-0" />
           <span>
             Servidores efetivos e docentes substitutos (docentes e TAEs).
             Estudantes e trabalhadores terceirizados não integram os blocos de carreira funcional.
@@ -991,14 +991,14 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
       </div>
 
       {/* KPIs de Liderança e Mérito */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 @lg:grid-cols-2 @4xl:grid-cols-4 gap-4">
         <KpiCard
           titulo="Servidores em Gestão (Total)"
           valorPrincipal={formatarNumero(totalGestores)}
           subvalor="cargos/funções ativas"
           textoComplementar="Servidores ocupantes de cargos de direção ou funções gratificadas"
           notaMetodologica="Respondem 'Sim' para ocupação de cargo/função de gestão"
-          icone={<Briefcase className="w-5 h-5 text-sky-400" />}
+          icone={<Briefcase className="w-5 h-5 text-info" />}
           corDestaque="blue"
         />
 
@@ -1008,7 +1008,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           subvalor={`${formatarNumero(mulheresGestoras)} gestoras`}
           textoComplementar={`${formatarNumero(mulheresGestoras)} de ${formatarNumero(totalGestores)} cargos de gestão`}
           notaMetodologica="Participação feminina (Mulher e Mulher Trans) nos postos de direção e chefia"
-          icone={<Award className="w-5 h-5 text-emerald-400" />}
+          icone={<Award className="w-5 h-5 text-marca" />}
           corDestaque="emerald"
         />
 
@@ -1018,7 +1018,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           subvalor={`${formatarNumero(negrosGestores)} gestores`}
           textoComplementar={`${formatarNumero(negrosGestores)} de ${formatarNumero(totalGestores)} cargos de gestão`}
           notaMetodologica="Servidores pretos e pardos em funções de liderança"
-          icone={<Briefcase className="w-5 h-5 text-indigo-400" />}
+          icone={<Briefcase className="w-5 h-5 text-roxo" />}
           corDestaque="indigo"
         />
 
@@ -1028,13 +1028,13 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           subvalor="média geral"
           textoComplementar="Avaliação dos servidores sobre a imparcialidade nas progressões"
           notaMetodologica="Escala 1 (Discordo totalmente) a 5 (Concordo totalmente)"
-          icone={<TrendingUp className="w-5 h-5 text-amber-400" />}
+          icone={<TrendingUp className="w-5 h-5 text-alerta" />}
           corDestaque="amber"
         />
       </div>
 
       {/* Gráficos de Funil: Cargos e Funções */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 @4xl:grid-cols-2 gap-6">
         <ChartCard
           titulo="Composição de Servidores por Cargo e Gênero"
           subtitulo="Distribuição entre docentes e níveis de técnicos-administrativos (TAE) pelas 6 categorias oficiais de gênero"
@@ -1088,7 +1088,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
       </div>
 
       {/* Progressão e Acesso a Bolsas com modo Comparativo Aglutinado e Detalhado */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 @4xl:grid-cols-2 gap-6">
         <ChartCard
           titulo="Avaliação da Progressão por Mérito"
           subtitulo={
@@ -1107,15 +1107,16 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           elementoCabecalho={
             <div className="flex items-center justify-between gap-2 flex-wrap w-full">
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[11px] text-slate-400 font-medium">Modo:</span>
-                <div className="inline-flex items-center p-0.5 rounded-lg bg-[#0a1020] border border-[#223154] text-xs">
+                <span className="text-xs text-texto-3 font-medium">Modo:</span>
+                <div className="inline-flex items-center p-0.5 rounded-lg bg-superficie-2 border border-borda text-xs">
                   <button
                     type="button"
                     onClick={() => setModoProgressao('comparativo')}
-                    className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
+                    aria-pressed={modoProgressao === 'comparativo'}
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
                       modoProgressao === 'comparativo'
-                        ? 'bg-teal-500 text-slate-950 shadow-xs'
-                        : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-marca text-white shadow-xs'
+                        : 'text-texto-3 hover:text-texto'
                     }`}
                   >
                     Comparativo (3 Universos)
@@ -1123,10 +1124,11 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
                   <button
                     type="button"
                     onClick={() => setModoProgressao('detalhado')}
-                    className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
+                    aria-pressed={modoProgressao === 'detalhado'}
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
                       modoProgressao === 'detalhado'
-                        ? 'bg-teal-500 text-slate-950 shadow-xs'
-                        : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-marca text-white shadow-xs'
+                        : 'text-texto-3 hover:text-texto'
                     }`}
                   >
                     Detalhado por Categoria
@@ -1197,15 +1199,16 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           elementoCabecalho={
             <div className="flex items-center justify-between gap-2 flex-wrap w-full">
               <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[11px] text-slate-400 font-medium">Modo:</span>
-                <div className="inline-flex items-center p-0.5 rounded-lg bg-[#0a1020] border border-[#223154] text-xs">
+                <span className="text-xs text-texto-3 font-medium">Modo:</span>
+                <div className="inline-flex items-center p-0.5 rounded-lg bg-superficie-2 border border-borda text-xs">
                   <button
                     type="button"
                     onClick={() => setModoAcesso('comparativo')}
-                    className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
+                    aria-pressed={modoAcesso === 'comparativo'}
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
                       modoAcesso === 'comparativo'
-                        ? 'bg-teal-500 text-slate-950 shadow-xs'
-                        : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-marca text-white shadow-xs'
+                        : 'text-texto-3 hover:text-texto'
                     }`}
                   >
                     Comparativo (3 Universos)
@@ -1213,10 +1216,11 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
                   <button
                     type="button"
                     onClick={() => setModoAcesso('detalhado')}
-                    className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
+                    aria-pressed={modoAcesso === 'detalhado'}
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
                       modoAcesso === 'detalhado'
-                        ? 'bg-teal-500 text-slate-950 shadow-xs'
-                        : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-marca text-white shadow-xs'
+                        : 'text-texto-3 hover:text-texto'
                     }`}
                   >
                     Detalhado por Categoria
@@ -1271,35 +1275,36 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
       </div>
 
       {/* Bloco Unificado: Cruzamento Responsabilidade de Cuidado × Deixou de se Candidatar a Gestão (Gráfico e Tabela Integrados) */}
-      <div className="bg-[#131d36] rounded-xl border border-[#223154] shadow-sm p-5 space-y-5">
+      <div className="bg-superficie rounded-xl border border-borda shadow-sm p-5 space-y-5">
         {/* Cabeçalho Unificado com Título, Subtítulo, Badges e Seletores Compartilhados */}
         <div>
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-2">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-base font-bold text-slate-100 leading-snug">
+                <h3 className="text-base font-bold text-texto leading-snug">
                   Cruzamento: Responsabilidade de Cuidado × Deixou de se Candidatar a Gestão
                 </h3>
-                <span className="px-2.5 py-0.5 rounded-full bg-rose-950/60 border border-rose-800/80 text-[11px] font-semibold text-rose-300">
+                <span className="px-2.5 py-0.5 rounded-full bg-perigo-fundo/60 border border-perigo-borda/80 text-xs font-semibold text-perigo">
                   Taxa de renúncia com cuidado: {taxaRenunciaCuidado}%
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-texto-3 mt-1">
                 Análise integrada do impacto do trabalho de cuidado na renúncia a pleitear posições de liderança e gestão institucional • Total: {formatarNumero(totalRespondentesCuidadoBloco)}
               </p>
             </div>
 
             <div className="flex items-center gap-2 shrink-0 flex-wrap">
               {/* Seletor de visualização dentro do mesmo card */}
-              <div className="inline-flex items-center p-0.5 rounded-lg bg-[#0a1020] border border-[#223154] text-xs">
+              <div className="inline-flex items-center p-0.5 rounded-lg bg-superficie-2 border border-borda text-xs">
                 <button
                   type="button"
                   onClick={() => setVisaoCuidado('integrada')}
                   title="Exibir Gráfico e Tabela Juntos"
-                  className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                  aria-pressed={visaoCuidado === 'integrada'}
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all ${
                     visaoCuidado === 'integrada'
-                      ? 'bg-teal-500 text-slate-950 shadow-xs'
-                      : 'text-slate-400 hover:text-slate-200'
+                      ? 'bg-marca text-white shadow-xs'
+                      : 'text-texto-3 hover:text-texto'
                   }`}
                 >
                   <Layers className="w-3.5 h-3.5" />
@@ -1309,10 +1314,11 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
                   type="button"
                   onClick={() => setVisaoCuidado('grafico')}
                   title="Exibir apenas o Gráfico"
-                  className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                  aria-pressed={visaoCuidado === 'grafico'}
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all ${
                     visaoCuidado === 'grafico'
-                      ? 'bg-teal-500 text-slate-950 shadow-xs'
-                      : 'text-slate-400 hover:text-slate-200'
+                      ? 'bg-marca text-white shadow-xs'
+                      : 'text-texto-3 hover:text-texto'
                   }`}
                 >
                   <BarChart3 className="w-3.5 h-3.5" />
@@ -1322,10 +1328,11 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
                   type="button"
                   onClick={() => setVisaoCuidado('tabela')}
                   title="Exibir apenas a Tabela"
-                  className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                  aria-pressed={visaoCuidado === 'tabela'}
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all ${
                     visaoCuidado === 'tabela'
-                      ? 'bg-teal-500 text-slate-950 shadow-xs'
-                      : 'text-slate-400 hover:text-slate-200'
+                      ? 'bg-marca text-white shadow-xs'
+                      : 'text-texto-3 hover:text-texto'
                   }`}
                 >
                   <Table className="w-3.5 h-3.5" />
@@ -1337,7 +1344,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
                 type="button"
                 onClick={baixarCuidadoPng}
                 title="Baixar imagem em PNG"
-                className="p-1.5 rounded-lg border border-[#2b3d68] text-slate-300 hover:bg-[#1c2a4d] transition-colors"
+                className="p-1.5 rounded-lg border border-borda-forte text-texto-2 hover:bg-realce transition-colors"
               >
                 <Download className="w-4 h-4" />
               </button>
@@ -1345,7 +1352,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           </div>
 
           {/* Seletores Compartilhados de Segmento, Gênero, Raça e Deficiência */}
-          <div className="mt-3 pt-2.5 border-t border-[#1f2d4e]/70 flex items-center justify-between gap-3 flex-wrap w-full">
+          <div className="mt-3 pt-2.5 border-t border-borda/70 flex items-center justify-between gap-3 flex-wrap w-full">
             <div className="flex items-center gap-3 flex-wrap">
               <SeletorSegmento valor={segmentoCuidado} aoMudar={setSegmentoCuidado} apenasServidores={true} />
               <SeletorRaca valor={racaCuidado} aoMudar={setRacaCuidado} />
@@ -1354,8 +1361,8 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
             <SeletorGenero valor={generoCuidado} aoMudar={setGeneroCuidado} />
           </div>
 
-          <div className="mt-3 flex items-center gap-1.5 text-xs text-amber-300 bg-amber-950/40 border border-amber-800/60 px-2.5 py-1.5 rounded-lg">
-            <AlertCircle className="w-4 h-4 shrink-0 text-amber-400" />
+          <div className="mt-3 flex items-center gap-1.5 text-xs text-alerta bg-alerta-fundo/40 border border-alerta-borda/60 px-2.5 py-1.5 rounded-lg">
+            <AlertCircle className="w-4 h-4 shrink-0 text-alerta" />
             <span>
               Nota metodológica: contempla estritamente as 6 categorias oficiais de gênero (Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binários). Respostas inválidas e 'Prefiro não responder' são desconsideradas.
             </span>
@@ -1366,8 +1373,8 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
         {(visaoCuidado === 'integrada' || visaoCuidado === 'grafico') && (
           <div className="w-full">
             {visaoCuidado === 'integrada' && (
-              <div className="flex items-center justify-between text-xs font-semibold text-slate-300 mb-1.5">
-                <span className="flex items-center gap-1.5 text-teal-400">
+              <div className="flex items-center justify-between text-xs font-semibold text-texto-2 mb-1.5">
+                <span className="flex items-center gap-1.5 text-marca">
                   <BarChart3 className="w-4 h-4" />
                   Visualização Gráfica das Respostas
                 </span>
@@ -1376,10 +1383,10 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
             {carregando ? (
               <div
                 style={{ height: '300px' }}
-                className="flex flex-col items-center justify-center bg-[#0e162b]/60 border border-[#223154] rounded-lg animate-pulse"
+                className="flex flex-col items-center justify-center bg-superficie-2/60 border border-borda rounded-lg animate-pulse"
               >
-                <div className="w-8 h-8 border-3 border-teal-500 border-t-transparent rounded-full animate-spin mb-2" />
-                <span className="text-xs text-slate-400">Atualizando cruzamento...</span>
+                <div className="w-8 h-8 border-3 border-marca border-t-transparent rounded-full animate-spin mb-2" />
+                <span className="text-xs text-texto-3">Atualizando cruzamento...</span>
               </div>
             ) : (
               <div className="chart-animate-in w-full">
@@ -1403,44 +1410,44 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
 
         {/* Parte 2: Tabela de Cruzamento Detalhada */}
         {(visaoCuidado === 'integrada' || visaoCuidado === 'tabela') && (
-          <div className={visaoCuidado === 'integrada' ? 'pt-4 border-t border-[#1f2d4e]/70' : ''}>
+          <div className={visaoCuidado === 'integrada' ? 'pt-4 border-t border-borda/70' : ''}>
             {visaoCuidado === 'integrada' && (
-              <div className="flex items-center justify-between text-xs font-semibold text-slate-300 mb-2">
-                <span className="flex items-center gap-1.5 text-teal-400">
+              <div className="flex items-center justify-between text-xs font-semibold text-texto-2 mb-2">
+                <span className="flex items-center gap-1.5 text-marca">
                   <Table className="w-4 h-4" />
                   Tabela Detalhada por Nível de Cuidado
                 </span>
-                <span className="text-[11px] text-slate-400 font-normal">
+                <span className="text-xs text-texto-3 font-normal">
                   Segmento <strong>{rotuloSegCuidado}</strong> • Gênero <strong>{generoCuidado === 'todos' ? 'Todos' : generoCuidado}</strong>
                 </span>
               </div>
             )}
 
-            <div className="overflow-x-auto rounded-lg border border-[#223154]">
+            <div className="overflow-x-auto rounded-lg border border-borda">
               <table className="w-full text-left text-xs border-collapse">
-                <thead className="bg-[#0e162b] text-slate-200 font-semibold border-b border-[#223154]">
+                <thead className="bg-superficie-2 text-texto font-semibold border-b border-borda">
                   <tr>
                     <th className="px-4 py-3">Responsabilidade de Cuidado Declarada</th>
-                    <th className="px-4 py-3 text-rose-300 font-bold">Deixou de se Candidatar: Sim</th>
-                    <th className="px-4 py-3 text-slate-300">Deixou de se Candidatar: Não</th>
-                    <th className="px-4 py-3 text-slate-400">Não se aplica</th>
-                    <th className="px-4 py-3 text-slate-400">Prefiro não responder</th>
-                    <th className="px-4 py-3 font-bold text-slate-100">Total</th>
-                    <th className="px-4 py-3 text-rose-400 font-bold">% Renúncia (Sim)</th>
+                    <th className="px-4 py-3 text-perigo font-bold">Deixou de se Candidatar: Sim</th>
+                    <th className="px-4 py-3 text-texto-2">Deixou de se Candidatar: Não</th>
+                    <th className="px-4 py-3 text-texto-3">Não se aplica</th>
+                    <th className="px-4 py-3 text-texto-3">Prefiro não responder</th>
+                    <th className="px-4 py-3 font-bold text-texto">Total</th>
+                    <th className="px-4 py-3 text-perigo font-bold">% Renúncia (Sim)</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#1f2d4e]">
+                <tbody className="divide-y divide-borda">
                   {dadosCuidadoGrafico.map((d) => (
-                    <tr key={d.categoriaOriginal} className="hover:bg-[#1a2647] transition-colors">
-                      <td className="px-4 py-2.5 font-medium text-slate-200">{d.categoriaOriginal}</td>
-                      <td className="px-4 py-2.5 text-rose-400 font-bold">
+                    <tr key={d.categoriaOriginal} className="hover:bg-realce transition-colors">
+                      <td className="px-4 py-2.5 font-medium text-texto">{d.categoriaOriginal}</td>
+                      <td className="px-4 py-2.5 text-perigo font-bold">
                         {formatarNumero(d.sim)}
                       </td>
-                      <td className="px-4 py-2.5 text-slate-300">{formatarNumero(d.nao)}</td>
-                      <td className="px-4 py-2.5 text-slate-400">{formatarNumero(d.naoAplica)}</td>
-                      <td className="px-4 py-2.5 text-slate-400">{formatarNumero(d.prefiroNao)}</td>
-                      <td className="px-4 py-2.5 font-bold text-slate-100">{formatarNumero(d.total)}</td>
-                      <td className="px-4 py-2.5 font-bold text-rose-300">{d.taxaImpacto}%</td>
+                      <td className="px-4 py-2.5 text-texto-2">{formatarNumero(d.nao)}</td>
+                      <td className="px-4 py-2.5 text-texto-3">{formatarNumero(d.naoAplica)}</td>
+                      <td className="px-4 py-2.5 text-texto-3">{formatarNumero(d.prefiroNao)}</td>
+                      <td className="px-4 py-2.5 font-bold text-texto">{formatarNumero(d.total)}</td>
+                      <td className="px-4 py-2.5 font-bold text-perigo">{d.taxaImpacto}%</td>
                     </tr>
                   ))}
                 </tbody>
@@ -1450,9 +1457,9 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
         )}
 
         {/* Rodapé Integrado */}
-        <div className="pt-3 border-t border-[#1f2d4e] flex flex-col sm:flex-row items-start sm:items-center justify-between text-[11px] text-slate-400 gap-1.5">
+        <div className="pt-3 border-t border-borda flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs text-texto-3 gap-1.5">
           <span>Fonte: Questionário aplicado com 4.857 respondentes</span>
-          <span className="italic text-slate-400">
+          <span className="italic text-texto-3">
             Recorte ativo: {rotuloSegCuidado} • {generoCuidado === 'todos' ? 'Todos os gêneros válidos' : generoCuidado} • {formatarNumero(evitouComCuidado)} de {formatarNumero(totalCuidadoDeclarado)} respondentes com cuidado declararam renúncia à gestão ({taxaRenunciaCuidado}%).
           </span>
         </div>

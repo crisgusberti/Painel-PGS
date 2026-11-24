@@ -145,8 +145,8 @@ const criarSerieTotal = (totais: number[]) => ({
   label: {
     show: true,
     position: 'right',
-    color: '#5eead4',
-    fontSize: 11,
+    color: '#1f6d2b',
+    fontSize: 13,
     fontWeight: 700,
     formatter: (p: any) => `Total: ${formatarNumero(totais[p.dataIndex])}`,
   },
@@ -173,28 +173,28 @@ export const PageIfrsNumeros: React.FC = () => {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
+      backgroundColor: '#ffffff',
+      borderColor: '#d3dbd6',
+      textStyle: { color: '#14201a' },
       formatter: (params: any[]) => {
         const cNome = params[0]?.axisValueLabel || '';
         const row = linhasServidores.find((r) => r.categoria === cNome);
         const total = row ? row.homens + row.mulheres : 0;
         const diferenca = row ? Math.abs(row.homens - row.mulheres) : 0;
         const predominante = row && row.homens === row.mulheres ? null : row && row.homens > row.mulheres ? 'homens' : 'mulheres';
-        let html = `<div class="font-bold mb-1 text-slate-100">${cNome}</div>`;
+        let html = `<div class="font-bold mb-1 text-texto">${cNome}</div>`;
         params.filter((p) => p.seriesName !== NOME_SERIE_TOTAL).forEach((p) => {
-          html += `<div class="flex items-center justify-between gap-4 text-xs text-slate-300">
+          html += `<div class="flex items-center justify-between gap-4 text-xs text-texto-2">
             <span>${p.marker} ${p.seriesName}</span>
-            <span class="font-bold text-slate-100">${formatarNumero(p.value)} (${total > 0 ? ((p.value / total) * 100).toFixed(1) : '0,0'}%)</span>
+            <span class="font-bold text-texto">${formatarNumero(p.value)} (${total > 0 ? ((p.value / total) * 100).toFixed(1) : '0,0'}%)</span>
           </div>`;
         });
-        html += `<div class="mt-1 pt-1 border-t border-[#223154] text-xs font-bold text-teal-300 flex justify-between">
+        html += `<div class="mt-1 pt-1 border-t border-borda text-xs font-bold text-marca flex justify-between">
           <span>Total:</span>
           <span>${formatarNumero(total)}</span>
         </div>`;
         if (predominante) {
-          html += `<div class="text-[11px] text-slate-400 mt-1">Diferença entre sexos: ${formatarNumero(diferenca)} a mais de ${predominante}</div>`;
+          html += `<div class="text-xs text-texto-3 mt-1">Diferença entre sexos: ${formatarNumero(diferenca)} a mais de ${predominante}</div>`;
         }
         return html;
       },
@@ -202,7 +202,7 @@ export const PageIfrsNumeros: React.FC = () => {
     legend: {
       data: ['Homens', 'Mulheres'],
       bottom: 0,
-      textStyle: { fontSize: 11, color: '#cbd5e1' },
+      textStyle: { fontSize: 13, color: '#2f3b35' },
     },
     grid: {
       left: '3%',
@@ -213,13 +213,13 @@ export const PageIfrsNumeros: React.FC = () => {
     },
     xAxis: {
       type: 'value',
-      axisLabel: { fontSize: 10, color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      axisLabel: { fontSize: 12, color: '#4d5a53' },
+      splitLine: { lineStyle: { stroke: '#e3e8e5' } },
     },
     yAxis: {
       type: 'category',
       data: linhasServidores.map((c) => c.categoria),
-      axisLabel: { fontSize: 11, color: '#cbd5e1' },
+      axisLabel: { fontSize: 13, color: '#2f3b35' },
     },
     series: [
       {
@@ -232,7 +232,7 @@ export const PageIfrsNumeros: React.FC = () => {
           show: true,
           position: 'inside',
           color: '#f8fafc',
-          fontSize: 11,
+          fontSize: 13,
           fontWeight: 600,
           formatter: (p: any) => {
             const row = linhasServidores[p.dataIndex];
@@ -252,7 +252,7 @@ export const PageIfrsNumeros: React.FC = () => {
           show: true,
           position: 'inside',
           color: '#f8fafc',
-          fontSize: 11,
+          fontSize: 13,
           fontWeight: 600,
           formatter: (p: any) => {
             const row = linhasServidores[p.dataIndex];
@@ -291,37 +291,37 @@ export const PageIfrsNumeros: React.FC = () => {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
+      backgroundColor: '#ffffff',
+      borderColor: '#d3dbd6',
+      textStyle: { color: '#14201a' },
       formatter: (params: any[]) => {
         const codNome = params[0]?.axisValueLabel || '';
         const visiveis = params.filter((p) => p.seriesName !== NOME_SERIE_TOTAL);
         const totalCod = visiveis.reduce((acc, p) => acc + Number(p.value || 0), 0);
-        let html = `<div class="font-bold text-slate-100 mb-1">${codNome}</div>`;
-        html += `<div class="text-[11px] text-slate-400 mb-2">Total na função: <strong>${formatarNumero(totalCod)}</strong></div>`;
+        let html = `<div class="font-bold text-texto mb-1">${codNome}</div>`;
+        html += `<div class="text-xs text-texto-3 mb-2">Total na função: <strong>${formatarNumero(totalCod)}</strong></div>`;
         visiveis.forEach((p) => {
           const val = Number(p.value || 0);
           const pct = totalCod > 0 ? ((val / totalCod) * 100).toFixed(1) : '0.0';
           html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
             <span>${p.marker} ${p.seriesName}</span>
-            <span class="font-bold text-slate-100">${formatarNumero(val)} <span class="text-slate-400 font-normal">(${pct}%)</span></span>
+            <span class="font-bold text-texto">${formatarNumero(val)} <span class="text-texto-3 font-normal">(${pct}%)</span></span>
           </div>`;
         });
         return html;
       },
     },
-    legend: { data: ['Homens', 'Mulheres'], bottom: 0, textStyle: { color: '#cbd5e1', fontSize: 10 } },
+    legend: { data: ['Homens', 'Mulheres'], bottom: 0, textStyle: { color: '#2f3b35', fontSize: 12 } },
     grid: { left: '3%', right: 90, top: '4%', bottom: '10%', containLabel: true },
     xAxis: {
       type: 'value',
-      axisLabel: { color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      axisLabel: { color: '#4d5a53' },
+      splitLine: { lineStyle: { stroke: '#e3e8e5' } },
     },
     yAxis: {
       type: 'category',
       data: linhasTipologiaFuncao.map((c) => c.codigo),
-      axisLabel: { color: '#cbd5e1', fontSize: 11 },
+      axisLabel: { color: '#2f3b35', fontSize: 13 },
     },
     series: [
       {
@@ -389,22 +389,22 @@ export const PageIfrsNumeros: React.FC = () => {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
+      backgroundColor: '#ffffff',
+      borderColor: '#d3dbd6',
+      textStyle: { color: '#14201a' },
       formatter: (params: any[]) => {
         const cNome = params[0]?.axisValueLabel || '';
         const visiveis = params.filter((p) => p.seriesName !== NOME_SERIE_TOTAL);
         const total = visiveis.reduce((acc, p) => acc + Number(p.value || 0), 0);
-        let html = `<div class="font-bold mb-1 text-slate-100">${cNome}</div>`;
+        let html = `<div class="font-bold mb-1 text-texto">${cNome}</div>`;
         visiveis.forEach((p) => {
           const pct = total > 0 ? ((Number(p.value || 0) / total) * 100).toFixed(1) : '0.0';
-          html += `<div class="flex items-center justify-between gap-4 text-xs text-slate-300">
+          html += `<div class="flex items-center justify-between gap-4 text-xs text-texto-2">
             <span>${p.marker} ${p.seriesName}</span>
-            <span class="font-bold text-slate-100">${formatarNumero(p.value)} (${pct}%)</span>
+            <span class="font-bold text-texto">${formatarNumero(p.value)} (${pct}%)</span>
           </div>`;
         });
-        html += `<div class="mt-1 pt-1 border-t border-[#223154] text-xs font-bold text-teal-300 flex justify-between">
+        html += `<div class="mt-1 pt-1 border-t border-borda text-xs font-bold text-marca flex justify-between">
           <span>Total:</span>
           <span>${formatarNumero(total)}</span>
         </div>`;
@@ -415,7 +415,7 @@ export const PageIfrsNumeros: React.FC = () => {
       data: sexoDiscentes === 'todos' ? ['Feminino', 'Masculino'] : undefined,
       show: sexoDiscentes === 'todos',
       bottom: 0,
-      textStyle: { fontSize: 11, color: '#cbd5e1' },
+      textStyle: { fontSize: 13, color: '#2f3b35' },
     },
     grid: {
       left: '3%',
@@ -426,13 +426,13 @@ export const PageIfrsNumeros: React.FC = () => {
     },
     xAxis: {
       type: 'value',
-      axisLabel: { fontSize: 10, color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      axisLabel: { fontSize: 12, color: '#4d5a53' },
+      splitLine: { lineStyle: { stroke: '#e3e8e5' } },
     },
     yAxis: {
       type: 'category',
       data: linhasDiscentes.map((c) => c.campus.replace('Campus ', '')),
-      axisLabel: { fontSize: 11, color: '#cbd5e1' },
+      axisLabel: { fontSize: 13, color: '#2f3b35' },
     },
     series:
       sexoDiscentes === 'todos'
@@ -462,8 +462,8 @@ export const PageIfrsNumeros: React.FC = () => {
               label: {
                 show: true,
                 position: 'right',
-                color: '#5eead4',
-                fontSize: 11,
+                color: '#1f6d2b',
+                fontSize: 13,
                 fontWeight: 700,
                 formatter: (p: any) => `Total: ${formatarNumero(p.value)}`,
               },
@@ -474,20 +474,20 @@ export const PageIfrsNumeros: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Título e Texto Introdutório */}
-      <div className="border-b border-[#1f2d4e] pb-3">
+      <div className="border-b border-borda pb-3">
         <div className="flex items-center gap-2.5">
-          <Database className="w-6 h-6 text-teal-400" />
-          <h2 className="text-xl font-bold text-slate-100">O IFRS em Números</h2>
+          <Database className="w-6 h-6 text-marca" />
+          <h2 className="text-xl font-bold text-texto">O IFRS em Números</h2>
         </div>
-        <p className="text-xs sm:text-sm text-slate-400 mt-1.5">
+        <p className="text-xs sm:text-sm text-texto-3 mt-1.5">
           Esses são os números que dispomos no SIG (Sistema Integrado de Gestão) Oficial do IFRS. Nossa pesquisa
           vai em busca de números e informações que não encontramos no sistema.
         </p>
       </div>
 
       {/* Aviso de Origem dos Dados */}
-      <div className="bg-teal-950/30 border border-teal-800/50 rounded-xl p-4 sm:p-5 text-teal-100 text-xs sm:text-sm flex items-start gap-2.5 shadow-xs">
-        <Info className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
+      <div className="bg-marca-fundo/30 border border-marca-borda/50 rounded-xl p-4 sm:p-5 text-marca text-xs sm:text-sm flex items-start gap-2.5 shadow-xs">
+        <Info className="w-4 h-4 text-marca shrink-0 mt-0.5" />
         <div className="space-y-3 leading-relaxed">
           <p>
             Os números desta aba vêm do SIG — Sistema Integrado de Gestão do IFRS, com extração em novembro de
@@ -609,15 +609,16 @@ export const PageIfrsNumeros: React.FC = () => {
         elementoCabecalho={
           <div className="flex items-center justify-between gap-2.5 flex-wrap w-full">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[11px] text-slate-400 font-medium">Nível:</span>
-              <div className="inline-flex items-center p-0.5 rounded-lg bg-[#0a1020] border border-[#223154] text-xs flex-wrap">
+              <span className="text-xs text-texto-3 font-medium">Nível:</span>
+              <div className="inline-flex items-center p-0.5 rounded-lg bg-superficie-2 border border-borda text-xs flex-wrap">
                 {OPCOES_NIVEL.map((op) => (
                   <button
                     key={op.id}
                     type="button"
                     onClick={() => setNivelDiscentes(op.id)}
-                    className={`px-2 py-0.5 rounded-md text-xs font-semibold transition-all ${
-                      nivelDiscentes === op.id ? 'bg-teal-500 text-slate-950 shadow-xs' : 'text-slate-400 hover:text-slate-200'
+                    aria-pressed={nivelDiscentes === op.id}
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
+                      nivelDiscentes === op.id ? 'bg-marca text-white shadow-xs' : 'text-texto-3 hover:text-texto'
                     }`}
                   >
                     {op.label}
@@ -626,15 +627,16 @@ export const PageIfrsNumeros: React.FC = () => {
               </div>
             </div>
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[11px] text-slate-400 font-medium">Sexo:</span>
-              <div className="inline-flex items-center p-0.5 rounded-lg bg-[#0a1020] border border-[#223154] text-xs flex-wrap">
+              <span className="text-xs text-texto-3 font-medium">Sexo:</span>
+              <div className="inline-flex items-center p-0.5 rounded-lg bg-superficie-2 border border-borda text-xs flex-wrap">
                 {OPCOES_SEXO_DISCENTES.map((op) => (
                   <button
                     key={op.id}
                     type="button"
                     onClick={() => setSexoDiscentes(op.id)}
-                    className={`px-2 py-0.5 rounded-md text-xs font-semibold transition-all ${
-                      sexoDiscentes === op.id ? 'bg-teal-500 text-slate-950 shadow-xs' : 'text-slate-400 hover:text-slate-200'
+                    aria-pressed={sexoDiscentes === op.id}
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
+                      sexoDiscentes === op.id ? 'bg-marca text-white shadow-xs' : 'text-texto-3 hover:text-texto'
                     }`}
                   >
                     {op.label}

@@ -262,9 +262,9 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
       enterable: true,
       extraCssText:
         'max-width: 380px; white-space: normal; word-break: break-word; overflow-wrap: break-word; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6); z-index: 60;',
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
+      backgroundColor: '#ffffff',
+      borderColor: '#d3dbd6',
+      textStyle: { color: '#14201a' },
       formatter: (params: any[]) => {
         const itemLabel = params[0]?.axisValueLabel || '';
         const limpo = itemLabel.toLowerCase().replace('(*item invertido)', '').trim();
@@ -280,24 +280,24 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
         let html = `<div style="max-width: 350px; white-space: normal; word-break: break-word; overflow-wrap: break-word;" class="mb-2">`;
         if (pergunta) {
           html += `
-            <div class="flex items-center gap-1.5 text-xs font-bold text-teal-300">
+            <div class="flex items-center gap-1.5 text-xs font-bold text-marca">
               <span>${pergunta.rotuloCurto}</span>
-              ${pergunta.invertido ? '<span class="ml-auto text-[10px] px-1 py-0.2 rounded bg-amber-900/60 border border-amber-700 text-amber-300 font-semibold">*Item invertido</span>' : ''}
+              ${pergunta.invertido ? '<span class="ml-auto text-xs px-1 py-0.2 rounded bg-alerta-fundo/60 border border-alerta-borda text-alerta font-semibold">*Item invertido</span>' : ''}
             </div>
-            <div style="white-space: normal; word-break: break-word; overflow-wrap: break-word;" class="mt-1.5 text-[11px] text-slate-200 italic leading-snug p-2 rounded bg-[#090f1f] border border-[#1f2d4e]">
+            <div style="white-space: normal; word-break: break-word; overflow-wrap: break-word;" class="mt-1.5 text-xs text-texto italic leading-snug p-2 rounded bg-superficie-2 border border-borda">
               "${pergunta.enunciado}"
             </div>
           `;
         } else {
-          html += `<div style="white-space: normal; word-break: break-word;" class="font-bold text-slate-100 text-xs mb-1">${itemLabel}</div>`;
+          html += `<div style="white-space: normal; word-break: break-word;" class="font-bold text-texto text-xs mb-1">${itemLabel}</div>`;
         }
         html += `</div>`;
 
         params.forEach((p) => {
           const val = Math.abs(Number(p.value || 0));
-          html += `<div class="flex items-center justify-between gap-4 text-xs text-slate-300 py-0.5">
+          html += `<div class="flex items-center justify-between gap-4 text-xs text-texto-2 py-0.5">
             <span>${p.marker} ${p.seriesName}</span>
-            <span class="font-bold text-slate-100">${formatarNumero(val)}</span>
+            <span class="font-bold text-texto">${formatarNumero(val)}</span>
           </div>`;
         });
         return html;
@@ -306,17 +306,17 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
     legend: {
       data: categoriasLikert,
       bottom: 0,
-      textStyle: { fontSize: 10, color: '#cbd5e1' },
+      textStyle: { fontSize: 12, color: '#2f3b35' },
     },
     grid: { left: '3%', right: '4%', top: '4%', bottom: '15%', containLabel: true },
     xAxis: {
       type: 'value',
       axisLabel: {
         formatter: (v: number) => formatarNumero(Math.abs(v)),
-        fontSize: 10,
-        color: '#94a3b8',
+        fontSize: 12,
+        color: '#4d5a53',
       },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      splitLine: { lineStyle: { stroke: '#e3e8e5' } },
     },
     yAxis: {
       type: 'category',
@@ -324,7 +324,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
         const cleanLabel = i.label.replace(/^Q[0-9]+[a-z]?:\s*/i, '');
         return i.invertido ? `${cleanLabel} (*item invertido)` : cleanLabel;
       }).reverse(),
-      axisLabel: { fontSize: 10, width: 220, overflow: 'truncate', color: '#cbd5e1' },
+      axisLabel: { fontSize: 12, width: 220, overflow: 'truncate', color: '#2f3b35' },
     },
     series: [
       {
@@ -390,35 +390,35 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
   const optionViolenciaCor = {
     tooltip: {
       trigger: 'axis',
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
+      backgroundColor: '#ffffff',
+      borderColor: '#d3dbd6',
+      textStyle: { color: '#14201a' },
       formatter: (p: any[]) => {
         const item = p[0];
         const obj = violenciaCorFiltrada.find((r) => r.cor_raca === item.name);
-        return `<div class="font-bold text-slate-100">${item.name}</div>
-          <div class="text-xs mt-1 text-rose-300">Discriminação Racial: <strong>${item.value}%</strong></div>
-          ${obj ? `<div class="text-[11px] text-slate-400 mt-0.5">Relatos Sim: <strong>${formatarNumero(obj.n_sim)}</strong> de ${formatarNumero(obj.n_total)}</div>` : ''}`;
+        return `<div class="font-bold text-texto">${item.name}</div>
+          <div class="text-xs mt-1 text-perigo">Discriminação Racial: <strong>${item.value}%</strong></div>
+          ${obj ? `<div class="text-xs text-texto-3 mt-0.5">Relatos Sim: <strong>${formatarNumero(obj.n_sim)}</strong> de ${formatarNumero(obj.n_total)}</div>` : ''}`;
       },
     },
     grid: { left: '3%', right: '12%', top: '6%', bottom: '6%', containLabel: true },
     xAxis: {
       type: 'value',
       max: Math.max(35, ...violenciaCorFiltrada.map((r) => r.taxa_pct + 5)),
-      axisLabel: { formatter: '{value}%', color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      axisLabel: { formatter: '{value}%', color: '#4d5a53' },
+      splitLine: { lineStyle: { stroke: '#e3e8e5' } },
     },
     yAxis: {
       type: 'category',
       data: violenciaCorFiltrada.map((r: any) => r.cor_raca),
-      axisLabel: { color: '#cbd5e1', fontSize: 11 },
+      axisLabel: { color: '#2f3b35', fontSize: 13 },
     },
     series: [
       {
         type: 'bar',
         data: violenciaCorFiltrada.map((r: any) => r.taxa_pct),
         itemStyle: { color: PALETA_ACESSIVEL[4] },
-        label: { show: true, position: 'right', formatter: '{c}%', fontSize: 11, color: '#f43f5e', fontWeight: 600 },
+        label: { show: true, position: 'right', formatter: '{c}%', fontSize: 13, color: '#f43f5e', fontWeight: 600 },
       },
     ],
   };
@@ -427,35 +427,35 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
   const optionViolenciaGenero = {
     tooltip: {
       trigger: 'axis',
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
+      backgroundColor: '#ffffff',
+      borderColor: '#d3dbd6',
+      textStyle: { color: '#14201a' },
       formatter: (p: any[]) => {
         const item = p[0];
         const obj = violenciaGeneroFiltrada.find((r) => r.grupo_genero === item.name);
-        return `<div class="font-bold text-slate-100">${item.name}</div>
-          <div class="text-xs mt-1 text-sky-300">Violência de Gênero/LGBTfobia: <strong>${item.value}%</strong></div>
-          ${obj ? `<div class="text-[11px] text-slate-400 mt-0.5">Relatos Sim: <strong>${formatarNumero(obj.n_sim)}</strong> de ${formatarNumero(obj.n_total)}</div>` : ''}`;
+        return `<div class="font-bold text-texto">${item.name}</div>
+          <div class="text-xs mt-1 text-info">Violência de Gênero/LGBTfobia: <strong>${item.value}%</strong></div>
+          ${obj ? `<div class="text-xs text-texto-3 mt-0.5">Relatos Sim: <strong>${formatarNumero(obj.n_sim)}</strong> de ${formatarNumero(obj.n_total)}</div>` : ''}`;
       },
     },
     grid: { left: '3%', right: '12%', top: '6%', bottom: '6%', containLabel: true },
     xAxis: {
       type: 'value',
       max: Math.max(35, ...violenciaGeneroFiltrada.map((r) => r.taxa_pct + 5)),
-      axisLabel: { formatter: '{value}%', color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      axisLabel: { formatter: '{value}%', color: '#4d5a53' },
+      splitLine: { lineStyle: { stroke: '#e3e8e5' } },
     },
     yAxis: {
       type: 'category',
       data: violenciaGeneroFiltrada.map((r: any) => r.grupo_genero),
-      axisLabel: { color: '#cbd5e1', fontSize: 11 },
+      axisLabel: { color: '#2f3b35', fontSize: 13 },
     },
     series: [
       {
         type: 'bar',
         data: violenciaGeneroFiltrada.map((r: any) => r.taxa_pct),
         itemStyle: { color: PALETA_ACESSIVEL[0] },
-        label: { show: true, position: 'right', formatter: '{c}%', fontSize: 11, color: '#38bdf8', fontWeight: 600 },
+        label: { show: true, position: 'right', formatter: '{c}%', fontSize: 13, color: '#38bdf8', fontWeight: 600 },
       },
     ],
   };
@@ -465,22 +465,22 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
+      backgroundColor: '#ffffff',
+      borderColor: '#d3dbd6',
+      textStyle: { color: '#14201a' },
       formatter: (params: any[]) => {
         const vinc = params[0]?.axisValueLabel || '';
         const item = funilFiltradoPorVinculo.find((r) => r.vinculo_grp === vinc);
-        let html = `<div class="font-bold text-slate-100 mb-1">${vinc}</div>`;
+        let html = `<div class="font-bold text-texto mb-1">${vinc}</div>`;
         if (item) {
-          html += `<div class="text-[11px] text-slate-400 mb-2">Total no vínculo: <strong>${formatarNumero(item.total_respondentes)}</strong></div>`;
+          html += `<div class="text-xs text-texto-3 mb-2">Total no vínculo: <strong>${formatarNumero(item.total_respondentes)}</strong></div>`;
         }
         params.forEach((p) => {
           const val = Number(p.value || 0);
           const pct = item && item.total_respondentes > 0 ? ((val * 100) / item.total_respondentes).toFixed(1) : '0.0';
           html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
             <span>${p.marker} ${p.seriesName}</span>
-            <span class="font-bold text-slate-100">${formatarNumero(val)} <span class="text-slate-400 font-normal">(${pct}%)</span></span>
+            <span class="font-bold text-texto">${formatarNumero(val)} <span class="text-texto-3 font-normal">(${pct}%)</span></span>
           </div>`;
         });
         return html;
@@ -489,18 +489,18 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
     legend: {
       data: ['Conhece Canais', 'Considera Efetivos', 'Considera os Resultados Justos'],
       bottom: 0,
-      textStyle: { fontSize: 11, color: '#cbd5e1' },
+      textStyle: { fontSize: 13, color: '#2f3b35' },
     },
     grid: { left: '3%', right: '4%', top: '4%', bottom: '12%', containLabel: true },
     xAxis: {
       type: 'category',
       data: funilFiltradoPorVinculo.map((r) => r.vinculo_grp),
-      axisLabel: { color: '#cbd5e1', fontSize: 11 },
+      axisLabel: { color: '#2f3b35', fontSize: 13 },
     },
     yAxis: {
       type: 'value',
-      axisLabel: { color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      axisLabel: { color: '#4d5a53' },
+      splitLine: { lineStyle: { stroke: '#e3e8e5' } },
     },
     series: [
       {
@@ -527,9 +527,9 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
   return (
     <div className="space-y-6">
       {/* Título de Seção */}
-      <div className="border-b border-[#1f2d4e] pb-3">
-        <h2 className="text-xl font-bold text-slate-100">3. Ambiente, Segurança, Clima e Violências</h2>
-        <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
+      <div className="border-b border-borda pb-3">
+        <h2 className="text-xl font-bold text-texto">3. Ambiente, Segurança, Clima e Violências</h2>
+        <p className="text-xs sm:text-sm text-texto-3 mt-0.5">
           Percepção do clima de convivência, incidência de discriminação ou violência direta por raça e gênero,
           matriz interseccional de relatos e funcionamento dos mecanismos de denúncia e acolhimento.
         </p>
@@ -558,7 +558,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
         infoTitulo="Enunciados Completos das Questões"
         infoTooltip={
           <div className="space-y-3">
-            <p className="text-[11px] text-slate-300 leading-relaxed">
+            <p className="text-xs text-texto-2 leading-relaxed">
               Consulte abaixo o <strong>enunciado completo</strong> de cada questão formulada na pesquisa para avaliar o clima institucional:
             </p>
             <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1">
@@ -567,27 +567,27 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
                   key={item.codigo}
                   className={`p-2.5 rounded-lg border text-xs ${
                     item.invertido
-                      ? 'bg-amber-950/30 border-amber-800/60'
-                      : 'bg-[#101930] border-[#223154]'
+                      ? 'bg-alerta-fundo/30 border-alerta-borda/60'
+                      : 'bg-superficie-2 border-borda'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <span className="font-bold text-teal-300 text-[11px]">
+                    <span className="font-bold text-marca text-xs">
                       {item.rotuloCurto}
                     </span>
                     {item.invertido && (
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-900/60 border border-amber-700/80 text-amber-300">
+                      <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-alerta-fundo/60 border border-alerta-borda/80 text-alerta">
                         *Item invertido
                       </span>
                     )}
                   </div>
-                  <p className="text-slate-200 text-[11px] leading-relaxed italic">
+                  <p className="text-texto text-xs leading-relaxed italic">
                     "{item.enunciado}"
                   </p>
                 </div>
               ))}
             </div>
-            <div className="pt-2 border-t border-[#1f2d4e] text-[10px] text-slate-400">
+            <div className="pt-2 border-t border-borda text-xs text-texto-3">
               Escala Likert: Discordo Totalmente, Discordo, Não concordo nem discordo, Concordo, Concordo Totalmente e N/A.
             </div>
           </div>
@@ -595,7 +595,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
       />
 
       {/* 2. Gráficos de Discriminação Lado a Lado (Grid 2 colunas com seletores internos) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 @4xl:grid-cols-2 gap-6">
         {/* Percentual de Discriminação por Cor/Raça */}
         <ChartCard
           key={`violencia_cor_${segmentoCor}_${generoCor}_${idadeCor}`}
@@ -646,14 +646,14 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
       </div>
 
       {/* 3. Tabela de Matriz Interseccional com Filtros Integrados */}
-      <div className="bg-[#131d36] rounded-xl border border-[#223154] shadow-sm p-5 space-y-4">
+      <div className="bg-superficie rounded-xl border border-borda shadow-sm p-5 space-y-4">
         {/* Cabeçalho e Descrição */}
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <h3 className="text-base font-bold text-slate-100">
+            <h3 className="text-base font-bold text-texto">
               Matriz Interseccional de Relatos de Discriminação (Cor / Raça × Gênero)
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-texto-3 mt-0.5">
               Proporção que relatou situação de violência ou preconceito (raça ou gênero/orientação). O total de vítimas
               contabiliza a união sem dupla contagem de quem relatou ambos os tipos de violência.
             </p>
@@ -661,30 +661,30 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
 
           {/* Resumo do Recorte Ativo */}
           <div className="flex items-center gap-2 shrink-0">
-            <span className="text-[11px] bg-[#0e162b] border border-[#223154] text-slate-300 px-2.5 py-1 rounded-lg">
+            <span className="text-xs bg-superficie-2 border border-borda text-texto-2 px-2.5 py-1 rounded-lg">
               {matrizFiltrada.length} de {vitimizacaoIntersec.length} grupos • Total: {formatarNumero(subtotalRespondentes)} respondentes
             </span>
           </div>
         </div>
 
         {/* Barra de Filtros Internos da Matriz */}
-        <div className="p-3 rounded-lg bg-[#0e162b] border border-[#223154] flex flex-wrap items-center justify-between gap-3">
+        <div className="p-3 rounded-lg bg-superficie-2 border border-borda flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-1.5 text-xs text-teal-400 font-semibold">
+            <div className="flex items-center gap-1.5 text-xs text-marca font-semibold">
               <SlidersHorizontal className="w-3.5 h-3.5" />
               <span>Filtrar Matriz:</span>
             </div>
 
             {/* Combo 1: Cor / Raça */}
-            <div className="flex items-center gap-1.5">
-              <label htmlFor="filtro-matriz-cor" className="text-[11px] text-slate-400 font-medium">
+            <div className="flex items-center gap-1.5 flex-wrap min-w-0 max-w-full">
+              <label htmlFor="filtro-matriz-cor" className="text-xs text-texto-3 font-medium">
                 Cor/Raça:
               </label>
               <select
                 id="filtro-matriz-cor"
                 value={filtroCorRaca}
                 onChange={(e) => setFiltroCorRaca(e.target.value)}
-                className="bg-[#131d36] border border-[#2b3e6c] rounded-md px-2.5 py-1 text-xs text-slate-200 focus:outline-none focus:border-teal-500"
+                className="bg-superficie border border-borda-forte rounded-md px-2.5 py-1 text-xs text-texto max-w-full min-w-0 focus:outline-none focus:border-marca"
               >
                 <option value="todos">Todas as Cores/Raças ({opcoesCorRaca.length})</option>
                 {opcoesCorRaca.map((cor) => (
@@ -696,15 +696,15 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
             </div>
 
             {/* Combo 2: Identidade de Gênero */}
-            <div className="flex items-center gap-1.5">
-              <label htmlFor="filtro-matriz-genero" className="text-[11px] text-slate-400 font-medium">
+            <div className="flex items-center gap-1.5 flex-wrap min-w-0 max-w-full">
+              <label htmlFor="filtro-matriz-genero" className="text-xs text-texto-3 font-medium">
                 Gênero:
               </label>
               <select
                 id="filtro-matriz-genero"
                 value={filtroGenero}
                 onChange={(e) => setFiltroGenero(e.target.value)}
-                className="bg-[#131d36] border border-[#2b3e6c] rounded-md px-2.5 py-1 text-xs text-slate-200 focus:outline-none focus:border-teal-500"
+                className="bg-superficie border border-borda-forte rounded-md px-2.5 py-1 text-xs text-texto max-w-full min-w-0 focus:outline-none focus:border-marca"
               >
                 <option value="todos">Todos os Gêneros ({opcoesGeneroMatriz.length})</option>
                 {opcoesGeneroMatriz.map((gen) => (
@@ -724,7 +724,7 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
                 setFiltroCorRaca('todos');
                 setFiltroGenero('todos');
               }}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-teal-950/60 border border-teal-700/80 text-teal-300 hover:bg-teal-900/80 transition-colors"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-marca-fundo/60 border border-marca-borda/80 text-marca hover:bg-marca-fundo/80 transition-colors"
             >
               <RotateCcw className="w-3 h-3" />
               <span>Limpar filtros</span>
@@ -733,9 +733,9 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
         </div>
 
         {/* Tabela de Dados com Linha de Totais */}
-        <div className="overflow-x-auto rounded-lg border border-[#223154]">
+        <div className="overflow-x-auto rounded-lg border border-borda">
           <table className="w-full text-left text-xs border-collapse">
-            <thead className="bg-[#0e162b] text-slate-200 font-semibold border-b border-[#223154]">
+            <thead className="bg-superficie-2 text-texto font-semibold border-b border-borda">
               <tr>
                 <th className="px-4 py-3">Cor / Raça</th>
                 <th className="px-4 py-3">Identidade de Gênero</th>
@@ -747,10 +747,10 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
                 <th className="px-4 py-3">Status Amostral</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1f2d4e]">
+            <tbody className="divide-y divide-borda">
               {matrizFiltrada.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-slate-400">
+                  <td colSpan={8} className="px-4 py-8 text-center text-texto-3">
                     Nenhum registro encontrado para a combinação selecionada ({filtroCorRaca} × {filtroGenero}).
                   </td>
                 </tr>
@@ -758,21 +758,21 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
                 matrizFiltrada.map((row: any, idx: number) => {
                   const pequena = Number(row.n_total) < 10;
                   return (
-                    <tr key={idx} className="hover:bg-[#1a2647] transition-colors">
-                      <td className="px-4 py-2.5 font-medium text-slate-200">{row.cor_raca}</td>
-                      <td className="px-4 py-2.5 text-slate-300">{row.genero_grp}</td>
-                      <td className="px-4 py-2.5 text-slate-300 font-medium">{formatarNumero(row.n_total)}</td>
-                      <td className="px-4 py-2.5 text-amber-300">{formatarNumero(row.n_raca || 0)}</td>
-                      <td className="px-4 py-2.5 text-sky-300">{formatarNumero(row.n_gen || 0)}</td>
-                      <td className="px-4 py-2.5 text-rose-400 font-bold">{formatarNumero(row.n_vitimas)}</td>
-                      <td className="px-4 py-2.5 font-bold text-slate-100">{row.taxa_pct}%</td>
+                    <tr key={idx} className="hover:bg-realce transition-colors">
+                      <td className="px-4 py-2.5 font-medium text-texto">{row.cor_raca}</td>
+                      <td className="px-4 py-2.5 text-texto-2">{row.genero_grp}</td>
+                      <td className="px-4 py-2.5 text-texto-2 font-medium">{formatarNumero(row.n_total)}</td>
+                      <td className="px-4 py-2.5 text-alerta">{formatarNumero(row.n_raca || 0)}</td>
+                      <td className="px-4 py-2.5 text-info">{formatarNumero(row.n_gen || 0)}</td>
+                      <td className="px-4 py-2.5 text-perigo font-bold">{formatarNumero(row.n_vitimas)}</td>
+                      <td className="px-4 py-2.5 font-bold text-texto">{row.taxa_pct}%</td>
                       <td className="px-4 py-2.5">
                         {pequena ? (
-                          <span className="text-[10px] bg-amber-950/60 border border-amber-800/60 text-amber-300 px-2 py-0.5 rounded font-medium">
+                          <span className="text-xs bg-alerta-fundo/60 border border-alerta-borda/60 text-alerta px-2 py-0.5 rounded font-medium">
                             amostra pequena (n &lt; 10)
                           </span>
                         ) : (
-                          <span className="text-[10px] bg-emerald-950/60 border border-emerald-800/60 text-emerald-300 px-2 py-0.5 rounded font-medium">
+                          <span className="text-xs bg-marca-fundo/60 border border-marca-borda/60 text-marca px-2 py-0.5 rounded font-medium">
                             estável
                           </span>
                         )}
@@ -783,17 +783,17 @@ export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ 
               )}
             </tbody>
             {matrizFiltrada.length > 0 && (
-              <tfoot className="bg-[#0b1222] font-semibold border-t-2 border-[#2b3e6c] text-slate-200">
+              <tfoot className="bg-superficie-2 font-semibold border-t-2 border-borda-forte text-texto">
                 <tr>
                   <td className="px-4 py-3" colSpan={2}>
                     Total do Recorte ({matrizFiltrada.length} combinações)
                   </td>
-                  <td className="px-4 py-3 text-slate-100">{formatarNumero(subtotalRespondentes)}</td>
-                  <td className="px-4 py-3 text-amber-300">{formatarNumero(subtotalRaca)}</td>
-                  <td className="px-4 py-3 text-sky-300">{formatarNumero(subtotalGen)}</td>
-                  <td className="px-4 py-3 text-rose-400 font-bold">{formatarNumero(subtotalVitimas)}</td>
-                  <td className="px-4 py-3 font-bold text-teal-300">{taxaPonderadaRecorte}%</td>
-                  <td className="px-4 py-3 text-[11px] text-slate-400 font-normal">
+                  <td className="px-4 py-3 text-texto">{formatarNumero(subtotalRespondentes)}</td>
+                  <td className="px-4 py-3 text-alerta">{formatarNumero(subtotalRaca)}</td>
+                  <td className="px-4 py-3 text-info">{formatarNumero(subtotalGen)}</td>
+                  <td className="px-4 py-3 text-perigo font-bold">{formatarNumero(subtotalVitimas)}</td>
+                  <td className="px-4 py-3 font-bold text-marca">{taxaPonderadaRecorte}%</td>
+                  <td className="px-4 py-3 text-xs text-texto-3 font-normal">
                     Média ponderada do filtro
                   </td>
                 </tr>

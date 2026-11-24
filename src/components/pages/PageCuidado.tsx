@@ -72,36 +72,36 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
       confine: true,
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
+      backgroundColor: '#ffffff',
+      borderColor: '#d3dbd6',
+      textStyle: { color: '#14201a' },
       formatter: (params: any[]) => {
         const gen = params[0]?.axisValueLabel || '';
         const totalGen = params.reduce((acc, p) => acc + Number(p.value || 0), 0);
-        let html = `<div class="font-bold text-slate-100 mb-1">${gen} (${obterRotuloSegmento(segmentoCuidadoGen)})</div>`;
-        html += `<div class="text-[11px] text-slate-400 mb-2">Total de respondentes: <strong>${formatarNumero(totalGen)}</strong></div>`;
+        let html = `<div class="font-bold text-texto mb-1">${gen} (${obterRotuloSegmento(segmentoCuidadoGen)})</div>`;
+        html += `<div class="text-xs text-texto-3 mb-2">Total de respondentes: <strong>${formatarNumero(totalGen)}</strong></div>`;
         params.forEach((p) => {
           const val = Number(p.value || 0);
           const pct = totalGen > 0 ? ((val * 100) / totalGen).toFixed(1) : '0.0';
           html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
             <span class="truncate max-w-[230px]">${p.marker} ${p.seriesName}</span>
-            <span class="font-bold text-slate-100 shrink-0">${formatarNumero(val)} <span class="text-slate-400 font-normal">(${pct}%)</span></span>
+            <span class="font-bold text-texto shrink-0">${formatarNumero(val)} <span class="text-texto-3 font-normal">(${pct}%)</span></span>
           </div>`;
         });
         return html;
       },
     },
-    legend: { data: categoriasCuidado, bottom: 0, textStyle: { fontSize: 10, color: '#cbd5e1' } },
+    legend: { data: categoriasCuidado, bottom: 0, textStyle: { fontSize: 12, color: '#2f3b35' } },
     grid: { left: '3%', right: '4%', top: '4%', bottom: '18%', containLabel: true },
     xAxis: {
       type: 'category',
       data: generosOficiais,
-      axisLabel: { color: '#cbd5e1', interval: 0, fontSize: 11 },
+      axisLabel: { color: '#2f3b35', interval: 0, fontSize: 13 },
     },
     yAxis: {
       type: 'value',
-      axisLabel: { color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      axisLabel: { color: '#4d5a53' },
+      splitLine: { lineStyle: { stroke: '#e3e8e5' } },
     },
     series: categoriasCuidado.map((cat, idx) => ({
       name: cat,
@@ -145,9 +145,9 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
       confine: true,
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
+      backgroundColor: '#ffffff',
+      borderColor: '#d3dbd6',
+      textStyle: { color: '#14201a' },
       formatter: (params: any) => {
         if (!params || !params.length) return '';
         const axisValue = String(params[0].axisValue || '').replace('\n', ' ');
@@ -155,11 +155,11 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
         params.forEach((p: any) => {
           total += Number(p.value || 0);
         });
-        let res = `<div style="font-weight:600;margin-bottom:6px;color:#f1f5f9;font-size:12px;">${axisValue} <span style="font-size:11px;font-weight:normal;color:#94a3b8;">(Total: ${formatarNumero(total)})</span></div>`;
+        let res = `<div style="font-weight:600;margin-bottom:6px;color:#14201a;font-size:12px;">${axisValue} <span style="font-size:11px;font-weight:normal;color:#4d5a53;">(Total: ${formatarNumero(total)})</span></div>`;
         params.forEach((p: any) => {
           const val = Number(p.value || 0);
           const pct = total > 0 ? ((val / total) * 100).toFixed(1) : '0,0';
-          res += `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:11px;color:#cbd5e1;margin-top:3px;">
+          res += `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:11px;color:#2f3b35;margin-top:3px;">
             <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${p.color};margin-right:6px;"></span>${p.seriesName}</span>
             <span style="font-weight:600;color:#f8fafc;">${formatarNumero(val)} (${pct}%)</span>
           </div>`;
@@ -169,16 +169,16 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
     },
     legend: {
       bottom: 2,
-      textStyle: { fontSize: 10, color: '#cbd5e1' },
+      textStyle: { fontSize: 12, color: '#2f3b35' },
     },
     grid: { left: '3%', right: '4%', top: '6%', bottom: '18%', containLabel: true },
     xAxis: {
       type: 'category',
       data: ['Licença Maternidade', 'Licença Paternidade', 'Apoio a Pais/Mães Estudantes'],
       axisLabel: {
-        color: '#cbd5e1',
+        color: '#2f3b35',
         interval: 0,
-        fontSize: 11,
+        fontSize: 13,
         formatter: (val: string) => {
           if (val === 'Licença Maternidade') return 'Licença\nMaternidade';
           if (val === 'Licença Paternidade') return 'Licença\nPaternidade';
@@ -189,8 +189,8 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
     },
     yAxis: {
       type: 'value',
-      axisLabel: { color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      axisLabel: { color: '#4d5a53' },
+      splitLine: { lineStyle: { stroke: '#e3e8e5' } },
     },
     series: [
       {
@@ -298,28 +298,28 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
       confine: true,
-      backgroundColor: '#0e162b',
-      borderColor: '#223154',
-      textStyle: { color: '#f1f5f9' },
+      backgroundColor: '#ffffff',
+      borderColor: '#d3dbd6',
+      textStyle: { color: '#14201a' },
       formatter: (params: any[]) => {
         const rotulo = params[0]?.axisValueLabel || '';
         const itemObj = dadosMaternidadePorGenero.find(
           (d) => d.rotuloComN === rotulo || d.genero === rotulo
         );
-        let html = `<div class="font-bold text-slate-100 mb-1">${itemObj?.genero || rotulo} (${rotuloSegMaternidade})</div>`;
+        let html = `<div class="font-bold text-texto mb-1">${itemObj?.genero || rotulo} (${rotuloSegMaternidade})</div>`;
         if (itemObj) {
-          html += `<div class="text-[11px] text-slate-400 mb-2">Total de respondentes: <strong>${formatarNumero(itemObj.total)}</strong>${racaMaternidade !== 'todos' ? ` • Raça: <strong>${racaMaternidade}</strong>` : ''}</div>`;
+          html += `<div class="text-xs text-texto-3 mb-2">Total de respondentes: <strong>${formatarNumero(itemObj.total)}</strong>${racaMaternidade !== 'todos' ? ` • Raça: <strong>${racaMaternidade}</strong>` : ''}</div>`;
         }
         params.forEach((p) => {
           const nAbsoluto = itemObj?.contagens[p.seriesName] || 0;
           const valPct = Number(p.value || 0).toFixed(1);
           html += `<div class="flex items-center justify-between gap-4 text-xs py-0.5">
             <span>${p.marker} ${p.seriesName}</span>
-            <span class="font-bold text-slate-100">${valPct}% <span class="text-slate-400 font-normal">(${formatarNumero(nAbsoluto)} resp.)</span></span>
+            <span class="font-bold text-texto">${valPct}% <span class="text-texto-3 font-normal">(${formatarNumero(nAbsoluto)} resp.)</span></span>
           </div>`;
         });
         if (itemObj && itemObj.total === 0) {
-          html += `<div class="mt-2 pt-1.5 border-t border-slate-700 text-[11px] text-slate-400 italic">
+          html += `<div class="mt-2 pt-1.5 border-t border-borda-forte text-xs text-texto-3 italic">
             Nenhum registro nesta categoria para o recorte selecionado.
           </div>`;
         }
@@ -329,20 +329,20 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
     legend: {
       data: opcoesLikertMaternidade,
       bottom: 0,
-      textStyle: { fontSize: 10, color: '#cbd5e1' },
+      textStyle: { fontSize: 12, color: '#2f3b35' },
     },
     grid: { left: '3%', right: '4%', top: '6%', bottom: '15%', containLabel: true },
     xAxis: {
       type: 'category',
       data: dadosMaternidadePorGenero.map((d) => d.rotuloComN),
-      axisLabel: { color: '#cbd5e1', interval: 0, fontSize: 11 },
+      axisLabel: { color: '#2f3b35', interval: 0, fontSize: 13 },
     },
     yAxis: {
       type: 'value',
       min: 0,
       max: 100,
-      axisLabel: { formatter: '{value}%', color: '#94a3b8' },
-      splitLine: { lineStyle: { stroke: '#1f2d4e' } },
+      axisLabel: { formatter: '{value}%', color: '#4d5a53' },
+      splitLine: { lineStyle: { stroke: '#e3e8e5' } },
     },
     series: opcoesLikertMaternidade.map((resp, idx) => ({
       name: resp,
@@ -355,7 +355,7 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
         formatter: (p: any) => (p.value >= 8 ? `${p.value}%` : ''),
         color: '#ffffff',
         fontWeight: 'bold',
-        fontSize: 10,
+        fontSize: 12,
       },
       data: dadosMaternidadePorGenero.map((d) => d.percentuais[resp]),
     })),
@@ -435,16 +435,16 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
   return (
     <div className="space-y-6">
       {/* Título de Seção */}
-      <div className="border-b border-[#1f2d4e] pb-3">
-        <h2 className="text-xl font-bold text-slate-100">5. Cuidado, Parentalidade e Permanência</h2>
-        <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
+      <div className="border-b border-borda pb-3">
+        <h2 className="text-xl font-bold text-texto">5. Cuidado, Parentalidade e Permanência</h2>
+        <p className="text-xs sm:text-sm text-texto-3 mt-0.5">
           Distribuição da responsabilidade de cuidado de dependentes, avaliação sobre prazos de licenças e
           apoio para permanência de estudantes pais/mães, além da percepção sobre o impacto da maternidade na carreira.
         </p>
       </div>
 
       {/* Gráficos de Cuidado e Licenças */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 @4xl:grid-cols-2 gap-6">
         <ChartCard
           key={`cuidado_gen_${segmentoCuidadoGen}_${idadeCuidadoGen}`}
           titulo="Responsabilidade Principal de Cuidado por Identidade de Gênero"
@@ -461,13 +461,13 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
           carregando={carregando}
           infoTitulo="Sobre as 5 Opções de Resposta da Questão 9"
           infoTooltip={
-            <div className="space-y-2 text-xs text-slate-300 leading-relaxed">
+            <div className="space-y-2 text-xs text-texto-2 leading-relaxed">
               <p>
                 Na base oficial do questionário (<strong>Questão 9:</strong>{' '}
                 <em>"Você é a principal pessoa responsável pelo cuidado de filhos, filhas ou outros dependentes?"</em>),
                 existem <strong>5 opções distintas</strong> selecionadas pelos respondentes:
               </p>
-              <ul className="list-disc pl-4 space-y-1 text-[11px] text-slate-200">
+              <ul className="list-disc pl-4 space-y-1 text-xs text-texto">
                 <li><strong>Sim</strong> (786 resp.): é a principal pessoa responsável pelo cuidado.</li>
                 <li><strong>Divido a responsabilidade igualmente com outra(s) pessoa(s)</strong> (938 resp.): compartilha o cuidado de dependentes.</li>
                 <li><strong>Não</strong> (1.686 resp.): há dependentes no núcleo familiar, mas outra pessoa é a principal responsável pelo cuidado.</li>
@@ -510,21 +510,21 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
           carregando={carregando}
           infoTitulo="Origem das 3 Categorias do Gráfico (Questões 31, 32 e 33)"
           infoTooltip={
-            <div className="space-y-2.5 text-xs text-slate-300 leading-relaxed">
+            <div className="space-y-2.5 text-xs text-texto-2 leading-relaxed">
               <p>
                 As 3 barras comparam as respostas das <strong>3 perguntas consecutivas do Bloco de Cuidado</strong> no formulário aplicado:
               </p>
-              <div className="p-2 rounded bg-[#101930] border border-[#223154] space-y-1.5 text-[11px]">
+              <div className="p-2 rounded bg-superficie-2 border border-borda space-y-1.5 text-xs">
                 <p>
-                  <strong className="text-teal-300">Questão 31 (Licença Maternidade):</strong>{' '}
+                  <strong className="text-marca">Questão 31 (Licença Maternidade):</strong>{' '}
                   <em>"31. Em sua opinião, a política de licença maternidade para servidores(as) é suficiente para promover uma divisão mais equitativa das responsabilidades de cuidado?"</em>
                 </p>
                 <p>
-                  <strong className="text-teal-300">Questão 32 (Licença Paternidade):</strong>{' '}
+                  <strong className="text-marca">Questão 32 (Licença Paternidade):</strong>{' '}
                   <em>"32. Em sua opinião, a política de licença paternidade para servidores(as) é suficiente para promover uma divisão mais equitativa das responsabilidades de cuidado?"</em>
                 </p>
                 <p>
-                  <strong className="text-teal-300">Questão 33 (Apoio a Pais/Mães Estudantes):</strong>{' '}
+                  <strong className="text-marca">Questão 33 (Apoio a Pais/Mães Estudantes):</strong>{' '}
                   <em>"33. Em sua opinião, a política de apoio para estudantes que são pais e mães é suficiente para promover uma divisão mais equitativa das responsabilidades de cuidado?"</em>
                 </p>
               </div>
@@ -562,44 +562,44 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
       />
 
       {/* Tabela: Estudantes com Responsabilidade de Cuidado com Filtros Integrados */}
-      <div className="bg-[#131d36] rounded-xl border border-[#223154] shadow-sm p-5 space-y-4">
+      <div className="bg-superficie rounded-xl border border-borda shadow-sm p-5 space-y-4">
         {/* Cabeçalho e Descrição */}
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <h3 className="text-base font-bold text-slate-100">
+            <h3 className="text-base font-bold text-texto">
               Estudantes com Responsabilidade de Cuidado por Campus, Nível de Curso e Idade
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-texto-3 mt-0.5">
               Base discente. Dados contabilizam estudantes mães e pais conjuntamente por unidade de ensino e modalidade/nível.
             </p>
           </div>
 
           {/* Resumo do Recorte Ativo */}
           <div className="flex items-center gap-2 shrink-0">
-            <span className="text-[11px] bg-[#0e162b] border border-[#223154] text-slate-300 px-2.5 py-1 rounded-lg">
+            <span className="text-xs bg-superficie-2 border border-borda text-texto-2 px-2.5 py-1 rounded-lg">
               {estudantesFiltrados.length} linhas • Total: {formatarNumero(subtotalEstudantes)} estudantes
             </span>
           </div>
         </div>
 
         {/* Barra de Filtros Internos da Tabela */}
-        <div className="p-3 rounded-lg bg-[#0e162b] border border-[#223154] flex flex-wrap items-center justify-between gap-3">
+        <div className="p-3 rounded-lg bg-superficie-2 border border-borda flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-1.5 text-xs text-teal-400 font-semibold">
+            <div className="flex items-center gap-1.5 text-xs text-marca font-semibold">
               <SlidersHorizontal className="w-3.5 h-3.5" />
               <span>Filtrar Tabela:</span>
             </div>
 
             {/* Combo 1: Campus */}
-            <div className="flex items-center gap-1.5">
-              <label htmlFor="filtro-cuidado-campus" className="text-[11px] text-slate-400 font-medium">
+            <div className="flex items-center gap-1.5 flex-wrap min-w-0 max-w-full">
+              <label htmlFor="filtro-cuidado-campus" className="text-xs text-texto-3 font-medium">
                 Campus:
               </label>
               <select
                 id="filtro-cuidado-campus"
                 value={filtroCampus}
                 onChange={(e) => setFiltroCampus(e.target.value)}
-                className="bg-[#131d36] border border-[#2b3e6c] rounded-md px-2.5 py-1 text-xs text-slate-200 focus:outline-none focus:border-teal-500"
+                className="bg-superficie border border-borda-forte rounded-md px-2.5 py-1 text-xs text-texto max-w-full min-w-0 focus:outline-none focus:border-marca"
               >
                 <option value="todos">Todos os Campi ({opcoesCampus.length})</option>
                 {opcoesCampus.map((c) => (
@@ -611,15 +611,15 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
             </div>
 
             {/* Combo 2: Nível do Curso */}
-            <div className="flex items-center gap-1.5">
-              <label htmlFor="filtro-cuidado-nivel" className="text-[11px] text-slate-400 font-medium">
+            <div className="flex items-center gap-1.5 flex-wrap min-w-0 max-w-full">
+              <label htmlFor="filtro-cuidado-nivel" className="text-xs text-texto-3 font-medium">
                 Nível:
               </label>
               <select
                 id="filtro-cuidado-nivel"
                 value={filtroNivel}
                 onChange={(e) => setFiltroNivel(e.target.value)}
-                className="bg-[#131d36] border border-[#2b3e6c] rounded-md px-2.5 py-1 text-xs text-slate-200 focus:outline-none focus:border-teal-500"
+                className="bg-superficie border border-borda-forte rounded-md px-2.5 py-1 text-xs text-texto max-w-full min-w-0 focus:outline-none focus:border-marca"
               >
                 <option value="todos">Todos os Níveis ({opcoesNivel.length})</option>
                 {opcoesNivel.map((niv) => (
@@ -643,7 +643,7 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
                 setFiltroNivel('todos');
                 setIdadeEstudantes('todos');
               }}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-teal-950/60 border border-teal-700/80 text-teal-300 hover:bg-teal-900/80 transition-colors"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-marca-fundo/60 border border-marca-borda/80 text-marca hover:bg-marca-fundo/80 transition-colors"
             >
               <RotateCcw className="w-3 h-3" />
               <span>Limpar filtros</span>
@@ -652,9 +652,9 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
         </div>
 
         {/* Tabela de Dados */}
-        <div className="overflow-x-auto max-h-96 rounded-lg border border-[#223154]">
+        <div className="overflow-x-auto max-h-96 rounded-lg border border-borda">
           <table className="w-full text-left text-xs border-collapse">
-            <thead className="bg-[#0e162b] text-slate-200 font-semibold border-b border-[#223154] sticky top-0 z-10">
+            <thead className="bg-superficie-2 text-texto font-semibold border-b border-borda sticky top-0 z-10">
               <tr>
                 <th className="px-3 py-2.5">Campus</th>
                 <th className="px-3 py-2.5">Nível do Curso</th>
@@ -664,10 +664,10 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
                 <th className="px-3 py-2.5 font-bold">% com Cuidado</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1f2d4e]">
+            <tbody className="divide-y divide-borda">
               {estudantesFiltrados.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
+                  <td colSpan={6} className="px-4 py-8 text-center text-texto-3">
                     Nenhum registro encontrado para os filtros selecionados.
                   </td>
                 </tr>
@@ -676,28 +676,28 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
                   const comCuidado = Number(row.com_cuidado_principal) + Number(row.divide_cuidado);
                   const pct = Number(row.total_estudantes) > 0 ? ((comCuidado / Number(row.total_estudantes)) * 100).toFixed(1) : '0,0';
                   return (
-                    <tr key={idx} className="hover:bg-[#1a2647] transition-colors">
-                      <td className="px-3 py-2 font-medium text-slate-200">{row.campus}</td>
-                      <td className="px-3 py-2 text-slate-300">{row.nivel_curso}</td>
-                      <td className="px-3 py-2 text-slate-400">{formatarNumero(row.total_estudantes)}</td>
-                      <td className="px-3 py-2 text-rose-400 font-semibold">{formatarNumero(row.com_cuidado_principal)}</td>
-                      <td className="px-3 py-2 text-amber-400">{formatarNumero(row.divide_cuidado)}</td>
-                      <td className="px-3 py-2 font-bold text-slate-100">{pct}%</td>
+                    <tr key={idx} className="hover:bg-realce transition-colors">
+                      <td className="px-3 py-2 font-medium text-texto">{row.campus}</td>
+                      <td className="px-3 py-2 text-texto-2">{row.nivel_curso}</td>
+                      <td className="px-3 py-2 text-texto-3">{formatarNumero(row.total_estudantes)}</td>
+                      <td className="px-3 py-2 text-perigo font-semibold">{formatarNumero(row.com_cuidado_principal)}</td>
+                      <td className="px-3 py-2 text-alerta">{formatarNumero(row.divide_cuidado)}</td>
+                      <td className="px-3 py-2 font-bold text-texto">{pct}%</td>
                     </tr>
                   );
                 })
               )}
             </tbody>
             {estudantesFiltrados.length > 0 && (
-              <tfoot className="bg-[#0b1222] font-semibold border-t-2 border-[#2b3e6c] text-slate-200">
+              <tfoot className="bg-superficie-2 font-semibold border-t-2 border-borda-forte text-texto">
                 <tr>
                   <td className="px-3 py-2.5" colSpan={2}>
                     Total Filtrado ({estudantesFiltrados.length} linhas)
                   </td>
-                  <td className="px-3 py-2.5 text-slate-100">{formatarNumero(subtotalEstudantes)}</td>
-                  <td className="px-3 py-2.5 text-rose-400">{formatarNumero(subtotalPrincipal)}</td>
-                  <td className="px-3 py-2.5 text-amber-400">{formatarNumero(subtotalDivide)}</td>
-                  <td className="px-3 py-2.5 font-bold text-teal-300">{pctGeralComCuidado}%</td>
+                  <td className="px-3 py-2.5 text-texto">{formatarNumero(subtotalEstudantes)}</td>
+                  <td className="px-3 py-2.5 text-perigo">{formatarNumero(subtotalPrincipal)}</td>
+                  <td className="px-3 py-2.5 text-alerta">{formatarNumero(subtotalDivide)}</td>
+                  <td className="px-3 py-2.5 font-bold text-marca">{pctGeralComCuidado}%</td>
                 </tr>
               </tfoot>
             )}
