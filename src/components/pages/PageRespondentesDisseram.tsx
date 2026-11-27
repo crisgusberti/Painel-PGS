@@ -26,7 +26,7 @@ import { formatarNumero } from '../../lib/formatters';
 
 interface Trecho {
   texto: string;
-  perfil: 'Estudante' | 'Servidor(a)' | null;
+  perfil: 'Estudante' | 'Servidor/a' | null;
   // Pergunta de origem: não informada no esboço do relatório qualitativo (os excertos são
   // organizados por categoria temática, não por pergunta). Deixe indefinido quando desconhecida.
   pergunta?: string;
@@ -87,7 +87,7 @@ const TEMAS: TemaQualitativo[] = [
     icone: <AlertTriangle className="w-5 h-5" />,
     contagem: 377,
     sintese:
-      'As subcategorias mais recorrentes foram machismo/misoginia, comentários ofensivos, racismo, LGBTfobia e transfobia. As violências relatadas não se restringem a episódios isolados: atravessam diferentes relações institucionais — entre estudantes, entre servidores(as), nas práticas docentes e nos espaços de convivência — combinando situações explícitas de assédio e discriminação com formas mais naturalizadas de piadas e comentários ofensivos.',
+      'As subcategorias mais recorrentes foram machismo/misoginia, comentários ofensivos, racismo, LGBTfobia e transfobia. As violências relatadas não se restringem a episódios isolados: atravessam diferentes relações institucionais — entre estudantes, entre servidores/as, nas práticas docentes e nos espaços de convivência — combinando situações explícitas de assédio e discriminação com formas mais naturalizadas de piadas e comentários ofensivos.',
     subtemas: [
       { id: 'machismo_misoginia', nome: 'Machismo e misoginia', frequencia: 151 },
       { id: 'comentarios_ofensivos', nome: 'Comentários ofensivos', frequencia: 121 },
@@ -96,9 +96,16 @@ const TEMAS: TemaQualitativo[] = [
       { id: 'transfobia', nome: 'Transfobia', frequencia: 31 },
     ],
     trechos: [
-      { texto: 'Às vezes, as situações não são explícitas, ainda mais sendo mulher e TAE. São ações no cotidiano que vão nos desmerecendo, colocando para baixo, como se não tivesse lugar de fala.', perfil: 'Servidor(a)', subtemaId: 'machismo_misoginia', temasAssociados: ['convivencia'] },
-      { texto: 'Ter as falas constantemente cortadas por homens em reuniões, ter minha ideia ignorada enquanto um homem ao lado diz a mesma coisa e é aplaudido.', perfil: 'Servidor(a)', subtemaId: 'machismo_misoginia' },
+      { texto: 'Às vezes, as situações não são explícitas, ainda mais sendo mulher e TAE. São ações no cotidiano que vão nos desmerecendo, colocando para baixo, como se não tivesse lugar de fala.', perfil: 'Servidor/a', subtemaId: 'machismo_misoginia', temasAssociados: ['convivencia'] },
+      { texto: 'Ter as falas constantemente cortadas por homens em reuniões, ter minha ideia ignorada enquanto um homem ao lado diz a mesma coisa e é aplaudido.', perfil: 'Servidor/a', subtemaId: 'machismo_misoginia' },
       { texto: 'Infelizmente, muitos estudantes acabam fazendo comentários transfóbicos dentro da instituição, isso acaba me deixando extremamente chateada pela falta de respeito... Mesmo que eu não seja uma pessoa trans, me sinto mal pelas coisas que acabo sendo obrigada a ouvir dentro da sala de aula. Não só comentários transfóbicos, mas de preconceito contra a comunidade LGBTQIAPN+ como um todo.', perfil: 'Estudante', subtemaId: 'transfobia' },
+      { texto: 'Fiz técnico em informática e sempre teve as “piadas” e zoação por conta da cor. Mesmo sempre relatando que não achava engraçado, sempre continuaram.', perfil: 'Estudante', subtemaId: 'comentarios_ofensivos' },
+      { texto: 'Comentários e/ou insinuações sobre minha aparência, sobre minha aparente “satisfação” vital ou sexual (inclusive por colegas mulheres!), falta de respeito ao meu espaço corporal, nesse caso por colegas homens. Especulação sobre minha vida íntima.', perfil: 'Servidor/a', subtemaId: 'comentarios_ofensivos' },
+      { texto: 'Já fui ofendido por conta do meu cabelo, meu nariz e minha boca, caso clássico de racismo, mas comigo foi mais forte porque eu não possuía ninguém e eu era alvo de toda a sala.', perfil: 'Estudante', subtemaId: 'racismo' },
+      { texto: 'Comentários racistas e transfóbicos aos montes, e a gente se ofende pelo coletivo. Houve uma vez em que uma gestora branca se achou no direito de me dar dicas de como “ajeitar” meu cabelo afro.', perfil: 'Servidor/a', subtemaId: 'racismo' },
+      { texto: 'Tenho um colega na pós-graduação que frequentemente faz comentários pejorativos em relação às mulheres, pedagogas, gays etc. Isso durante as aulas, na presença dos professores.', perfil: 'Estudante', subtemaId: 'lgbtfobia' },
+      { texto: 'Ouvi frases como “Você não parece gay” e “Você é masculino e não tem esses mimimi”.', perfil: 'Servidor/a', subtemaId: 'lgbtfobia' },
+      { texto: 'Os professores erram meus pronomes com frequência, sempre alegando ser “sem querer”, mesmo que eu corrija diversas vezes. Já senti por muito tempo medo de ir ao banheiro por conta de ameaças por parte dos alunos.', perfil: 'Estudante', subtemaId: 'transfobia' },
     ],
   },
   {
@@ -116,8 +123,16 @@ const TEMAS: TemaQualitativo[] = [
       { id: 'materiais', nome: 'Materiais', frequencia: 51 },
     ],
     trechos: [
-      { texto: 'Um olhar mais atento para as questões da maternidade é muito necessário. Sobre a Política de Prevenção e Combate ao Assédio, vejo que há forte cultura do silenciamento quando quem comete o assédio é um servidor. Não vemos resolutividade. Precisamos de mais capacitação.', perfil: 'Servidor(a)', subtemaId: 'mudanca_institucional', temasAssociados: ['cuidado_trabalho'] },
-      { texto: 'Poderia haver um olhar especial para as mães solteiras, sejam elas servidoras ou estudantes. Uma política específica que lhes assegure tempo maior de afastamento do trabalho/estudos, assim como lhes acolha, dando suporte psicológico.', perfil: 'Servidor(a)', subtemaId: 'mudanca_institucional', temasAssociados: ['cuidado_trabalho'] },
+      { texto: 'Um olhar mais atento para as questões da maternidade é muito necessário. Sobre a Política de Prevenção e Combate ao Assédio, vejo que há forte cultura do silenciamento quando quem comete o assédio é um servidor. Não vemos resolutividade. Precisamos de mais capacitação.', perfil: 'Servidor/a', subtemaId: 'mudanca_institucional', temasAssociados: ['cuidado_trabalho'] },
+      { texto: 'Poderia haver um olhar especial para as mães solteiras, sejam elas servidoras ou estudantes. Uma política específica que lhes assegure tempo maior de afastamento do trabalho/estudos, assim como lhes acolha, dando suporte psicológico.', perfil: 'Servidor/a', subtemaId: 'mudanca_institucional', temasAssociados: ['cuidado_trabalho'] },
+      { texto: 'Gostaria que fossem divulgados com mais persistência os cursos, oportunidades e campanhas por e-mail, e não apenas nas páginas do IFRS, porque às vezes acabo perdendo datas de inscrição.', perfil: 'Estudante', subtemaId: 'comunicacao' },
+      { texto: 'Teria que haver uma ampla divulgação de critérios e das oportunidades, para que fosse possível fazer este tipo de avaliação. Não vejo essa divulgação acontecer.', perfil: 'Servidor/a', subtemaId: 'comunicacao' },
+      { texto: 'Todos os cursos deveriam ter pelo menos uma cadeira ou eventos mensais explicativos sobre respeito à sexualidade, tipos diferentes de gênero e sexualidade, falar sobre violência contra mulheres, crianças, idosos, animais, pessoas com deficiência...', perfil: 'Estudante', subtemaId: 'campanhas' },
+      { texto: 'As campanhas de combate ao assédio, por vezes, não atingem os infratores, pois eles são os primeiros a não participarem das ações que os orientariam sobre suas responsabilidades.', perfil: 'Servidor/a', subtemaId: 'campanhas' },
+      { texto: 'Capacitação para a gestão: diretores (as) de Ensino, de Administração e Geral e coordenadores (Ensino, Pesquisa, Extensão), para lidar com a diversidade (não só em relação aos estudantes, mas com servidores) e entender a importância dos Núcleos.', perfil: 'Servidor/a', subtemaId: 'formacao' },
+      { texto: 'Na parte de licenças e estudos domiciliares, os professores deveriam estar mais bem capacitados, já que esse direito oferecido pela instituição deve ser um benefício, e não um problema, para estudantes.', perfil: 'Estudante', subtemaId: 'formacao' },
+      { texto: 'É bom sempre haver cartazes e informativos sobre esses temas. A gente acaba esquecendo alguns detalhes se não trabalha diretamente com isso.', perfil: 'Servidor/a', subtemaId: 'materiais' },
+      { texto: 'Eu, por exemplo, gostaria de ter um guia digital ou impresso de sobrevivência no campus, reunindo todos os serviços importantes: quais são os programas disponíveis, para que servem, como acessar, contatos e horários de atendimento.', perfil: 'Estudante', subtemaId: 'materiais' },
     ],
   },
   {
@@ -136,8 +151,15 @@ const TEMAS: TemaQualitativo[] = [
     ],
     trechos: [
       { texto: 'Justamente por ter poucas mulheres na computação, sinto que o público feminino é um pouco excluído do curso.', perfil: 'Estudante', subtemaId: 'isolamento' },
-      { texto: 'Essas políticas não são muito divulgadas. Não vejo capacitação de servidores sobre isso; assim como fazem capacitação para professores, deveria haver também para os TAEs.', perfil: 'Servidor(a)', subtemaId: 'acolhimento' },
+      { texto: 'Essas políticas não são muito divulgadas. Não vejo capacitação de servidores sobre isso; assim como fazem capacitação para professores, deveria haver também para os TAEs.', perfil: 'Servidor/a', subtemaId: 'acolhimento' },
       { texto: 'Em sala de aula, recentemente, ouvi colegas me chamando por um insulto LGBTfóbico. Sou abertamente lésbica e tenho medo desta escola.', perfil: 'Estudante', subtemaId: 'inseguranca' },
+      { texto: 'Muitas pessoas negras e pessoas com deficiência não se sentem parte do ambiente, como se precisassem provar o tempo todo que merecem estar ali.', perfil: 'Estudante', subtemaId: 'pertencimento' },
+      { texto: 'Os materiais de divulgação das atividades promovidas no campus devem privilegiar as minorias, com a intenção de incentivar mais pessoas a ingressarem: se eu me enxergo no grupo, na comunidade, eu sinto segurança e pertencimento.', perfil: 'Estudante', subtemaId: 'pertencimento' },
+      { texto: 'A instituição é bem acolhedora e me sinto bem aqui.', perfil: 'Estudante', subtemaId: 'acolhimento' },
+      { texto: 'Além de sofrer preconceito, ser discriminado, algumas vezes diretamente, outras indiretamente: não sendo convidado para certas reuniões, festas. Até mesmo para assumir cargos de chefia mais elevados. Em viagens, sempre sendo isolado.', perfil: 'Servidor/a', subtemaId: 'isolamento' },
+      { texto: 'Sou mulher no ensino médio integrado e diversas vezes já fui alvo de misoginia e de tentativas de coagir ou intimidar por meio de jogo de corpo ou aumento na voz. Também já ouvi diversas “piadinhas” sobre onde é lugar de mulher.', perfil: 'Estudante', subtemaId: 'machismo_misoginia' },
+      { texto: 'Pela minha visão, não existem ações suficientes para punir atitudes e falas desrespeitosas de alunos homens para mulheres, tanto discentes quanto docentes.', perfil: 'Estudante', subtemaId: 'machismo_misoginia' },
+      { texto: 'O convívio na instituição gera medo ao servidor: sair de casa calado e voltar calado. Qualquer fala (respeitosa e legal) que não fecha com o pensamento de alguns grupos da instituição é passível de retaliação.', perfil: 'Servidor/a', subtemaId: 'inseguranca' },
     ],
   },
   {
@@ -155,9 +177,16 @@ const TEMAS: TemaQualitativo[] = [
       { id: 'curriculo', nome: 'Currículo', frequencia: 17 },
     ],
     trechos: [
-      { texto: 'Algumas servidoras(es) - e são muito poucas pessoas - fazem essa abordagem, mas porque têm compromisso pessoal com as pautas raciais, de gênero, etc. Não percebo um movimento da instituição como um todo para que esses temas sejam centrais.', perfil: 'Servidor(a)', subtemaId: 'praticas_pedagogicas' },
+      { texto: 'Algumas servidoras(es) - e são muito poucas pessoas - fazem essa abordagem, mas porque têm compromisso pessoal com as pautas raciais, de gênero, etc. Não percebo um movimento da instituição como um todo para que esses temas sejam centrais.', perfil: 'Servidor/a', subtemaId: 'praticas_pedagogicas' },
       { texto: 'Meu curso parece replicar estruturas tradicionais sem reflexão crítica. A disciplina de Direito deveria enfocar que racismo, homofobia, transfobia e misoginia são crimes. A formação parece apenas reproduzir e incluir no mercado de forma acrítica, sem transformação social.', perfil: 'Estudante', subtemaId: 'curriculo' },
       { texto: 'O corpo docente pode receber maior preparo. A grade curricular necessita de ajustes para tratar dessas temáticas, que são emergentes na educação. Os estudantes não se sentem preparados para tratar sobre essas temáticas em sala de aula com seus futuros alunos.', perfil: 'Estudante', subtemaId: 'praticas_pedagogicas' },
+      { texto: 'Na área da tecnologia o público ainda é majoritariamente masculino. O principal desafio ainda é tornar essa área atrativa para mulheres, por meio do encorajamento à inserção nesse mercado.', perfil: 'Estudante', subtemaId: 'masculinizacao_tecnologia' },
+      { texto: 'A engenharia é uma área técnica tradicionalmente dominada por homens brancos cisgênero. Sinto que as mulheres são mais desencorajadas, porque a engenharia em geral é vista como uma carreira masculina.', perfil: 'Estudante', subtemaId: 'masculinizacao_tecnologia' },
+      { texto: 'Muitas meninas e jovens de minorias étnicas não veem pessoas como elas em carreiras tecnológicas. A ausência de modelos e referências reduz o interesse e a autoconfiança para seguir esse caminho.', perfil: 'Estudante', subtemaId: 'baixa_diversidade_tecnologia' },
+      { texto: 'O maior desafio para aumentar a diversidade de gênero e raça na minha área é a falta de representatividade, como professoras e professores negros dentro do campus, nas áreas técnicas e nas matérias do ensino médio.', perfil: 'Estudante', subtemaId: 'baixa_diversidade_tecnologia' },
+      { texto: 'O principal desafio para a diversidade de gênero nas engenharias é o combate ao machismo estrutural dos cursos. Professores, colegas e até mesmo a instituição levantam a pauta de ser mulher na área frequentemente, e isso não pode acontecer.', perfil: 'Estudante', subtemaId: 'machismo_misoginia' },
+      { texto: 'O preconceito que ainda persiste dentro da área do curso, principalmente relacionado ao machismo, desmotiva muitas mulheres a continuarem no curso.', perfil: 'Estudante', subtemaId: 'machismo_misoginia' },
+      { texto: 'A instituição deveria primar por espaços para debater gênero e sexualidade dentro dos currículos.', perfil: 'Servidor/a', subtemaId: 'curriculo' },
     ],
   },
   {
@@ -175,9 +204,16 @@ const TEMAS: TemaQualitativo[] = [
       { id: 'percepcao_vitimizacao_majoritarios', nome: 'Percepção de vitimização de grupos majoritários', frequencia: 8 },
     ],
     trechos: [
-      { texto: 'As perguntas partem do pressuposto de que existe discriminação estrutural, ainda que velada, daí a necessidade de combate a tais posturas. Talvez essa base, considerada preconcebida e generalizante, devesse ser analisada de forma mais científica.', perfil: 'Servidor(a)', subtemaId: 'baixa_percepcao_desigualdades' },
+      { texto: 'As perguntas partem do pressuposto de que existe discriminação estrutural, ainda que velada, daí a necessidade de combate a tais posturas. Talvez essa base, considerada preconcebida e generalizante, devesse ser analisada de forma mais científica.', perfil: 'Servidor/a', subtemaId: 'baixa_percepcao_desigualdades' },
       { texto: 'Tratar todos igualmente, sem cotas raciais, sem discriminação, apenas avaliando capacidade e conhecimento.', perfil: 'Estudante', subtemaId: 'recusa_pauta' },
       { texto: 'Senti-me discriminado, e que não há espaço de fala para mim em nenhuma área por ser branco e heterossexual.', perfil: 'Estudante', subtemaId: 'percepcao_vitimizacao_majoritarios' },
+      { texto: 'Parar de forçar a ideologia de gênero na área da engenharia; isso faz as pessoas terem mais raiva do que facilitar a aceitação da diversidade.', perfil: 'Estudante', subtemaId: 'recusa_pauta' },
+      { texto: 'Num viés muito tendencioso, conforme quem avalia e quem são as partes... Muito enfoque sobre assédios e nada sobre gestão de conflitos.', perfil: 'Servidor/a', subtemaId: 'deslegitimacao' },
+      { texto: 'Não adianta tentar impor determinadas políticas sociais como se a aceitação fosse uma obrigação automática. Exigir que pessoas que não concordam adotem uma postura específica por imposição acaba se tornando uma forma de coerção, e não de diálogo.', perfil: 'Estudante', subtemaId: 'deslegitimacao' },
+      { texto: 'As pessoas devem ser consideradas iguais, sem distinção alguma de gênero, raça ou cor. Somos todos iguais, não tem por que diferenciar ou querer beneficiar certo grupo ou outro.', perfil: 'Estudante', subtemaId: 'baixa_percepcao_desigualdades' },
+      { texto: 'O campus é um local de ensino acadêmico, e não de formação e incentivo para minorias ou identidade de gênero. Gastem o tempo e a verba para ensinar, ao invés de se preocupar com essas bobagens.', perfil: 'Estudante', subtemaId: 'hostilidade' },
+      { texto: 'Só existem dois gêneros, homem ou mulher; o resto é ideologia política.', perfil: 'Estudante', subtemaId: 'hostilidade' },
+      { texto: 'Acho várias ações muito apelativas, desnecessárias e que fortalecem o preconceito. O que vemos frequentemente são pessoas querendo impor suas ideias para a maioria, quando essa maioria somente respeita e quer ser respeitada.', perfil: 'Servidor/a', subtemaId: 'percepcao_vitimizacao_majoritarios' },
     ],
   },
   {
@@ -195,9 +231,16 @@ const TEMAS: TemaQualitativo[] = [
       { id: 'penalidade_carreira', nome: 'Penalidade na carreira', frequencia: 17 },
     ],
     trechos: [
-      { texto: 'Quando se tem filhos pequenos e em idade escolar, diversas ações importantes para a carreira docente ficam muito difíceis de realizar: participação em congressos em outras cidades, atividades que exigem maior flexibilidade de horário. Essas dificuldades prejudicam a construção de um currículo competitivo.', perfil: 'Servidor(a)', subtemaId: 'penalidade_carreira' },
-      { texto: 'O cuidado com os filhos ou com pais idosos é visto como "problema" da servidora.', perfil: 'Servidor(a)', subtemaId: 'sobrecarga_cuidado' },
+      { texto: 'Quando se tem filhos pequenos e em idade escolar, diversas ações importantes para a carreira docente ficam muito difíceis de realizar: participação em congressos em outras cidades, atividades que exigem maior flexibilidade de horário. Essas dificuldades prejudicam a construção de um currículo competitivo.', perfil: 'Servidor/a', subtemaId: 'penalidade_carreira' },
+      { texto: 'O cuidado com os filhos ou com pais idosos é visto como "problema" da servidora.', perfil: 'Servidor/a', subtemaId: 'sobrecarga_cuidado' },
       { texto: 'O IFRS poderia ter espaços mais preparados para receber estudantes mães que precisam levar seus bebês e filhos junto para a aula! Espaço com trocador, lugar para guardar ou esquentar alimentos, se necessário.', perfil: 'Estudante', subtemaId: 'maternidade' },
+      { texto: 'Todos os campi deveriam ter uma sala para mães e pais, com trocador, local para amamentação e entretenimento de crianças com monitoria. Temos muitas alunas mães que deixam de estudar por não ter esse espaço.', perfil: 'Servidor/a', subtemaId: 'maternidade' },
+      { texto: 'Acredito que a paternidade demande cuidado e atenção tanto quanto a maternidade e, portanto, deveria ter uma licença ampliada, a fim de que a mãe possa dividir as responsabilidades com o pai e não ficar sobrecarregada.', perfil: 'Servidor/a', subtemaId: 'parentalidade' },
+      { texto: 'Não vejo nenhuma ação e nenhuma equidade quando se fala em maternidade e paternidade; me parece ser mais um problema para os professores e a gestão resolverem do que a intenção de ajudar esses discentes a continuarem seus cursos.', perfil: 'Estudante', subtemaId: 'parentalidade' },
+      { texto: 'Essa questão de maternidade, paternidade e estudantes com responsabilidade sobre filhos, irmãos ou idosos é muito pouco discutida no Instituto. Conheço amigos que têm responsabilidade sobre irmãos e faltam à aula para poder cuidar deles.', perfil: 'Estudante', subtemaId: 'dependentes' },
+      { texto: 'Quando o filho tem deficiência, temos ainda mais dificuldades para conciliar o trabalho com a maternidade, pois as exigências escolares e terapêuticas são maiores.', perfil: 'Servidor/a', subtemaId: 'dependentes' },
+      { texto: 'Professoras mães de menores de idade e cuidadoras recebem muitas vezes os últimos horários da noite, o que gera grande estresse para quem tem a dupla jornada como docente e cuidadora familiar.', perfil: 'Servidor/a', subtemaId: 'sobrecarga_cuidado' },
+      { texto: 'A pontuação se dá muito pela produção acadêmica e pouco pela ação proposta. Por vezes, as mulheres tendem a ter menos produção acadêmica, pois têm menos tempo para fazê-lo, por conta da conhecida “jornada tripla”.', perfil: 'Servidor/a', subtemaId: 'penalidade_carreira' },
     ],
   },
   {
@@ -215,9 +258,16 @@ const TEMAS: TemaQualitativo[] = [
       { id: 'assedio_moral', nome: 'Assédio moral', frequencia: 9 },
     ],
     trechos: [
-      { texto: 'No que se refere a reclamações sobre discriminação, assédio moral e/ou sexual, o processo de verificação é muito moroso e causa insegurança ao reclamante.', perfil: 'Servidor(a)', subtemaId: 'impunidade' },
-      { texto: 'O que consta nos documentos institucionais é uma coisa; o que acontece no campus, na prática, é diferente.', perfil: 'Servidor(a)', subtemaId: 'descrenca' },
+      { texto: 'No que se refere a reclamações sobre discriminação, assédio moral e/ou sexual, o processo de verificação é muito moroso e causa insegurança ao reclamante.', perfil: 'Servidor/a', subtemaId: 'impunidade' },
+      { texto: 'O que consta nos documentos institucionais é uma coisa; o que acontece no campus, na prática, é diferente.', perfil: 'Servidor/a', subtemaId: 'descrenca' },
       { texto: 'As pessoas responsáveis por políticas de mediação de conflitos deveriam ser fiscalizadas para não desencorajar denúncias.', perfil: 'Estudante', subtemaId: 'negligencia_encaminhamento' },
+      { texto: 'Nos discursos, principalmente de gestores, a igualdade e a isonomia são perfeitas no IFRS, mas no trato diário há muita discriminação. O pior de tudo é que, mesmo reclamando de forma oficial, por meio de denúncias, nada é feito.', perfil: 'Servidor/a', subtemaId: 'impunidade' },
+      { texto: 'O machismo ainda se encontra muito enraizado em nossa cultura, mesmo em instituições públicas como o IFRS, e fatores como a retaliação, ainda que silenciosa, inibem as vítimas de fazerem denúncias.', perfil: 'Servidor/a', subtemaId: 'descrenca' },
+      { texto: 'Já denunciei um caso de homofobia que não deu em nada: além de eu não saber para quem denunciar, a direção pediu que eu soubesse o nome de quem me ofendeu. Afirmei conseguir reconhecer o rosto do agressor, porém não me contataram mais.', perfil: 'Estudante', subtemaId: 'negligencia_encaminhamento' },
+      { texto: 'Já sofri preconceito dentro da sala de aula, quando cursava a graduação, devido à minha idade, e nada foi feito! Levei o assunto até os professores e não fizeram nada; inclusive, presenciaram.', perfil: 'Estudante', subtemaId: 'comentarios_ofensivos' },
+      { texto: 'Estudantes não binários são criticados e julgados por seu nome na chamada, alunos trans são vaiados em assembleias... e para a vítima, para quem é discriminado em sala de aula, nada acontece.', perfil: 'Estudante', subtemaId: 'comentarios_ofensivos' },
+      { texto: 'Urge a necessidade de combate ao assédio moral exercido por alguns servidores que ocupam, eventualmente, cargo de gestão, como coordenação e/ou direção.', perfil: 'Servidor/a', subtemaId: 'assedio_moral' },
+      { texto: 'Deveriam dar mais ouvidos aos alunos que reclamam de assédio moral dos professores.', perfil: 'Estudante', subtemaId: 'assedio_moral' },
     ],
   },
   {
@@ -235,8 +285,16 @@ const TEMAS: TemaQualitativo[] = [
       { id: 'mudanca_institucional', nome: 'Mudança institucional', frequencia: 7 },
     ],
     trechos: [
-      { texto: 'Os núcleos são pouco ou nada valorizados pelas gestões dos campi. As equipes dos núcleos atuam com grande sobrecarga de trabalho, nenhum reconhecimento e ainda recebem represálias de colegas e, até mesmo, das gestões dos campi.', perfil: 'Servidor(a)', subtemaId: 'falta_visibilidade' },
+      { texto: 'Os núcleos são pouco ou nada valorizados pelas gestões dos campi. As equipes dos núcleos atuam com grande sobrecarga de trabalho, nenhum reconhecimento e ainda recebem represálias de colegas e, até mesmo, das gestões dos campi.', perfil: 'Servidor/a', subtemaId: 'falta_visibilidade' },
       { texto: 'Muitos dos projetos acabam em falta de divulgação crônica. Os projetos deveriam buscar participar de mais eventos para que se difundisse a existência de tais organizações.', perfil: 'Estudante', subtemaId: 'desconhecimento' },
+      { texto: 'Vários dos núcleos eu desconheço. Também é possível que palestras e outras atividades oferecidas pelos núcleos não contemplem o período da noite, que é o período em que eu estudo.', perfil: 'Estudante', subtemaId: 'desconhecimento' },
+      { texto: 'Até responder esse questionário, eu não sabia que existia algum lugar onde se podia relatar o assédio e que havia tantos núcleos de diversidade. Acho que isso é pouco divulgado e falado.', perfil: 'Estudante', subtemaId: 'falta_visibilidade' },
+      { texto: 'Neste ano, não vi nenhuma ação significativa do NEPGS no campus. Nos anos anteriores, o núcleo era bastante presente e fazia muitas ações de extrema importância.', perfil: 'Estudante', subtemaId: 'campanhas' },
+      { texto: 'Pode haver mais campanhas de conscientização e projetos, e os Núcleos também poderiam ser mais divulgados e mais interativos.', perfil: 'Estudante', subtemaId: 'campanhas' },
+      { texto: 'Quem está dentro destes núcleos deveria saber se comunicar melhor com esse público em específico, saber a melhor forma de chegar nessas pessoas, ter mais de um caminho para isso.', perfil: 'Estudante', subtemaId: 'comunicacao' },
+      { texto: 'Grande parte desses núcleos eu nem sabia que existia. Nada disso chegou até mim em nenhuma das minhas aulas.', perfil: 'Estudante', subtemaId: 'comunicacao' },
+      { texto: 'Precisaríamos de Núcleos fortes, com ações estratégicas e contínuas. Penso ser urgente a criação de FGs para coordenadores dos núcleos como forma de incentivo e, também, a ampliação de cotas e recursos para projetos vinculados a ações de inclusão.', perfil: 'Servidor/a', subtemaId: 'mudanca_institucional' },
+      { texto: 'As ações de inclusão de gênero e raça são restritas aos núcleos, que são pouco estruturados porque não recebem apoio suficiente, o que deixa seu trabalho restrito à boa vontade dos participantes.', perfil: 'Servidor/a', subtemaId: 'mudanca_institucional' },
     ],
   },
 ];
@@ -407,7 +465,7 @@ export const PageRespondentesDisseram: React.FC = () => {
       <div className="border-b border-borda pb-3">
         <div className="flex items-center gap-2.5">
           <MessageSquare className="w-6 h-6 text-marca" />
-          <h2 className="text-xl font-bold text-texto">O que a comunidade contou</h2>
+          <h2 className="text-xl font-bold text-texto">7. O que a comunidade contou</h2>
         </div>
         <p className="text-xs sm:text-sm text-texto-3 mt-1.5">
           Experiências, opiniões e sugestões de quem participou da pesquisa.
@@ -417,7 +475,7 @@ export const PageRespondentesDisseram: React.FC = () => {
       {/* Conteúdo introdutório */}
       <div className="bg-superficie rounded-xl border border-borda shadow-sm p-6 space-y-4 text-sm text-texto-2 leading-relaxed">
         <p>
-          Nas perguntas abertas, estudantes e servidores(as) puderam escrever sobre suas vivências, avaliar
+          Nas perguntas abertas, estudantes e servidores/as puderam escrever sobre suas vivências, avaliar
           aspectos do cotidiano institucional e compartilhar ideias para o IFRS. A leitura dessas respostas nos
           ajudou a compreender situações e pontos de vista que as alternativas do questionário, sozinhas, não
           permitiam conhecer.
@@ -484,6 +542,7 @@ export const PageRespondentesDisseram: React.FC = () => {
               key={tema.id}
               type="button"
               onClick={() => selecionarTema(tema.id)}
+              aria-pressed={ativo}
               className={`flex items-center justify-between gap-3 p-4 rounded-xl border text-left transition-all ${
                 ativo
                   ? 'bg-realce border-marca/60 shadow-xs'
@@ -822,7 +881,7 @@ export const PageRespondentesDisseram: React.FC = () => {
                   Filtros (em planejamento)
                 </div>
                 <p>
-                  A ideia é permitir filtrar por segmento (estudantes ou servidores(as)), pergunta de origem e
+                  A ideia é permitir filtrar por segmento (estudantes ou servidores/as), pergunta de origem e
                   tema/assunto específico. Isso depende de organizar as respostas em uma base codificada
                   resposta por resposta, o que pode ser desenvolvido em uma próxima etapa.
                 </p>

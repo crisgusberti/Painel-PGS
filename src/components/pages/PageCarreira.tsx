@@ -92,7 +92,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
   const universosProgressao = [
     { id: 'geral', nome: 'Geral (Todos)', itens: progressaoDist },
     { id: 'docentes', nome: 'Docentes', itens: progressaoDist.filter((r: any) => r.segmento === 'docentes') },
-    { id: 'tecnicos', nome: 'Técnicos (TAE)', itens: progressaoDist.filter((r: any) => r.segmento === 'tecnicos') },
+    { id: 'tecnicos', nome: 'Técnicos/as (TAE)', itens: progressaoDist.filter((r: any) => r.segmento === 'tecnicos') },
   ];
 
   const dadosAglutinadosProgressao = universosProgressao.map((u) => {
@@ -225,7 +225,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
   const universosAcesso = [
     { id: 'geral', nome: 'Geral (Todos)', itens: acessoOportunidades },
     { id: 'docentes', nome: 'Docentes', itens: acessoOportunidades.filter((r: any) => r.segmento === 'docentes') },
-    { id: 'tecnicos', nome: 'Técnicos (TAE)', itens: acessoOportunidades.filter((r: any) => r.segmento === 'tecnicos') },
+    { id: 'tecnicos', nome: 'Técnicos/as (TAE)', itens: acessoOportunidades.filter((r: any) => r.segmento === 'tecnicos') },
   ];
 
   const dadosAglutinadosAcesso = universosAcesso.map((u) => {
@@ -557,7 +557,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
       borderColor: '#d3dbd6',
       textStyle: { color: '#14201a' },
       formatter: (params: any[]) => {
-        const rotulo = params[0]?.axisValueLabel || '';
+        const rotulo = String(params[0]?.axisValue ?? params[0]?.axisValueLabel ?? '');
         const itemObj = dadosDetalhadoProgressao.find(
           (d) => d.rotuloComN === rotulo || d.genero === rotulo
         );
@@ -698,7 +698,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
       borderColor: '#d3dbd6',
       textStyle: { color: '#14201a' },
       formatter: (params: any[]) => {
-        const rotulo = params[0]?.axisValueLabel || '';
+        const rotulo = String(params[0]?.axisValue ?? params[0]?.axisValueLabel ?? '');
         const itemObj = dadosDetalhadoAcesso.find(
           (d) => d.rotuloComN === rotulo || d.genero === rotulo
         );
@@ -827,16 +827,18 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
     const total = sim + nao + naoAplica + prefiroNao;
     const taxaImpacto = total > 0 ? ((sim / total) * 100).toFixed(1) : '0,0';
 
+    // Rótulos descritivos a partir da pergunta do formulário:
+    // "Você é a principal pessoa responsável pelo cuidado de filhos, filhas ou outros dependentes?"
     const rotuloCurto =
       rc === 'Sim'
-        ? 'Possui cuidado (Sim)'
+        ? 'É a principal pessoa responsável pelo cuidado de dependentes'
         : rc === 'Divido a responsabilidade igualmente com outra(s) pessoa(s)'
-        ? 'Divide igualmente'
+        ? 'Divide igualmente com outra pessoa o cuidado de dependentes'
         : rc === 'Não'
-        ? 'Não possui cuidado'
+        ? 'Tem dependentes, mas outra pessoa é a principal responsável'
         : rc === 'Não tenho responsabilidade de cuidado sobre ninguém'
-        ? 'Sem dependentes'
-        : 'Prefiro não responder';
+        ? 'Não tem responsabilidade de cuidado (sem dependentes)'
+        : 'Preferiu não responder';
 
     return {
       categoriaOriginal: rc,
@@ -858,7 +860,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
       borderColor: '#d3dbd6',
       textStyle: { color: '#14201a' },
       formatter: (params: any[]) => {
-        const rotulo = params[0]?.axisValueLabel || '';
+        const rotulo = String(params[0]?.axisValue ?? params[0]?.axisValueLabel ?? '');
         const itemObj = dadosCuidadoGrafico.find((d) => d.rotuloCurto === rotulo);
         let html = `<div class="font-bold text-texto mb-1">${itemObj?.categoriaOriginal || rotulo}</div>`;
         if (itemObj) {
@@ -878,8 +880,8 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
     },
     legend: {
       data: [
-        'Deixou de se Candidatar: Sim',
-        'Deixou de se Candidatar: Não',
+        'Deixou de se candidatar à gestão: Sim',
+        'Deixou de se candidatar à gestão: Não',
         'Não se aplica',
         'Prefiro não responder',
       ],
@@ -896,11 +898,11 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
       type: 'category',
       inverse: true,
       data: dadosCuidadoGrafico.map((d) => d.rotuloCurto),
-      axisLabel: { color: '#14201a', fontWeight: 'bold', fontSize: 13 },
+      axisLabel: { color: '#14201a', fontWeight: 'bold', fontSize: 13, width: 300, overflow: 'break', lineHeight: 17 },
     },
     series: [
       {
-        name: 'Deixou de se Candidatar: Sim',
+        name: 'Deixou de se candidatar à gestão: Sim',
         type: 'bar',
         stack: 'cuidado_gestao',
         itemStyle: { color: '#f43f5e' }, // Rose 500
@@ -920,7 +922,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
         data: dadosCuidadoGrafico.map((d) => d.sim),
       },
       {
-        name: 'Deixou de se Candidatar: Não',
+        name: 'Deixou de se candidatar à gestão: Não',
         type: 'bar',
         stack: 'cuidado_gestao',
         itemStyle: { color: '#0d9488' }, // Teal 600
@@ -984,8 +986,8 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
         <div className="mt-1 flex items-center gap-1.5 text-xs text-marca bg-superficie border border-borda px-3 py-1.5 rounded-lg">
           <Info className="w-4 h-4 text-marca shrink-0" />
           <span>
-            Servidores efetivos e docentes substitutos (docentes e TAEs).
-            Estudantes e trabalhadores terceirizados não integram os blocos de carreira funcional.
+            Servidores/as efetivos/as e docentes substitutos/as (docentes e TAEs).
+            Estudantes e trabalhadores/as terceirizados/as não integram os blocos de carreira funcional.
           </span>
         </div>
       </div>
@@ -993,13 +995,13 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
       {/* KPIs de Liderança e Mérito */}
       <div className="grid grid-cols-1 @lg:grid-cols-2 @4xl:grid-cols-4 gap-4">
         <KpiCard
-          titulo="Servidores em Gestão (Total)"
+          titulo="Servidores/as em Gestão (Total)"
           valorPrincipal={formatarNumero(totalGestores)}
           subvalor="cargos/funções ativas"
-          textoComplementar="Servidores ocupantes de cargos de direção ou funções gratificadas"
+          textoComplementar="Servidores/as ocupantes de cargos de direção ou funções gratificadas"
           notaMetodologica="Respondem 'Sim' para ocupação de cargo/função de gestão"
           icone={<Briefcase className="w-5 h-5 text-info" />}
-          corDestaque="blue"
+          corDestaque="emerald"
         />
 
         <KpiCard
@@ -1015,29 +1017,29 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
         <KpiCard
           titulo="Pessoas Negras em Gestão"
           valorPrincipal={formatarPercentual(totalGestores > 0 ? (negrosGestores / totalGestores) * 100 : 0)}
-          subvalor={`${formatarNumero(negrosGestores)} gestores`}
+          subvalor={`${formatarNumero(negrosGestores)} gestores/as`}
           textoComplementar={`${formatarNumero(negrosGestores)} de ${formatarNumero(totalGestores)} cargos de gestão`}
-          notaMetodologica="Servidores pretos e pardos em funções de liderança"
+          notaMetodologica="Servidores/as pretos/as e pardos/as em funções de liderança"
           icone={<Briefcase className="w-5 h-5 text-roxo" />}
-          corDestaque="indigo"
+          corDestaque="emerald"
         />
 
         <KpiCard
-          titulo="Percepção de Justiça na Progressão"
+          titulo="Percepção de Progressão na Carreira"
           valorPrincipal={`${mediaQ22Total} / 5`}
           subvalor="média geral"
-          textoComplementar="Avaliação dos servidores sobre a imparcialidade nas progressões"
+          textoComplementar="Avaliação dos/as servidores/as sobre a imparcialidade nas progressões"
           notaMetodologica="Escala 1 (Discordo totalmente) a 5 (Concordo totalmente)"
-          icone={<TrendingUp className="w-5 h-5 text-alerta" />}
-          corDestaque="amber"
+          icone={<TrendingUp className="w-5 h-5 text-marca" />}
+          corDestaque="emerald"
         />
       </div>
 
       {/* Gráficos de Funil: Cargos e Funções */}
       <div className="grid grid-cols-1 @4xl:grid-cols-2 gap-6">
         <ChartCard
-          titulo="Composição de Servidores por Cargo e Gênero"
-          subtitulo="Distribuição entre docentes e níveis de técnicos-administrativos (TAE) pelas 6 categorias oficiais de gênero"
+          titulo="Composição de Servidores/as por Cargo e Gênero"
+          subtitulo="Distribuição entre docentes e níveis de técnicos/as administrativos/as (TAE) pelas 6 categorias oficiais de gênero"
           n={totalFunilCargo}
           option={optionFunilCargo}
           altura={360}
@@ -1093,8 +1095,8 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           titulo="Avaliação da Progressão por Mérito"
           subtitulo={
             modoProgressao === 'comparativo'
-              ? 'Avalia se os servidores consideram os critérios de progressão na carreira justos, transparentes e baseados no mérito entre Docentes e Técnicos (TAE)'
-              : `Avalia se os servidores (${rotuloSegProgressao}) consideram a progressão na carreira justa, transparente e livre de desigualdades por identidade de gênero`
+              ? 'Avalia se os/as servidores/as consideram os critérios de progressão na carreira justos, transparentes e baseados no mérito entre Docentes e Técnicos/as (TAE)'
+              : `Avalia se os/as servidores/as (${rotuloSegProgressao}) consideram a progressão na carreira justa, transparente e livre de desigualdades por identidade de gênero`
           }
           n={
             modoProgressao === 'comparativo'
@@ -1185,8 +1187,8 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
           titulo="Equidade no Acesso a Oportunidades e Bolsas"
           subtitulo={
             modoAcesso === 'comparativo'
-              ? 'Avalia se os servidores percebem igualdade de condições no acesso a editais de pesquisa, extensão, capacitação, bolsas e comissões entre Docentes e Técnicos (TAE)'
-              : `Avalia se os servidores (${rotuloSegAcesso}) percebem igualdade de oportunidades por identidade de gênero no acesso a editais, bolsas, projetos e espaços de representação`
+              ? 'Avalia se os/as servidores/as percebem igualdade de condições no acesso a editais de pesquisa, extensão, capacitação, bolsas e comissões entre Docentes e Técnicos/as (TAE)'
+              : `Avalia se os/as servidores/as (${rotuloSegAcesso}) percebem igualdade de oportunidades por identidade de gênero no acesso a editais, bolsas, projetos e espaços de representação`
           }
           n={
             modoAcesso === 'comparativo'
@@ -1290,6 +1292,11 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
               </div>
               <p className="text-xs text-texto-3 mt-1">
                 Análise integrada do impacto do trabalho de cuidado na renúncia a pleitear posições de liderança e gestão institucional • Total: {formatarNumero(totalRespondentesCuidadoBloco)}
+              </p>
+              <p className="text-xs text-texto-3 mt-1">
+                Cada barra agrupa as respostas à pergunta{' '}
+                <em>“Você é a principal pessoa responsável pelo cuidado de filhos, filhas ou outros dependentes?”</em>{' '}
+                e mostra quantas dessas pessoas deixaram de se candidatar a cargos ou funções de gestão por causa do cuidado.
               </p>
             </div>
 
@@ -1398,7 +1405,7 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
                     animationEasing: 'cubicOut',
                     ...optionCuidadoGestao,
                   }}
-                  style={{ height: '300px', width: '100%' }}
+                  style={{ height: '440px', width: '100%' }}
                   opts={{ renderer: 'canvas' }}
                   notMerge={true}
                   lazyUpdate={true}
@@ -1427,9 +1434,9 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
               <table className="w-full text-left text-xs border-collapse">
                 <thead className="bg-superficie-2 text-texto font-semibold border-b border-borda">
                   <tr>
-                    <th className="px-4 py-3">Responsabilidade de Cuidado Declarada</th>
-                    <th className="px-4 py-3 text-perigo font-bold">Deixou de se Candidatar: Sim</th>
-                    <th className="px-4 py-3 text-texto-2">Deixou de se Candidatar: Não</th>
+                    <th className="px-4 py-3">Responsabilidade de cuidado declarada</th>
+                    <th className="px-4 py-3 text-perigo font-bold">Deixou de se candidatar à gestão: Sim</th>
+                    <th className="px-4 py-3 text-texto-2">Deixou de se candidatar à gestão: Não</th>
                     <th className="px-4 py-3 text-texto-3">Não se aplica</th>
                     <th className="px-4 py-3 text-texto-3">Prefiro não responder</th>
                     <th className="px-4 py-3 font-bold text-texto">Total</th>
@@ -1439,7 +1446,10 @@ export const PageCarreira: React.FC<PageCarreiraProps> = ({ dados, carregando })
                 <tbody className="divide-y divide-borda">
                   {dadosCuidadoGrafico.map((d) => (
                     <tr key={d.categoriaOriginal} className="hover:bg-realce transition-colors">
-                      <td className="px-4 py-2.5 font-medium text-texto">{d.categoriaOriginal}</td>
+                      <th scope="row" className="px-4 py-2.5 font-medium text-texto">
+                        {d.rotuloCurto}
+                        <span className="block text-xs font-normal text-texto-3">Resposta no formulário: “{d.categoriaOriginal}”</span>
+                      </th>
                       <td className="px-4 py-2.5 text-perigo font-bold">
                         {formatarNumero(d.sim)}
                       </td>

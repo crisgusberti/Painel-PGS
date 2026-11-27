@@ -71,7 +71,7 @@ const PERGUNTAS_COMPLETAS_Q24 = [
   },
 ];
 
-const ORDEM_VINCULOS_FUNIL = ['Discentes', 'Docentes', 'Técnicos TAEs', 'Docentes Substitutos'];
+const ORDEM_VINCULOS_FUNIL = ['Discentes', 'Docentes', 'Técnicos/as TAEs', 'Docentes Substitutos'];
 
 export const PageAmbienteViolencias: React.FC<PageAmbienteViolenciasProps> = ({ dados, carregando }) => {
   const q24Itens = dados?.q24_itens || [];

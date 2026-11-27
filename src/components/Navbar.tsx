@@ -46,9 +46,9 @@ export const ABAS_PAINEL: TabItem[] = [
   { id: 'nucleos', label: '4. Núcleos e Políticas', icone: <Building2 className={ICONE} aria-hidden="true" /> },
   { id: 'cuidado', label: '5. Cuidado e Parentalidade', icone: <HeartHandshake className={ICONE} aria-hidden="true" /> },
   { id: 'stem', label: '6. Áreas e STEM', icone: <Cpu className={ICONE} aria-hidden="true" /> },
-  { id: 'construtor', label: '7. Construtor Dinâmico', icone: <Wand2 className={ICONE} aria-hidden="true" /> },
-  { id: 'metodologia', label: '8. Metodologia e Dicionário', icone: <BookOpen className={ICONE} aria-hidden="true" /> },
-  { id: 'respondentes_disseram', label: '9. O que a comunidade contou', icone: <MessageSquare className={ICONE} aria-hidden="true" />, largo: true },
+  { id: 'respondentes_disseram', label: '7. O que a comunidade contou', icone: <MessageSquare className={ICONE} aria-hidden="true" />, largo: true },
+  { id: 'construtor', label: '8. Construtor Dinâmico', icone: <Wand2 className={ICONE} aria-hidden="true" /> },
+  { id: 'metodologia', label: '9. Metodologia e Dicionário', icone: <BookOpen className={ICONE} aria-hidden="true" /> },
 ];
 
 // Abas de apresentação (sem numeração) vs. abas do roteiro da pesquisa (numeradas 1 a 9)

@@ -6,7 +6,7 @@
 import React, { useState, useMemo } from 'react';
 import { ChartCard } from '../ChartCard';
 import { PALETA_ACESSIVEL, CORES_LIKERT } from '../../lib/chartTheme';
-import { formatarNumero } from '../../lib/formatters';
+import { formatarNumero, quebrarRotuloGenero } from '../../lib/formatters';
 import { SlidersHorizontal, RotateCcw } from 'lucide-react';
 import { CATEGORIAS_GENERO_OFICIAIS } from '../../lib/escalas';
 import { SeletorGenero, OpcaoGeneroFiltro } from '../SeletorGenero';
@@ -76,7 +76,7 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
       borderColor: '#d3dbd6',
       textStyle: { color: '#14201a' },
       formatter: (params: any[]) => {
-        const gen = params[0]?.axisValueLabel || '';
+        const gen = String(params[0]?.axisValue ?? params[0]?.axisValueLabel ?? '');
         const totalGen = params.reduce((acc, p) => acc + Number(p.value || 0), 0);
         let html = `<div class="font-bold text-texto mb-1">${gen} (${obterRotuloSegmento(segmentoCuidadoGen)})</div>`;
         html += `<div class="text-xs text-texto-3 mb-2">Total de respondentes: <strong>${formatarNumero(totalGen)}</strong></div>`;
@@ -96,7 +96,7 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
     xAxis: {
       type: 'category',
       data: generosOficiais,
-      axisLabel: { color: '#2f3b35', interval: 0, fontSize: 13 },
+      axisLabel: { color: '#2f3b35', interval: 0, fontSize: 13, lineHeight: 16, formatter: quebrarRotuloGenero },
     },
     yAxis: {
       type: 'value',
@@ -302,7 +302,7 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
       borderColor: '#d3dbd6',
       textStyle: { color: '#14201a' },
       formatter: (params: any[]) => {
-        const rotulo = params[0]?.axisValueLabel || '';
+        const rotulo = String(params[0]?.axisValue ?? params[0]?.axisValueLabel ?? '');
         const itemObj = dadosMaternidadePorGenero.find(
           (d) => d.rotuloComN === rotulo || d.genero === rotulo
         );
@@ -335,7 +335,7 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
     xAxis: {
       type: 'category',
       data: dadosMaternidadePorGenero.map((d) => d.rotuloComN),
-      axisLabel: { color: '#2f3b35', interval: 0, fontSize: 13 },
+      axisLabel: { color: '#2f3b35', interval: 0, fontSize: 13, lineHeight: 16, formatter: quebrarRotuloGenero },
     },
     yAxis: {
       type: 'value',
@@ -465,7 +465,7 @@ export const PageCuidado: React.FC<PageCuidadoProps> = ({ dados, carregando }) =
               <p>
                 Na base oficial do questionário (<strong>Questão 9:</strong>{' '}
                 <em>"Você é a principal pessoa responsável pelo cuidado de filhos, filhas ou outros dependentes?"</em>),
-                existem <strong>5 opções distintas</strong> selecionadas pelos respondentes:
+                existem <strong>5 opções distintas</strong> selecionadas pelos/as respondentes:
               </p>
               <ul className="list-disc pl-4 space-y-1 text-xs text-texto">
                 <li><strong>Sim</strong> (786 resp.): é a principal pessoa responsável pelo cuidado.</li>

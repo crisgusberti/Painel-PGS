@@ -167,7 +167,7 @@ export async function obterKpisVisaoGeral(filtros?: FiltrosGlobaisState) {
       CASE
         WHEN vinculo ILIKE '%Discente%' THEN 'Discente'
         WHEN vinculo ILIKE '%Efetivo%' AND cargo ILIKE '%Docente%' THEN 'Docente'
-        WHEN vinculo ILIKE '%Efetivo%' AND (cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%') THEN 'Técnico TAE'
+        WHEN vinculo ILIKE '%Efetivo%' AND (cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%') THEN 'Técnico/a TAE'
         WHEN vinculo ILIKE '%Substituto%' THEN 'Docente Substituto'
         ELSE 'Prefiro não responder'
       END as vinculo_simplificado,
@@ -629,7 +629,7 @@ export async function obterDadosAmbienteViolencias(filtros?: FiltrosGlobaisState
       CASE
         WHEN vinculo ILIKE '%Discente%' THEN 'Discentes'
         WHEN vinculo ILIKE '%Efetivo%' AND cargo ILIKE '%Docente%' THEN 'Docentes'
-        WHEN vinculo ILIKE '%Efetivo%' AND (cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%') THEN 'Técnicos TAEs'
+        WHEN vinculo ILIKE '%Efetivo%' AND (cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%') THEN 'Técnicos/as TAEs'
         WHEN vinculo ILIKE '%Substituto%' THEN 'Docentes Substitutos'
         ELSE 'Outro'
       END as vinculo_grp,
@@ -747,7 +747,7 @@ export async function obterDadosNucleos(filtros?: FiltrosGlobaisState) {
       CASE
         WHEN vinculo ILIKE '%Discente%' THEN 'Discentes'
         WHEN vinculo ILIKE '%Efetivo%' AND cargo ILIKE '%Docente%' THEN 'Docentes'
-        WHEN vinculo ILIKE '%Efetivo%' AND (cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%') THEN 'Técnicos TAEs'
+        WHEN vinculo ILIKE '%Efetivo%' AND (cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%') THEN 'Técnicos/as TAEs'
         WHEN vinculo ILIKE '%Substituto%' THEN 'Docentes Substitutos'
         ELSE 'Outro'
       END as vinculo_grp,

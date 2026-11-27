@@ -23,3 +23,13 @@ export function formatarNota(val: number | null | undefined, casas = 2): string 
     maximumFractionDigits: casas,
   });
 }
+
+/**
+ * Quebra rótulos de gênero em linhas para eixos horizontais, evitando que
+ * "Mulher Trans" e "Homem Trans" se sobreponham: "Mulher\nTrans" e "(total: 12)" em linha própria.
+ */
+export function quebrarRotuloGenero(rotulo: string): string {
+  return String(rotulo)
+    .replace(/ \(/, '\n(')
+    .replace(/^(Mulher|Homem) Trans/, '$1\nTrans');
+}

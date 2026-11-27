@@ -28,7 +28,7 @@ const GRUPOS_CATALOGO = [
   { id: 'denuncia', nome: 'Canais de Denúncia' },
   { id: 'politicas', nome: 'Núcleos e Ações Afirmativas' },
   { id: 'cuidado', nome: 'Cuidado e Parentalidade' },
-  { id: 'carreira', nome: 'Carreira e Gestão (Servidores)' },
+  { id: 'carreira', nome: 'Carreira e Gestão (Servidores/as)' },
 ] as const;
 
 const METRICAS_VALIDAS: Array<{ id: TipoMedida; label: string }> = [
@@ -468,7 +468,7 @@ export const PageConstrutor: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <Wand2 className="w-5 h-5 text-marca" />
-            <h2 className="text-xl font-bold text-texto">7. Construtor Dinâmico de Gráficos</h2>
+            <h2 className="text-xl font-bold text-texto">8. Construtor Dinâmico de Gráficos</h2>
           </div>
           <p className="text-xs sm:text-sm text-texto-3 mt-0.5">
             Cruze dimensões demográficas e indicadores do diagnóstico em tempo real com filtragem inteligente de combinações compatíveis.
@@ -561,7 +561,7 @@ export const PageConstrutor: React.FC = () => {
                     : campoEixoObj?.escopo === 'discentes'
                     ? 'Exibindo apenas séries aplicáveis ao universo discente.'
                     : campoEixoObj?.escopo === 'servidores'
-                    ? 'Exibindo apenas séries aplicáveis ao universo de servidores.'
+                    ? 'Exibindo apenas séries aplicáveis ao universo de servidores/as.'
                     : 'Opções incompatíveis ou com excesso de categorias são ocultadas automaticamente.'}
                 </span>
               </p>

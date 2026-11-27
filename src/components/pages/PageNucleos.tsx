@@ -15,7 +15,7 @@ interface PageNucleosProps {
   carregando: boolean;
 }
 
-const ORDEM_VINCULOS_CAMPANHAS = ['Discentes', 'Docentes', 'Técnicos TAEs', 'Docentes Substitutos'];
+const ORDEM_VINCULOS_CAMPANHAS = ['Discentes', 'Docentes', 'Técnicos/as TAEs', 'Docentes Substitutos'];
 
 export const PageNucleos: React.FC<PageNucleosProps> = ({ dados, carregando }) => {
   const distNucleos = dados?.distribuicao_nucleos || [];
@@ -264,7 +264,7 @@ export const PageNucleos: React.FC<PageNucleosProps> = ({ dados, carregando }) =
               Matriz Campus × Núcleo: Média de Qualidade (Escala 1 a 5)
             </h3>
             <p className="text-xs text-texto-3">
-              Média calculada exclusivamente sobre os respondentes válidos que conhecem o órgão
+              Média calculada exclusivamente sobre os/as respondentes válidos que conhecem o órgão
               (excluindo 'Não conheço', escala de 1 = muito ruim até 5 = muito bom).
             </p>
           </div>

@@ -48,7 +48,7 @@ export const PageMetodologia: React.FC = () => {
         <div className="flex items-center gap-2.5">
           <BookOpen className="w-6 h-6 text-marca" />
           <h1 className="text-xl sm:text-2xl font-bold text-texto">
-            8. Metodologia, Dicionário e Governança de Dados
+            9. Metodologia, Dicionário e Governança de Dados
           </h1>
         </div>
         <p className="text-xs sm:text-sm text-texto-3 mt-1 leading-relaxed">
@@ -64,7 +64,7 @@ export const PageMetodologia: React.FC = () => {
           <span>Antes de usar os dados</span>
         </div>
         <p className="leading-relaxed text-alerta/90">
-          Os resultados apresentados descrevem os <strong>4.857 integrantes da comunidade acadêmica analisados</strong> (de um total bruto de 4.878 submissões, após a exclusão metodológica de 21 registros de trabalhadores terceirizados) que
+          Os resultados apresentados descrevem os <strong>4.857 integrantes da comunidade acadêmica analisados</strong> (de um total bruto de 4.878 submissões, após a exclusão metodológica de 21 registros de trabalhadores/as terceirizados/as) que
           responderam voluntariamente ao formulário. Eles <strong>não constituem estimativas populacionais probabilísticas</strong> do
           IFRS. Recomendamos a leitura atenta da seção{' '}
           <a href="#limites-pesquisa" className="underline font-semibold hover:text-alerta">
@@ -109,7 +109,7 @@ export const PageMetodologia: React.FC = () => {
         </p>
         <ul className="list-disc list-inside text-xs sm:text-sm text-texto-2 space-y-1.5 pl-2">
           <li>Equidade de gênero e justiça de oportunidades em todas as esferas acadêmicas e funcionais;</li>
-          <li>Permanência discente e apoio institucional a estudantes e servidores com responsabilidades de cuidado familiar;</li>
+          <li>Permanência discente e apoio institucional a estudantes e servidores/as com responsabilidades de cuidado familiar;</li>
           <li>Respeito à diversidade e prevenção estrutural a violências, assédios moral e sexual e discriminações;</li>
           <li>Avaliação do clima institucional, da confiança nos canais de ouvidoria/denúncia e do conhecimento sobre núcleos de base (NEPGS, NEABI, NAAF) e campanhas preventivas.</li>
         </ul>
@@ -184,8 +184,8 @@ export const PageMetodologia: React.FC = () => {
         </div>
         <p className="text-xs sm:text-sm text-texto-2 leading-relaxed">
           O painel analisa os vínculos institucionais de carreira e estudantis do IFRS: <strong>discentes</strong> (3.216; 66,2%),
-          <strong> docentes efetivos</strong> (763; 15,7%), <strong>docentes substitutos</strong> (151; 3,1%) e <strong>servidores técnico-administrativos em educação — TAEs</strong> (679; 14,0%), além de 17 servidores efetivos sem cargo específico declarado e 31 respondentes que optaram por "Prefiro não responder" no vínculo.
-          <strong> Trabalhadores terceirizados (21 registros na base bruta) foram integralmente removidos de todas as análises, gráficos, indicadores e filtros do painel</strong> por diretriz metodológica institucional.
+          <strong> docentes efetivos/as</strong> (763; 15,7%), <strong>docentes substitutos/as</strong> (151; 3,1%) e <strong>servidores/as técnico-administrativos em educação — TAEs</strong> (679; 14,0%), além de 17 servidores/as efetivos/as sem cargo específico declarado e 31 respondentes que optaram por "Prefiro não responder" no vínculo.
+          <strong> Trabalhadores/as terceirizados/as (21 registros na base bruta) foram integralmente removidos de todas as análises, gráficos, indicadores e filtros do painel</strong> por diretriz metodológica institucional.
           Em todas as perguntas sensíveis, foi assegurada a opção <strong>"Prefiro não responder"</strong>.
         </p>
 
@@ -193,7 +193,7 @@ export const PageMetodologia: React.FC = () => {
           <div className="bg-superficie-2 border border-borda rounded-lg p-4 text-xs space-y-2">
             <h3 className="font-bold text-texto">Protocolo de Aplicação do Formulário</h3>
             <ul className="space-y-1.5 text-texto-2">
-              <li>• <strong>Servidores:</strong> convites institucionais via e-mail corporativo com hiperlink individualizado anônimo.</li>
+              <li>• <strong>Servidores/as:</strong> convites institucionais via e-mail corporativo com hiperlink individualizado anônimo.</li>
               <li>• <strong>Discentes:</strong> articulação de coordenações e docentes com sessões em laboratórios de informática, assegurando sigilo individual diante de pares.</li>
               <li>• <strong>Menores de 18 anos:</strong> Termo de Consentimento Livre e Esclarecido (TCLE) prévio dos responsáveis legais e Termo de Assentimento do estudante, com registros físicos arquivados dissociados do banco digital.</li>
             </ul>
@@ -223,16 +223,16 @@ export const PageMetodologia: React.FC = () => {
 
         <div className="bg-superficie-2 border border-borda rounded-lg p-4 text-xs space-y-2 text-texto-2">
           <p>
-            • <strong>Preservação das respostas originais:</strong> Nenhuma informação foi alterada ou suprimida no banco de dados bruto (4.878 registros originais mantêm o teor exato submetido pelos participantes para fins de auditoria).
+            • <strong>Preservação das respostas originais:</strong> Nenhuma informação foi alterada ou suprimida no banco de dados bruto (4.878 registros originais mantêm o teor exato submetido pelos/as participantes para fins de auditoria).
           </p>
           <p>
-            • <strong>Exclusão Global de Trabalhadores Terceirizados (<code className="text-marca font-mono">SQL_FILTRO_SEM_TERCEIRIZADOS</code>):</strong> Os 21 registros de profissionais terceirizados (20 com <code className="text-marca font-mono">vinculo = 'Terceirizado'</code> e 1 com <code className="text-marca font-mono">cargo = 'Terceirizado'</code>) são excluídos globalmente de todas as análises, KPIs, gráficos e filtros do painel, resultando no universo analítico oficial de <strong>4.857 respondentes</strong>.
+            • <strong>Exclusão Global de Trabalhadores/as Terceirizados/as (<code className="text-marca font-mono">SQL_FILTRO_SEM_TERCEIRIZADOS</code>):</strong> Os 21 registros de profissionais terceirizados (20 com <code className="text-marca font-mono">vinculo = 'Terceirizado'</code> e 1 com <code className="text-marca font-mono">cargo = 'Terceirizado'</code>) são excluídos globalmente de todas as análises, KPIs, gráficos e filtros do painel, resultando no universo analítico oficial de <strong>4.857 respondentes</strong>.
           </p>
           <p>
             • <strong>Normalização de Orientação Sexual (<code className="text-marca font-mono">SQL_ORIENTACAO_NORMALIZADA</code>):</strong> Variantes com grafia divergente ou autodeclarações equivalentes são consolidadas automaticamente (ex.: <code className="text-marca bg-marca-fundo/60 px-1 py-0.5 rounded">Demisexual</code> + <code className="text-marca bg-marca-fundo/60 px-1 py-0.5 rounded">Demissexual</code> → <strong>Demissexual</strong>; <code className="text-marca bg-marca-fundo/60 px-1 py-0.5 rounded">Hétero</code> / <code className="text-marca bg-marca-fundo/60 px-1 py-0.5 rounded">Normal</code> → <strong>Heterossexual</strong>; <code className="text-marca bg-marca-fundo/60 px-1 py-0.5 rounded">Panssexual</code> / <code className="text-marca bg-marca-fundo/60 px-1 py-0.5 rounded">Panromantica</code> → <strong>Pansexual</strong>; <code className="text-marca bg-marca-fundo/60 px-1 py-0.5 rounded">Bissexual</code> / <code className="text-marca bg-marca-fundo/60 px-1 py-0.5 rounded">Bi</code> → <strong>Bissexual</strong>).
           </p>
           <p>
-            • <strong>Classificação de Áreas STEM dos estudantes:</strong> Devido ao preenchimento textual livre do nome do curso pelo discente, um algoritmo determinístico de correspondência de termos agrupou as menções nas 8 Grandes Áreas do Conhecimento do CNPq (Engenharias e Tecnologia, Ciências Exatas e da Terra, Ciências Sociais Aplicadas, Ciências Agrárias, Ciências Humanas, Linguística, Letras e Artes, Ciências Biológicas e Ciências da Saúde). Após rigorosa auditoria metodológica e contextual (cruzando termos livres com Campus e Nível de Curso), apenas 8 respostas individuais (8 respondentes) permaneceram como "Não classificada" por informarem nível/modalidade de ensino ou respostas indeterminadas.
+            • <strong>Classificação de Áreas STEM dos/as estudantes:</strong> Devido ao preenchimento textual livre do nome do curso pelo discente, um algoritmo determinístico de correspondência de termos agrupou as menções nas 8 Grandes Áreas do Conhecimento do CNPq (Engenharias e Tecnologia, Ciências Exatas e da Terra, Ciências Sociais Aplicadas, Ciências Agrárias, Ciências Humanas, Linguística, Letras e Artes, Ciências Biológicas e Ciências da Saúde). Após rigorosa auditoria metodológica e contextual (cruzando termos livres com Campus e Nível de Curso), apenas 8 respostas individuais (8 respondentes) permaneceram como "Não classificada" por informarem nível/modalidade de ensino ou respostas indeterminadas.
           </p>
         </div>
 
@@ -360,7 +360,7 @@ export const PageMetodologia: React.FC = () => {
           <div className="bg-superficie-2 border border-borda rounded-lg p-3 space-y-1">
             <span className="font-bold text-marca">Base Analisada (Denominador)</span>
             <p className="text-texto-2">
-              Corresponde ao total de respondentes elegíveis para a questão (sem trabalhadores terceirizados). Perguntas exclusivas de servidores ou discentes usam suas bases específicas e não o total de 4.857. Nos gráficos por gênero, o denominador corresponde aos respondentes com gênero válido dentro das 6 categorias oficiais (até 4.790).
+              Corresponde ao total de respondentes elegíveis para a questão (sem trabalhadores/as terceirizados/as). Perguntas exclusivas de servidores/as ou discentes usam suas bases específicas e não o total de 4.857. Nos gráficos por gênero, o denominador corresponde aos/às respondentes com gênero válido dentro das 6 categorias oficiais (até 4.790).
             </p>
           </div>
           <div className="bg-superficie-2 border border-borda rounded-lg p-3 space-y-1">
@@ -408,7 +408,7 @@ export const PageMetodologia: React.FC = () => {
           <div className="bg-superficie-2 border border-borda rounded-lg p-3 space-y-1">
             <span className="font-bold text-marca">Seletores Padronizados Transversais</span>
             <p className="text-texto-2">
-              O painel disponibiliza seletores reutilizáveis em múltiplos gráficos: <strong>Segmento</strong> (Geral, Docente, Técnico TAE, Discentes — com versão restrita a servidores na Página 2), <strong>Gênero</strong> (6 categorias oficiais), <strong>Cor / Raça</strong> (6 opções), <strong>PCD</strong> (Sim / Não) e <strong>Idade</strong> (Menor: &lt;18 anos; Maior: ≥18 anos, classificada estritamente com base na autodeclaração de faixa etária).
+              O painel disponibiliza seletores reutilizáveis em múltiplos gráficos: <strong>Segmento</strong> (Geral, Docente, Técnico/a TAE, Discentes — com versão restrita a servidores/as na Página 2), <strong>Gênero</strong> (6 categorias oficiais), <strong>Cor / Raça</strong> (6 opções), <strong>PCD</strong> (Sim / Não) e <strong>Idade</strong> (Menor: &lt;18 anos; Maior: ≥18 anos, classificada estritamente com base na autodeclaração de faixa etária).
             </p>
           </div>
           <div className="bg-superficie-2 border border-borda rounded-lg p-3 space-y-1">
@@ -446,35 +446,35 @@ export const PageMetodologia: React.FC = () => {
           <div className="bg-superficie-2 border border-borda rounded-lg p-3.5 space-y-1.5">
             <h3 className="font-bold text-marca text-sm">Página 0 — Visão Geral</h3>
             <p className="text-texto-2 leading-relaxed">
-              Painel executivo com os principais indicadores institucionais: Total de Respondentes (4.857 em 18 unidades: 17 campi + Reitoria, sem terceirizados), Composição da Amostra (Discentes vs. Servidores), Ocorrência de Assédios e Violências, Índice de Convivência e Clima Institucional (em %), Conhecimento dos Canais de Denúncia, Efetividade dos Canais de Denúncia, Desencorajamento na Participação Acadêmica por Marcadores Sociais e Responsabilidade de Cuidado. Inclui o gráfico "Distribuição de Respondentes por Campus e Vínculo Institucional" com empilhamento de Discentes, Docentes, Técnicos TAEs, Docentes Substitutos e Vínculo/Cargo não informado, além de seletores dedicados de Gênero e Idade.
+              Painel executivo com os principais indicadores institucionais: Total de Respondentes (4.857 em 18 unidades: 17 campi + Reitoria, sem terceirizados), Composição da Amostra (Discentes vs. Servidores/as), Ocorrência de Assédios e Violências, Índice de Convivência e Clima Institucional (em %), Conhecimento dos Canais de Denúncia, Efetividade dos Canais de Denúncia, Desencorajamento na Participação Acadêmica por Marcadores Sociais e Responsabilidade de Cuidado. Inclui o gráfico "Distribuição de Respondentes por Campus e Vínculo Institucional" com empilhamento de Discentes, Docentes, Técnicos/as TAEs, Docentes Substitutos e Vínculo/Cargo não informado, além de seletores dedicados de Gênero e Idade.
             </p>
           </div>
 
           <div className="bg-superficie-2 border border-borda rounded-lg p-3.5 space-y-1.5">
             <h3 className="font-bold text-marca text-sm">Página 1 — Perfil Demográfico e Representatividade</h3>
             <p className="text-texto-2 leading-relaxed">
-              Mapeamento sociodemográfico com seletores padrão reutilizáveis de Segmento (Geral, Docente, Técnico TAE e Discente), Gênero (estritamente nas 6 categorias oficiais: Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binários), Cor / Raça (6 opções IBGE), Deficiência (PCD) e Idade (Menor e Maior) em todos os gráficos: Autodeclaração Étnico-Racial, Faixa Etária (com alinhamento visual de altura), Pessoas com Deficiência (PCD), Orientação Sexual e cartões de Diversidade de Shannon por unidade e segmento.
+              Mapeamento sociodemográfico com seletores padrão reutilizáveis de Segmento (Geral, Docente, Técnico/a TAE e Discente), Gênero (estritamente nas 6 categorias oficiais: Mulher, Homem, Mulher Trans, Homem Trans, Travesti e Não-binários), Cor / Raça (6 opções IBGE), Deficiência (PCD) e Idade (Menor e Maior) em todos os gráficos: Autodeclaração Étnico-Racial, Faixa Etária (com alinhamento visual de altura), Pessoas com Deficiência (PCD), Orientação Sexual e cartões de Diversidade de Shannon por unidade e segmento.
             </p>
           </div>
 
           <div className="bg-superficie-2 border border-borda rounded-lg p-3.5 space-y-1.5">
-            <h3 className="font-bold text-marca text-sm">Página 2 — Carreira, Progressão e Equidade Institucional (Servidores)</h3>
+            <h3 className="font-bold text-marca text-sm">Página 2 — Carreira, Progressão e Equidade Institucional (Servidores/as)</h3>
             <p className="text-texto-2 leading-relaxed">
-              Foco exclusivo em servidores docentes e técnicos (TAEs), com o seletor de segmento restrito exclusivamente a servidores (Geral, Docente, Técnico TAE — sem Discentes). Apresenta KPIs de liderança feminina e negra, Composição de Servidores por Cargo e Gênero, Tipologia de Função de Gestão (CD, FG, FCC), avaliação da Progressão por Mérito e Equidade no Acesso a Oportunidades e Bolsas. Apresenta o bloco unificado de Cruzamento: Responsabilidade de Cuidado × Deixou de se Candidatar à Gestão com seletores dedicados por Raça e Deficiência, exibindo a Taxa de Renúncia com Cuidado e tabela sincrônica.
+              Foco exclusivo em servidores/as docentes e técnicos/as (TAEs), com o seletor de segmento restrito exclusivamente a servidores/as (Geral, Docente, Técnico/a TAE — sem Discentes). Apresenta KPIs de liderança feminina e negra, Composição de Servidores/as por Cargo e Gênero, Tipologia de Função de Gestão (CD, FG, FCC), avaliação da Progressão por Mérito e Equidade no Acesso a Oportunidades e Bolsas. Apresenta o bloco unificado de Cruzamento: Responsabilidade de Cuidado × Deixou de se Candidatar à Gestão com seletores dedicados por Raça e Deficiência, exibindo a Taxa de Renúncia com Cuidado e tabela sincrônica.
             </p>
           </div>
 
           <div className="bg-superficie-2 border border-borda rounded-lg p-3.5 space-y-1.5">
             <h3 className="font-bold text-marca text-sm">Página 3 — Ambiente, Segurança e Violências</h3>
             <p className="text-texto-2 leading-relaxed">
-              Diagnóstico do clima institucional: Diagrama Divergente de Percepção do Clima Institucional (com tooltip acessível com mouse, códigos internos Q24a–f removidos e filtros por Segmento, Gênero, Raça e Idade), Índice de Convivência por campus, Percentual de Discriminação por Cor/Raça, Percentual de Discriminação por Gênero e Orientação (proporção que já sofreu LGBTfobia ou violência de gênero nas 6 categorias oficiais), Matriz Interseccional de Discriminação, Desencorajamento de Discentes por Vulnerabilidade e Funil de Conhecimento, Efetividade e Justiça dos Canais de Denúncia (com divisão de servidores em Docentes e Técnicos TAEs, filtros por Gênero e Raça e cálculo dinâmico da base de respondentes válidos).
+              Diagnóstico do clima institucional: Diagrama Divergente de Percepção do Clima Institucional (com tooltip acessível com mouse, códigos internos Q24a–f removidos e filtros por Segmento, Gênero, Raça e Idade), Índice de Convivência por campus, Percentual de Discriminação por Cor/Raça, Percentual de Discriminação por Gênero e Orientação (proporção que já sofreu LGBTfobia ou violência de gênero nas 6 categorias oficiais), Matriz Interseccional de Discriminação, Desencorajamento de Discentes por Vulnerabilidade e Funil de Conhecimento, Efetividade e Justiça dos Canais de Denúncia (com divisão de servidores/as em Docentes e Técnicos/as TAEs, filtros por Gênero e Raça e cálculo dinâmico da base de respondentes válidos).
             </p>
           </div>
 
           <div className="bg-superficie-2 border border-borda rounded-lg p-3.5 space-y-1.5">
             <h3 className="font-bold text-marca text-sm">Página 4 — Núcleos, Assessorias e Políticas</h3>
             <p className="text-texto-2 leading-relaxed">
-              Avaliação de desempenho dos núcleos de ações afirmativas (NAAFs, NEABIs, NEPGSs e Assessorias) e percepção de eficácia das campanhas e capacitações de diversidade. Apresenta o gráfico de Avaliação dos Núcleos e Assessorias Institucionais (com siglas e nomes oficiais: Assessoria de Ações Afirmativas, Inclusivas e Diversidade; Assessoria de Gênero e Sexualidade; Assessoria de Relações Étnico-raciais e filtro por Segmento), a Matriz Campus × Núcleo: Média de Qualidade (com sigla NEPGS corrigida e linha "Prefiro não responder" removida), Ranking de Desconhecimento dos Núcleos e Percepção sobre a Eficácia das Campanhas e Ações Formativas (com separação entre Docentes e Técnicos TAEs).
+              Avaliação de desempenho dos núcleos de ações afirmativas (NAAFs, NEABIs, NEPGSs e Assessorias) e percepção de eficácia das campanhas e capacitações de diversidade. Apresenta o gráfico de Avaliação dos Núcleos e Assessorias Institucionais (com siglas e nomes oficiais: Assessoria de Ações Afirmativas, Inclusivas e Diversidade; Assessoria de Gênero e Sexualidade; Assessoria de Relações Étnico-raciais e filtro por Segmento), a Matriz Campus × Núcleo: Média de Qualidade (com sigla NEPGS corrigida e linha "Prefiro não responder" removida), Ranking de Desconhecimento dos Núcleos e Percepção sobre a Eficácia das Campanhas e Ações Formativas (com separação entre Docentes e Técnicos/as TAEs).
             </p>
           </div>
 
@@ -493,14 +493,21 @@ export const PageMetodologia: React.FC = () => {
           </div>
 
           <div className="bg-superficie-2 border border-borda rounded-lg p-3.5 space-y-1.5">
-            <h3 className="font-bold text-marca text-sm">Página 7 — Construtor Dinâmico de Gráficos</h3>
+            <h3 className="font-bold text-marca text-sm">Página 7 — O que a comunidade contou</h3>
             <p className="text-texto-2 leading-relaxed">
-              Módulo de exploração aberta com validação metodológica de cruzamentos: seletores temáticos limpos de duplicidades, filtragem inteligente de compatibilidade entre o Eixo Principal e a Série de Cor (bloqueio de autocruzamentos, isolamento de universos de Discentes vs. Servidores e restrição de matrizes sem sentido entre perguntas avaliativas), 3 métricas robustas de tabulação cruzada (% no Grupo, % do Total Geral e Contagem Absoluta n), exclusão automática de registros nulos ("Sem resposta" espúrio) e visualizações em Barras Empilhadas 100%, Barras Agrupadas e Rosca, com exportação instantânea em CSV e persistência local de visões salvas.
+              Análise qualitativa das respostas abertas do formulário: temas mais frequentes, assuntos que aparecem em cada tema e trechos selecionados de falas de estudantes e servidores/as, revisados para preservar a identidade das pessoas participantes.
             </p>
           </div>
 
           <div className="bg-superficie-2 border border-borda rounded-lg p-3.5 space-y-1.5">
-            <h3 className="font-bold text-marca text-sm">Página 8 — Metodologia, Dicionário e Governança</h3>
+            <h3 className="font-bold text-marca text-sm">Página 8 — Construtor Dinâmico de Gráficos</h3>
+            <p className="text-texto-2 leading-relaxed">
+              Módulo de exploração aberta com validação metodológica de cruzamentos: seletores temáticos limpos de duplicidades, filtragem inteligente de compatibilidade entre o Eixo Principal e a Série de Cor (bloqueio de autocruzamentos, isolamento de universos de Discentes vs. Servidores/as e restrição de matrizes sem sentido entre perguntas avaliativas), 3 métricas robustas de tabulação cruzada (% no Grupo, % do Total Geral e Contagem Absoluta n), exclusão automática de registros nulos ("Sem resposta" espúrio) e visualizações em Barras Empilhadas 100%, Barras Agrupadas e Rosca, com exportação instantânea em CSV e persistência local de visões salvas.
+            </p>
+          </div>
+
+          <div className="bg-superficie-2 border border-borda rounded-lg p-3.5 space-y-1.5">
+            <h3 className="font-bold text-marca text-sm">Página 9 — Metodologia, Dicionário e Governança</h3>
             <p className="text-texto-2 leading-relaxed">
               Documentação institucional permanente com objetivos, marco referencial Athena Swan, Regra de Ouro das 6 categorias oficiais de gênero, glossário de siglas (NEPGS, NEABI, NAAF, Assessorias), catálogo dinâmico de variáveis do banco de dados e fórmulas matemáticas de todos os índices sintéticos.
             </p>
@@ -531,7 +538,7 @@ export const PageMetodologia: React.FC = () => {
               <span className="font-bold text-texto mt-1 block">Perfil</span>
             </div>
             <p className="text-texto-3 mt-2 text-xs">
-              Compreenda quem são os respondentes antes de examinar cruzamentos.
+              Compreenda quem são os/as respondentes antes de examinar cruzamentos.
             </p>
           </div>
 
@@ -541,7 +548,7 @@ export const PageMetodologia: React.FC = () => {
               <span className="font-bold text-texto mt-1 block">Abas Temáticas</span>
             </div>
             <p className="text-texto-3 mt-2 text-xs">
-              Explore carreira, violências, núcleos, parentalidade ou STEM conforme o foco.
+              Explore carreira, violências, núcleos, parentalidade, STEM e o que a comunidade contou, conforme o foco.
             </p>
           </div>
 
@@ -670,7 +677,7 @@ export const PageMetodologia: React.FC = () => {
               </tr>
               <tr className="hover:bg-realce transition-colors">
                 <td className="px-4 py-2.5 font-bold text-marca">TAE</td>
-                <td className="px-4 py-2.5 text-texto-2">Servidor Técnico-Administrativo em Educação da Carreira dos Cargos Técnico-Administrativos (PCCTAE)</td>
+                <td className="px-4 py-2.5 text-texto-2">Servidor/a Técnico-Administrativo em Educação da Carreira dos Cargos Técnico-Administrativos (PCCTAE)</td>
               </tr>
               <tr className="hover:bg-realce transition-colors">
                 <td className="px-4 py-2.5 font-bold text-marca">PGD</td>
@@ -705,7 +712,7 @@ export const PageMetodologia: React.FC = () => {
         </div>
         <div className="bg-superficie-2 border border-borda rounded-lg p-4 space-y-2 text-xs text-texto-2">
           <p>
-            • <strong>Realização:</strong> Assessoria de Gênero e Diversidade do Instituto Federal do Rio Grande do Sul (IFRS), em colaboração técnica com comissões de pesquisa e servidores da Reitoria e dos campi.
+            • <strong>Realização:</strong> Assessoria de Gênero e Diversidade do Instituto Federal do Rio Grande do Sul (IFRS), em colaboração técnica com comissões de pesquisa e servidores/as da Reitoria e dos campi.
           </p>
           <p>
             • <strong>Canal Oficial de Dúvidas, Sugestões ou Esclarecimentos Metodológicos:</strong>{' '}

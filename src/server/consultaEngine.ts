@@ -76,7 +76,7 @@ function expressaoCampoSql(campoKey: string): string {
         WHEN vinculo ILIKE '%Discente%' THEN 'Discentes'
         WHEN vinculo ILIKE '%Substituto%' THEN 'Docentes Substitutos'
         WHEN vinculo ILIKE '%Efetivo%' AND cargo ILIKE '%Docente%' THEN 'Docentes'
-        WHEN vinculo ILIKE '%Efetivo%' AND (cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%') THEN 'Técnicos TAEs'
+        WHEN vinculo ILIKE '%Efetivo%' AND (cargo ILIKE '%Técnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%') THEN 'Técnicos/as TAEs'
         WHEN vinculo = 'Prefiro não responder' THEN 'Prefiro não responder'
         ELSE NULL
       END

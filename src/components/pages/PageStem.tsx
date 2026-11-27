@@ -328,8 +328,10 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
       <div className="border-b border-borda pb-3">
         <h2 className="text-xl font-bold text-texto">6. STEM e Masculinização das Áreas do Conhecimento</h2>
         <p className="text-xs sm:text-sm text-texto-3 mt-0.5">
-          Análise da representatividade discente em Ciências Exatas, Engenharias e Computação (STEM) em comparação às
-          demais áreas do conhecimento, diversidade étnico-racial, deficiência e barreiras acadêmicas na formação.
+          STEM é a sigla em inglês para Ciência, Tecnologia, Engenharia e Matemática. Neste painel, o recorte reúne
+          Ciências Exatas, Engenharias e Computação. Analisamos a representatividade de estudantes nessas áreas em
+          comparação às demais, considerando a diversidade étnico-racial, a presença de pessoas com deficiência e as
+          barreiras acadêmicas na formação.
         </p>
       </div>
 
@@ -340,7 +342,7 @@ export const PageStem: React.FC<PageStemProps> = ({ dados, carregando }) => {
           valorPrincipal={`${desencorajamento.stem_pct ?? 0}%`}
           subvalor="estudantes em STEM"
           textoComplementar={`${formatarNumero(desencorajamento.stem_desencorajados ?? 187)} de ${formatarNumero(desencorajamento.stem_n)} discentes em Exatas e Tecnologia`}
-          notaMetodologica="Estudantes em cursos STEM que relataram ter sido desencorajados(as) a participar com frequência ou algumas vezes"
+          notaMetodologica="Estudantes em cursos STEM que relataram ter sido desencorajados/as a participar com frequência ou algumas vezes"
           icone={<AlertCircle className="w-5 h-5 text-alerta" />}
           corDestaque="amber"
         />

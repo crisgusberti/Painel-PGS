@@ -10,7 +10,7 @@ export type OpcaoSegmentoFiltro = 'geral' | 'docente' | 'tecnico_tae' | 'discent
 export const OPCOES_SEGMENTO_PADRAO: { id: OpcaoSegmentoFiltro; label: string }[] = [
   { id: 'geral', label: 'Geral' },
   { id: 'docente', label: 'Docente' },
-  { id: 'tecnico_tae', label: 'Técnico TAE' },
+  { id: 'tecnico_tae', label: 'Técnico/a TAE' },
   { id: 'discente', label: 'Discentes' },
 ];
 

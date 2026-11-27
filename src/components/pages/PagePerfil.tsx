@@ -232,7 +232,7 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
         <h2 className="text-xl font-bold text-texto">1. Perfil Demográfico e Representatividade</h2>
         <p className="text-xs sm:text-sm text-texto-3 mt-0.5">
           Caracterização sociodemográfica da comunidade do IFRS por identidade de gênero, autodeclaração
-          étnico-racial, orientação sexual, faixa etária e pessoas com deficiência, com filtro individual por segmento (Geral, Docente, Técnico TAE e Discente).
+          étnico-racial, orientação sexual, faixa etária e pessoas com deficiência, com filtro individual por segmento (Geral, Docente, Técnico/a TAE e Discente).
         </p>
       </div>
 
@@ -324,7 +324,7 @@ export const PagePerfil: React.FC<PagePerfilProps> = ({ dados, carregando }) => 
         <div className="@4xl:col-span-2 flex flex-col">
           <ChartCard
             titulo="Distribuição por Faixa Etária"
-            subtitulo="Estrutura etária dos respondentes"
+            subtitulo="Estrutura etária dos/as respondentes"
             n={totalFaixa}
             elementoCabecalho={
               <div className="flex items-center justify-between gap-2.5 flex-wrap w-full">

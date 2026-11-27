@@ -69,7 +69,7 @@ export const PageVisaoGeral: React.FC<PageVisaoGeralProps> = ({
     } else if (r.vinculo_simplificado === 'Docente') {
       campusTotals[c].docente += cnt;
       campusTotals[c].total += cnt;
-    } else if (r.vinculo_simplificado === 'Técnico TAE') {
+    } else if (r.vinculo_simplificado === 'Técnico/a TAE') {
       campusTotals[c].tecnico_tae += cnt;
       campusTotals[c].total += cnt;
     } else if (r.vinculo_simplificado === 'Docente Substituto') {
@@ -112,7 +112,7 @@ export const PageVisaoGeral: React.FC<PageVisaoGeralProps> = ({
       },
     },
     legend: {
-      data: ['Discentes', 'Docentes', 'Técnicos TAEs', 'Docentes Substitutos', 'Vínculo/Cargo não informado'],
+      data: ['Discentes', 'Docentes', 'Técnicos/as TAEs', 'Docentes Substitutos', 'Vínculo/Cargo não informado'],
       bottom: 0,
       textStyle: { fontSize: 13, color: '#2f3b35' },
     },
@@ -149,7 +149,7 @@ export const PageVisaoGeral: React.FC<PageVisaoGeralProps> = ({
         itemStyle: { color: PALETA_ACESSIVEL[1] },
       },
       {
-        name: 'Técnicos TAEs',
+        name: 'Técnicos/as TAEs',
         type: 'bar',
         stack: 'total',
         data: campusOrdenados.map((c) => c.tecnico_tae).reverse(),
@@ -191,7 +191,7 @@ export const PageVisaoGeral: React.FC<PageVisaoGeralProps> = ({
           valorPrincipal={formatarNumero(kpis.total_respondentes || 4857)}
           subvalor="respostas validadas"
           textoComplementar={`${kpis.unidades_validas || 18} unidades (17 Campi e Reitoria)`}
-          notaMetodologica={`Discentes: ${formatarPercentual(kpis.discentes?.pct)} (${formatarNumero(kpis.discentes?.n)}) • Servidores: ${formatarPercentual(kpis.servidores_total?.pct)} (${formatarNumero(kpis.servidores_total?.n)}). Não contabiliza 'Prefiro não responder' em unidades, nem terceirizados.`}
+          notaMetodologica={`Discentes: ${formatarPercentual(kpis.discentes?.pct)} (${formatarNumero(kpis.discentes?.n)}) • Servidores/as: ${formatarPercentual(kpis.servidores_total?.pct)} (${formatarNumero(kpis.servidores_total?.n)}). Não contabiliza 'Prefiro não responder' em unidades, nem terceirizados.`}
           icone={<Users className="w-5 h-5 text-texto-2" />}
           corDestaque="slate"
         />
@@ -202,7 +202,7 @@ export const PageVisaoGeral: React.FC<PageVisaoGeralProps> = ({
           valorPrincipal={formatarPercentual(kpis.discentes?.pct)}
           subvalor="estudantes"
           textoComplementar={`${formatarNumero(kpis.discentes?.n)} discentes de ${formatarNumero(kpis.total_respondentes)} respondentes`}
-          notaMetodologica={`Servidores: ${formatarPercentual(kpis.servidores_total?.pct)} (${formatarNumero(kpis.servidores_total?.n)} no total: ${formatarNumero(kpis.docentes_efetivos?.n)} docentes efetivos, ${formatarNumero(kpis.taes_efetivos?.n)} técnicos TAE e ${formatarNumero(kpis.docentes_substitutos?.n)} substitutos)`}
+          notaMetodologica={`Servidores/as: ${formatarPercentual(kpis.servidores_total?.pct)} (${formatarNumero(kpis.servidores_total?.n)} no total: ${formatarNumero(kpis.docentes_efetivos?.n)} docentes efetivos/as, ${formatarNumero(kpis.taes_efetivos?.n)} técnicos/as TAE e ${formatarNumero(kpis.docentes_substitutos?.n)} substitutos)`}
           icone={<GraduationCap className="w-5 h-5 text-info" />}
           corDestaque="blue"
           aoClicar={() => aoNavegarAba('perfil')}
@@ -217,7 +217,7 @@ export const PageVisaoGeral: React.FC<PageVisaoGeralProps> = ({
           textoComplementar={`${formatarNumero(kpis.taxa_vitimizacao?.n_sim)} de ${formatarNumero(kpis.total_respondentes)} pessoas relataram ocorrências`}
           notaMetodologica={`Relatos diretos de assédios, discriminações ou violências vivenciadas/presenciadas: ${formatarNumero(kpis.taxa_vitimizacao?.genero_sim)} por gênero/orientação e ${formatarNumero(kpis.taxa_vitimizacao?.raca_sim)} por raça/cor.`}
           icone={<AlertTriangle className="w-5 h-5 text-perigo" />}
-          corDestaque="rose"
+          corDestaque="emerald"
           aoClicar={() => aoNavegarAba('ambiente_violencias')}
           rotuloClique="Ver violências e clima"
         />
@@ -291,11 +291,11 @@ export const PageVisaoGeral: React.FC<PageVisaoGeralProps> = ({
         <KpiCard
           titulo="Desencorajamento na Participação Acadêmica por Gênero, Raça, Orientação Sexual ou Outras Características"
           valorPrincipal={formatarPercentual(kpis.desencorajado_estudantes?.pct)}
-          subvalor="dos estudantes"
+          subvalor="dos/as estudantes"
           textoComplementar={`${formatarNumero(kpis.desencorajado_estudantes?.n_sim)} de ${formatarNumero(kpis.desencorajado_estudantes?.n_base)} discentes relataram inibição`}
-          notaMetodologica="13% dos estudantes sentiram-se desencorajados a participar de pesquisa, extensão ou eventos acadêmicos por gênero, raça, orientação sexual ou outras características pessoais."
+          notaMetodologica="13% dos/as estudantes sentiram-se desencorajados/as a participar de pesquisa, extensão ou eventos acadêmicos por gênero, raça, orientação sexual ou outras características pessoais."
           icone={<GraduationCap className="w-5 h-5 text-alerta" />}
-          corDestaque="amber"
+          corDestaque="emerald"
           aoClicar={() => aoNavegarAba('stem')}
           rotuloClique="Ver recorte STEM"
         />
@@ -353,7 +353,7 @@ export const PageVisaoGeral: React.FC<PageVisaoGeralProps> = ({
             'Total',
             'Discentes',
             'Docentes',
-            'Técnicos TAEs',
+            'Técnicos/as TAEs',
             'Docentes Substitutos',
             'Vínculo/Cargo não informado',
           ],

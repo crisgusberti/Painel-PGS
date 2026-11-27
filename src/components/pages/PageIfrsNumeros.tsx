@@ -156,7 +156,7 @@ export const PageIfrsNumeros: React.FC = () => {
   // Quadro de servidores do IFRS por sexo (dados institucionais do SIG, fora do universo da pesquisa)
   const quadroServidores = [
     { categoria: 'Docentes', homens: 798, mulheres: 714 },
-    { categoria: 'Técnicos Administrativos', homens: 425, mulheres: 570 },
+    { categoria: 'Técnicos/as Administrativos/as', homens: 425, mulheres: 570 },
   ];
   const totalHomensServidores = quadroServidores.reduce((acc, c) => acc + c.homens, 0);
   const totalMulheresServidores = quadroServidores.reduce((acc, c) => acc + c.mulheres, 0);
@@ -480,8 +480,8 @@ export const PageIfrsNumeros: React.FC = () => {
           <h2 className="text-xl font-bold text-texto">O IFRS em Números</h2>
         </div>
         <p className="text-xs sm:text-sm text-texto-3 mt-1.5">
-          Esses são os números que dispomos no SIG (Sistema Integrado de Gestão) Oficial do IFRS. Nossa pesquisa
-          vai em busca de números e informações que não encontramos no sistema.
+          Abaixo estão os números atuais que dispomos no SIG (Sistema Integrado de Gestão) oficial do IFRS. Nossa
+          pesquisa foi em busca de números e informações que não encontramos no sistema.
         </p>
       </div>
 
@@ -508,7 +508,7 @@ export const PageIfrsNumeros: React.FC = () => {
             Esses registros também têm limites: a classificação "homem/mulher" disponível no SIG não contempla
             a diversidade de identidades de gênero abordada na pesquisa. Nosso levantamento adota uma
             perspectiva interseccional, considerando como gênero, raça, orientação sexual, deficiência e outras
-            características se articulam nas experiências de estudantes e servidores(as). Nas demais abas, as
+            características se articulam nas experiências de estudantes e servidores/as. Nas demais abas, as
             respostas das pessoas participantes ampliam esse retrato, trazendo informações e vivências que não
             constam nos cadastros administrativos.
           </p>
@@ -517,15 +517,15 @@ export const PageIfrsNumeros: React.FC = () => {
 
       {/* Painel: Quadro de Servidores do IFRS por Sexo */}
       <ChartCard
-        titulo="Quadro de servidores do IFRS por sexo registrado no SIG"
-        subtitulo="Docentes e Técnicos Administrativos, por sexo"
+        titulo="Quadro de servidores/as do IFRS por sexo registrado no SIG"
+        subtitulo="Docentes e Técnicos/as Administrativos/as, por sexo"
         n={totalGeralServidores}
         baseDescricao={`${formatarNumero(totalHomensServidores)} homens (${formatarPercentual((totalHomensServidores / totalGeralServidores) * 100)}) e ${formatarNumero(totalMulheresServidores)} mulheres (${formatarPercentual((totalMulheresServidores / totalGeralServidores) * 100)})`}
         infoTitulo="Sobre este painel"
         infoTooltip={
           <div className="space-y-1">
             <div>
-              Dados do SIG Oficial do IFRS (docentes e técnicos administrativos em efetivo exercício, novembro de
+              Dados do SIG Oficial do IFRS (docentes e técnicos/as administrativos/as em efetivo exercício, novembro de
               2026), e não do universo de respondentes da pesquisa.
             </div>
             <div>Cada barra é empilhada por sexo, exibindo a quantidade e o percentual de homens e mulheres dentro da própria categoria.</div>
@@ -586,7 +586,7 @@ export const PageIfrsNumeros: React.FC = () => {
       {/* Painel: Discentes Matriculados(as) por Campus, Nível e Sexo */}
       <ChartCard
         titulo="Discentes do IFRS por Campus e Sexo"
-        subtitulo={`Estudantes matriculados(as), por campus e sexo${rotuloNivelAtivo ? ` • Nível: ${rotuloNivelAtivo}` : ' • Todos os níveis de ensino'}`}
+        subtitulo={`Estudantes matriculados/as, por campus e sexo${rotuloNivelAtivo ? ` • Nível: ${rotuloNivelAtivo}` : ' • Todos os níveis de ensino'}`}
         n={nDiscentesFiltrado}
         baseDescricao={
           sexoDiscentes === 'todos'

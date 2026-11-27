@@ -157,7 +157,7 @@ var CATALOGO_CAMPOS = {
     escopo: "geral",
     papel: "perfil",
     permitirComoSerie: true,
-    descricao: "Segmento institucional no IFRS (Discentes, Docentes, T\xE9cnicos TAEs, Docentes Substitutos)."
+    descricao: "Segmento institucional no IFRS (Discentes, Docentes, T\xE9cnicos/as TAEs, Docentes Substitutos)."
   },
   genero: {
     key: "genero",
@@ -497,14 +497,14 @@ var CATALOGO_CAMPOS = {
   },
   evitou_candidatura_cuidado: {
     key: "evitou_candidatura_cuidado",
-    label: "Deixou de se Candidatar \xE0 Gest\xE3o por Cuidado (Servidores)",
+    label: "Deixou de se Candidatar \xE0 Gest\xE3o por Cuidado (Servidores/as)",
     tipo: "nominal",
     grupo: "cuidado",
     dinamico: true,
     escopo: "servidores",
     papel: "indicador",
     permitirComoSerie: true,
-    descricao: "Se o servidor j\xE1 deixou de pleitear cargo/fun\xE7\xE3o devido a demandas de cuidado."
+    descricao: "Se o/a servidor/a j\xE1 deixou de pleitear cargo/fun\xE7\xE3o devido a demandas de cuidado."
   },
   politica_apoio_cuidado: {
     key: "politica_apoio_cuidado",
@@ -553,25 +553,25 @@ var CATALOGO_CAMPOS = {
   // === Eixo 7: Carreira, Progressão e Gestão (Servidores) ===
   cargo: {
     key: "cargo",
-    label: "Cargo / Carreira do Servidor (Servidores)",
+    label: "Cargo / Carreira do/a Servidor/a (Servidores/as)",
     tipo: "nominal",
     grupo: "carreira",
     dinamico: true,
     escopo: "servidores",
     papel: "perfil",
     permitirComoSerie: true,
-    descricao: "Carreira e n\xEDvel do servidor efetivo (Docente, TAE N\xEDveis C, D, E)."
+    descricao: "Carreira e n\xEDvel do/a servidor/a efetivo/a (Docente, TAE N\xEDveis C, D, E)."
   },
   ocupa_cargo_gestao: {
     key: "ocupa_cargo_gestao",
-    label: "Ocupa Cargo de Gest\xE3o (Servidores)",
+    label: "Ocupa Cargo de Gest\xE3o (Servidores/as)",
     tipo: "binario_sim_nao",
     grupo: "carreira",
     dinamico: true,
     escopo: "servidores",
     papel: "perfil",
     permitirComoSerie: true,
-    descricao: "Declara\xE7\xE3o se o servidor ocupa cargo de dire\xE7\xE3o ou fun\xE7\xE3o gratificada/comissionada."
+    descricao: "Declara\xE7\xE3o se o/a servidor/a ocupa cargo de dire\xE7\xE3o ou fun\xE7\xE3o gratificada/comissionada."
   },
   funcao_gestao: {
     key: "funcao_gestao",
@@ -587,7 +587,7 @@ var CATALOGO_CAMPOS = {
   },
   adesao_pgd: {
     key: "adesao_pgd",
-    label: "Ades\xE3o ao PGD / Teletrabalho (Servidores)",
+    label: "Ades\xE3o ao PGD / Teletrabalho (Servidores/as)",
     tipo: "nominal",
     grupo: "carreira",
     dinamico: true,
@@ -598,7 +598,7 @@ var CATALOGO_CAMPOS = {
   },
   progressao_merito_nota: {
     key: "progressao_merito_nota",
-    label: "Percep\xE7\xE3o de Justi\xE7a na Progress\xE3o (Servidores)",
+    label: "Percep\xE7\xE3o de Justi\xE7a na Progress\xE3o (Servidores/as)",
     tipo: "numerico",
     grupo: "carreira",
     dinamico: true,
@@ -609,7 +609,7 @@ var CATALOGO_CAMPOS = {
   },
   acesso_oportunidades: {
     key: "acesso_oportunidades",
-    label: "Acesso Equitativo a Projetos e Bolsas (Servidores)",
+    label: "Acesso Equitativo a Projetos e Bolsas (Servidores/as)",
     tipo: "likert",
     grupo: "carreira",
     dinamico: true,
@@ -618,7 +618,7 @@ var CATALOGO_CAMPOS = {
     permitirComoSerie: true,
     escala: ESCALA_ACESSO_Q23,
     categoriasSemPontuacao: SEM_PONTUACAO_ACESSO_Q23,
-    descricao: "Percep\xE7\xE3o sobre equidade na distribui\xE7\xE3o de bolsas, projetos e editais entre servidores."
+    descricao: "Percep\xE7\xE3o sobre equidade na distribui\xE7\xE3o de bolsas, projetos e editais entre servidores/as."
   },
   // === Eixo 8: Estudantes e STEM ===
   nivel_curso: {
@@ -702,7 +702,7 @@ function expressaoCampoSql(campoKey) {
         WHEN vinculo ILIKE '%Discente%' THEN 'Discentes'
         WHEN vinculo ILIKE '%Substituto%' THEN 'Docentes Substitutos'
         WHEN vinculo ILIKE '%Efetivo%' AND cargo ILIKE '%Docente%' THEN 'Docentes'
-        WHEN vinculo ILIKE '%Efetivo%' AND (cargo ILIKE '%T\xE9cnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%') THEN 'T\xE9cnicos TAEs'
+        WHEN vinculo ILIKE '%Efetivo%' AND (cargo ILIKE '%T\xE9cnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%') THEN 'T\xE9cnicos/as TAEs'
         WHEN vinculo = 'Prefiro n\xE3o responder' THEN 'Prefiro n\xE3o responder'
         ELSE NULL
       END
@@ -1231,7 +1231,7 @@ async function obterKpisVisaoGeral(filtros) {
       CASE
         WHEN vinculo ILIKE '%Discente%' THEN 'Discente'
         WHEN vinculo ILIKE '%Efetivo%' AND cargo ILIKE '%Docente%' THEN 'Docente'
-        WHEN vinculo ILIKE '%Efetivo%' AND (cargo ILIKE '%T\xE9cnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%') THEN 'T\xE9cnico TAE'
+        WHEN vinculo ILIKE '%Efetivo%' AND (cargo ILIKE '%T\xE9cnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%') THEN 'T\xE9cnico/a TAE'
         WHEN vinculo ILIKE '%Substituto%' THEN 'Docente Substituto'
         ELSE 'Prefiro n\xE3o responder'
       END as vinculo_simplificado,
@@ -1635,7 +1635,7 @@ async function obterDadosAmbienteViolencias(filtros) {
       CASE
         WHEN vinculo ILIKE '%Discente%' THEN 'Discentes'
         WHEN vinculo ILIKE '%Efetivo%' AND cargo ILIKE '%Docente%' THEN 'Docentes'
-        WHEN vinculo ILIKE '%Efetivo%' AND (cargo ILIKE '%T\xE9cnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%') THEN 'T\xE9cnicos TAEs'
+        WHEN vinculo ILIKE '%Efetivo%' AND (cargo ILIKE '%T\xE9cnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%') THEN 'T\xE9cnicos/as TAEs'
         WHEN vinculo ILIKE '%Substituto%' THEN 'Docentes Substitutos'
         ELSE 'Outro'
       END as vinculo_grp,
@@ -1738,7 +1738,7 @@ async function obterDadosNucleos(filtros) {
       CASE
         WHEN vinculo ILIKE '%Discente%' THEN 'Discentes'
         WHEN vinculo ILIKE '%Efetivo%' AND cargo ILIKE '%Docente%' THEN 'Docentes'
-        WHEN vinculo ILIKE '%Efetivo%' AND (cargo ILIKE '%T\xE9cnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%') THEN 'T\xE9cnicos TAEs'
+        WHEN vinculo ILIKE '%Efetivo%' AND (cargo ILIKE '%T\xE9cnico%' OR cargo ILIKE '%Administrativo%' OR cargo ILIKE '%TAE%') THEN 'T\xE9cnicos/as TAEs'
         WHEN vinculo ILIKE '%Substituto%' THEN 'Docentes Substitutos'
         ELSE 'Outro'
       END as vinculo_grp,
